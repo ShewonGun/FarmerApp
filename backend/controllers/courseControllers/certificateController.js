@@ -1,273 +1,14 @@
 import Certificate from "../../models/course/Certificate.js";
 import Course from "../../models/course/Course.js";
 import User from "../../models/user/User.js";
-import Lesson from "../../models/course/Lesson.js";
-import Quiz from "../../models/course/Quiz.js";
 import Enroll from "../../models/course/Enroll.js";
 import mongoose from "mongoose";
-import puppeteer from "puppeteer";
+import PDFDocument from "pdfkit";
 import cloudinary from "../../config/cloudinary.js";
-import fs from "fs";
-import path from "path";
+import { Readable } from "stream";
 
-// Generate certificate HTML template
-const generateCertificateHTML = (userName, courseName, completionDate, certificateNumber, averageScore) => {
-    return `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Certificate</title>
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-            
-            body {
-                width: 1056px;
-                height: 816px;
-                font-family: 'Georgia', 'Times New Roman', serif;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                padding: 20px;
-            }
-            
-            .certificate-container {
-                width: 1000px;
-                height: 750px;
-                background: white;
-                border: 20px solid #f0e68c;
-                box-shadow: 
-                    0 0 0 5px #d4af37,
-                    0 20px 60px rgba(0, 0, 0, 0.3),
-                    inset 0 0 40px rgba(212, 175, 55, 0.1);
-                position: relative;
-                padding: 60px 80px;
-            }
-            
-            .certificate-header {
-                text-align: center;
-                margin-bottom: 40px;
-            }
-            
-            .certificate-title {
-                font-size: 48px;
-                color: #2c3e50;
-                font-weight: bold;
-                letter-spacing: 3px;
-                text-transform: uppercase;
-                margin-bottom: 10px;
-                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-            }
-            
-            .certificate-subtitle {
-                font-size: 20px;
-                color: #7f8c8d;
-                letter-spacing: 2px;
-                text-transform: uppercase;
-            }
-            
-            .certificate-body {
-                text-align: center;
-                margin: 50px 0;
-            }
-            
-            .awarded-to {
-                font-size: 18px;
-                color: #7f8c8d;
-                margin-bottom: 20px;
-                letter-spacing: 1px;
-            }
-            
-            .recipient-name {
-                font-size: 56px;
-                color: #2c3e50;
-                font-weight: bold;
-                margin: 20px 0;
-                padding: 20px;
-                border-bottom: 3px solid #d4af37;
-                display: inline-block;
-                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.05);
-            }
-            
-            .achievement-text {
-                font-size: 20px;
-                color: #34495e;
-                line-height: 1.8;
-                margin: 30px auto;
-                max-width: 700px;
-            }
-            
-            .course-name {
-                font-weight: bold;
-                color: #667eea;
-                font-size: 24px;
-            }
-            
-            .score-section {
-                margin: 30px 0;
-                font-size: 18px;
-                color: #27ae60;
-                font-weight: bold;
-            }
-            
-            .certificate-footer {
-                display: flex;
-                justify-content: space-between;
-                margin-top: 60px;
-                padding-top: 30px;
-                border-top: 2px solid #ecf0f1;
-            }
-            
-            .footer-item {
-                text-align: center;
-                flex: 1;
-            }
-            
-            .footer-label {
-                font-size: 14px;
-                color: #7f8c8d;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-                margin-bottom: 10px;
-            }
-            
-            .footer-value {
-                font-size: 18px;
-                color: #2c3e50;
-                font-weight: bold;
-            }
-            
-            .signature-line {
-                border-top: 2px solid #2c3e50;
-                width: 200px;
-                margin: 0 auto 10px;
-            }
-            
-            .decorative-corner {
-                position: absolute;
-                width: 100px;
-                height: 100px;
-            }
-            
-            .top-left {
-                top: 40px;
-                left: 40px;
-                border-top: 5px solid #d4af37;
-                border-left: 5px solid #d4af37;
-            }
-            
-            .top-right {
-                top: 40px;
-                right: 40px;
-                border-top: 5px solid #d4af37;
-                border-right: 5px solid #d4af37;
-            }
-            
-            .bottom-left {
-                bottom: 40px;
-                left: 40px;
-                border-bottom: 5px solid #d4af37;
-                border-left: 5px solid #d4af37;
-            }
-            
-            .bottom-right {
-                bottom: 40px;
-                right: 40px;
-                border-bottom: 5px solid #d4af37;
-                border-right: 5px solid #d4af37;
-            }
-            
-            .seal {
-                position: absolute;
-                bottom: 60px;
-                right: 100px;
-                width: 100px;
-                height: 100px;
-                border: 5px solid #d4af37;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                font-size: 12px;
-                font-weight: bold;
-                text-align: center;
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            }
-        </style>
-    </head>
-    <body>
-        <div class="certificate-container">
-            <div class="decorative-corner top-left"></div>
-            <div class="decorative-corner top-right"></div>
-            <div class="decorative-corner bottom-left"></div>
-            <div class="decorative-corner bottom-right"></div>
-            
-            <div class="certificate-header">
-                <div class="certificate-title">Certificate</div>
-                <div class="certificate-subtitle">Of Achievement</div>
-            </div>
-            
-            <div class="certificate-body">
-                <div class="awarded-to">This certificate is proudly presented to</div>
-                
-                <div class="recipient-name">${userName}</div>
-                
-                <div class="achievement-text">
-                    For successfully completing the course
-                    <br>
-                    <span class="course-name">${courseName}</span>
-                    <br>
-                    with dedication and excellence
-                </div>
-                
-                <div class="score-section">
-                    Average Score: ${averageScore}%
-                </div>
-            </div>
-            
-            <div class="certificate-footer">
-                <div class="footer-item">
-                    <div class="footer-label">Certificate Number</div>
-                    <div class="footer-value">${certificateNumber}</div>
-                </div>
-                
-                <div class="footer-item">
-                    <div class="footer-label">Completion Date</div>
-                    <div class="footer-value">${new Date(completionDate).toLocaleDateString('en-US', { 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
-                    })}</div>
-                </div>
-                
-                <div class="footer-item">
-                    <div class="signature-line"></div>
-                    <div class="footer-label">Authorized Signature</div>
-                </div>
-            </div>
-            
-            <div class="seal">
-                VERIFIED<br>CERTIFICATE
-            </div>
-        </div>
-    </body>
-    </html>
-    `;
-};
-
-// Generate Certificate
+// Generate Professional Certificate
 export const generateCertificate = async (req, res) => {
-    let browser;
-    let tempFilePath;
-    
     try {
         const { userId, courseId } = req.params;
         
@@ -288,22 +29,22 @@ export const generateCertificate = async (req, res) => {
             return res.status(404).json({ success: false, message: "Course not found" });
         }
         
-        // Check if user is enrolled and get enrollment data
-        const enrollment = await Enroll.findOne({ user: userId, course: courseId })
-            .populate('completedLessons', 'title');
+        // Check if user is enrolled
+        const enrollment = await Enroll.findOne({ user: userId, course: courseId });
         if (!enrollment) {
             return res.status(404).json({ success: false, message: "User is not enrolled in this course" });
         }
         
-        // Check if user has completed the course (optional validation)
-        // You can uncomment this if you want to require course completion before certificate generation
-        // if (enrollment.progress < 100) {
-        //     return res.status(400).json({ 
-        //         success: false, 
-        //         message: "User has not completed the course yet",
-        //         progress: enrollment.progress
-        //     });
-        // }
+        // Check if course is completed
+        if (!enrollment.completedAt) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Cannot generate certificate. You must complete all lessons and pass all quizzes first. Use the mark course as completed endpoint.",
+                progress: enrollment.progress,
+                completedLessons: enrollment.completedLessons.length,
+                completedQuizzes: enrollment.completedQuizzes.length
+            });
+        }
         
         // Check if certificate already exists
         const existingCertificate = await Certificate.findOne({ user: userId, course: courseId });
@@ -315,87 +56,350 @@ export const generateCertificate = async (req, res) => {
             });
         }
         
-        // Get all lessons with quizzes in the course
-        const lessonsWithQuizzes = await Lesson.find({ 
-            course: courseId, 
-            isQuizAvailable: true 
-        });
-        
-        if (lessonsWithQuizzes.length === 0) {
-            return res.status(400).json({ 
-                success: false, 
-                message: "This course has no quizzes to complete" 
-            });
-        }
-        
-        // Get all quizzes for these lessons
-        const quizzes = await Quiz.find({ 
-            lesson: { $in: lessonsWithQuizzes.map(l => l._id) } 
-        });
-        
-        // TODO: Check if user completed all quizzes with passing scores
-        // This would require a QuizAttempt or QuizResult model to track user's quiz scores
-        // For now, we'll assume the user completed all quizzes
-        
-        const averageScore = 85; // TODO: Calculate from quiz attempts
-        const completionDate = new Date();
-        
-        // Generate unique certificate number
-        const year = new Date().getFullYear();
+        // Generate certificate data
+        const averageScore = enrollment.averageScore || 0;
+        const completionDate = enrollment.completedAt;
+        const year = completionDate.getFullYear();
         const random = Math.random().toString(36).substring(2, 8).toUpperCase();
         const certificateNumber = `CERT-${year}-${random}`;
         
-        // Generate HTML
-        const html = generateCertificateHTML(
-            user.name || user.username || "Student",
-            course.title,
-            completionDate,
-            certificateNumber,
-            averageScore
-        );
-        
-        // Launch puppeteer and generate PDF
-        browser = await puppeteer.launch({
-            headless: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
+        // Create PDF document
+        const doc = new PDFDocument({
+            size: 'A4',
+            layout: 'landscape',
+            margins: { top: 40, bottom: 40, left: 40, right: 40 }
         });
         
-        const page = await browser.newPage();
-        await page.setContent(html, { waitUntil: 'networkidle0' });
+        // Collect PDF chunks in memory
+        const chunks = [];
+        doc.on('data', (chunk) => chunks.push(chunk));
         
-        // Create temp directory if it doesn't exist
-        const tempDir = path.join(process.cwd(), 'temp');
-        if (!fs.existsSync(tempDir)) {
-            fs.mkdirSync(tempDir, { recursive: true });
+        // Create promise for PDF completion
+        const pdfPromise = new Promise((resolve, reject) => {
+            doc.on('end', () => {
+                const pdfBuffer = Buffer.concat(chunks);
+                resolve(pdfBuffer);
+            });
+            doc.on('error', reject);
+            setTimeout(() => reject(new Error('PDF generation timeout')), 30000);
+        });
+        
+        // Page dimensions
+        const pageWidth = doc.page.width;
+        const pageHeight = doc.page.height;
+        const centerX = pageWidth / 2;
+        
+        // Color scheme - Professional blue and gold
+        const primaryColor = '#1a237e';    // Deep blue
+        const accentColor = '#ffd700';     // Gold
+        const textColor = '#2c3e50';       // Dark gray
+        const lightGray = '#ecf0f1';
+        
+        // ============================
+        // BACKGROUND & BORDER
+        // ============================
+        
+        // Light background
+        doc.rect(0, 0, pageWidth, pageHeight)
+           .fill(lightGray);
+        
+        // Outer border - Gold
+        doc.rect(25, 25, pageWidth - 50, pageHeight - 50)
+           .lineWidth(8)
+           .strokeColor(accentColor)
+           .stroke();
+        
+        // Inner border - Blue
+        doc.rect(35, 35, pageWidth - 70, pageHeight - 70)
+           .lineWidth(2)
+           .strokeColor(primaryColor)
+           .stroke();
+        
+        // Decorative corner elements
+        const cornerSize = 40;
+        const cornerOffset = 45;
+        
+        // Top-left corner
+        doc.moveTo(cornerOffset, cornerOffset + cornerSize)
+           .lineTo(cornerOffset, cornerOffset)
+           .lineTo(cornerOffset + cornerSize, cornerOffset)
+           .lineWidth(3)
+           .strokeColor(accentColor)
+           .stroke();
+        
+        // Top-right corner
+        doc.moveTo(pageWidth - cornerOffset - cornerSize, cornerOffset)
+           .lineTo(pageWidth - cornerOffset, cornerOffset)
+           .lineTo(pageWidth - cornerOffset, cornerOffset + cornerSize)
+           .lineWidth(3)
+           .strokeColor(accentColor)
+           .stroke();
+        
+        // Bottom-left corner
+        doc.moveTo(cornerOffset, pageHeight - cornerOffset - cornerSize)
+           .lineTo(cornerOffset, pageHeight - cornerOffset)
+           .lineTo(cornerOffset + cornerSize, pageHeight - cornerOffset)
+           .lineWidth(3)
+           .strokeColor(accentColor)
+           .stroke();
+        
+        // Bottom-right corner
+        doc.moveTo(pageWidth - cornerOffset - cornerSize, pageHeight - cornerOffset)
+           .lineTo(pageWidth - cornerOffset, pageHeight - cornerOffset)
+           .lineTo(pageWidth - cornerOffset, pageHeight - cornerOffset - cornerSize)
+           .lineWidth(3)
+           .strokeColor(accentColor)
+           .stroke();
+        
+        
+        // Organization/Platform name
+        doc.fontSize(14)
+           .fillColor(primaryColor)
+           .font('Helvetica-Bold')
+           .text('LEARNING MANAGEMENT SYSTEM', 0, 65, {
+               align: 'center',
+               width: pageWidth
+           });
+        
+        // Certificate title
+        doc.fontSize(52)
+           .fillColor(primaryColor)
+           .font('Helvetica-Bold')
+           .text('CERTIFICATE', 0, 105, {
+               align: 'center',
+               width: pageWidth
+           });
+        
+        doc.fontSize(24)
+           .fillColor(accentColor)
+           .font('Helvetica-Bold')
+           .text('OF COMPLETION', 0, 165, {
+               align: 'center',
+               width: pageWidth
+           });
+        
+        // Decorative line under title
+        doc.moveTo(centerX - 120, 200)
+           .lineTo(centerX + 120, 200)
+           .lineWidth(3)
+           .strokeColor(accentColor)
+           .stroke();
+        
+        // MAIN CONTENT
+        
+        doc.fontSize(14)
+           .fillColor(textColor)
+           .font('Helvetica')
+           .text('This is proudly presented to', 0, 230, {
+               align: 'center',
+               width: pageWidth
+           });
+        
+        // Student name - Large and prominent
+        const userName = user.name || user.username || "Student";
+        doc.fontSize(36)
+           .fillColor(primaryColor)
+           .font('Helvetica-Bold')
+           .text(userName, 0, 265, {
+               align: 'center',
+               width: pageWidth
+           });
+        
+        // Underline for name
+        const nameWidth = doc.widthOfString(userName);
+        const nameUnderlineY = 308;
+        doc.moveTo(centerX - (nameWidth / 2) - 20, nameUnderlineY)
+           .lineTo(centerX + (nameWidth / 2) + 20, nameUnderlineY)
+           .lineWidth(2)
+           .strokeColor(accentColor)
+           .stroke();
+        
+        // Achievement text
+        doc.fontSize(14)
+           .fillColor(textColor)
+           .font('Helvetica')
+           .text('for successfully completing the course', 0, 330, {
+               align: 'center',
+               width: pageWidth
+           });
+        
+        // Course name - Prominent
+        doc.fontSize(26)
+           .fillColor(primaryColor)
+           .font('Helvetica-Bold')
+           .text(course.title, 60, 365, {
+               align: 'center',
+               width: pageWidth - 120
+           });
+        
+        // DETAILS SECTION        
+        const detailsY = 425;
+        const leftColumnX = 150;
+        const rightColumnX = pageWidth - 250;
+        
+        // Left column - Score
+        doc.fontSize(11)
+           .fillColor(textColor)
+           .font('Helvetica')
+           .text('SCORE', leftColumnX, detailsY, {
+               width: 200,
+               align: 'center'
+           });
+        
+        doc.fontSize(20)
+           .fillColor(primaryColor)
+           .font('Helvetica-Bold')
+           .text(`${averageScore}%`, leftColumnX, detailsY + 20, {
+               width: 200,
+               align: 'center'
+           });
+        
+        // Right column - Date
+        doc.fontSize(11)
+           .fillColor(textColor)
+           .font('Helvetica')
+           .text('COMPLETION DATE', rightColumnX - 50, detailsY, {
+               width: 200,
+               align: 'center'
+           });
+        
+        doc.fontSize(16)
+           .fillColor(primaryColor)
+           .font('Helvetica-Bold')
+           .text(completionDate.toLocaleDateString('en-US', { 
+               year: 'numeric', 
+               month: 'long', 
+               day: 'numeric' 
+           }), rightColumnX - 50, detailsY + 20, {
+               width: 200,
+               align: 'center'
+           });
+        
+        // SIGNATURE SECTION
+        
+        const signatureY = pageHeight - 130;
+        const signatureLeftX = 180;
+        const signatureRightX = pageWidth - 280;
+        
+        // Left signature line
+        doc.moveTo(signatureLeftX, signatureY)
+           .lineTo(signatureLeftX + 150, signatureY)
+           .lineWidth(1)
+           .strokeColor(textColor)
+           .stroke();
+        
+        doc.fontSize(10)
+           .fillColor(textColor)
+           .font('Helvetica-Bold')
+           .text('Director', signatureLeftX, signatureY + 8, {
+               width: 150,
+               align: 'center'
+           });
+        
+        doc.fontSize(9)
+           .font('Helvetica')
+           .text('Learning Management System', signatureLeftX, signatureY + 24, {
+               width: 150,
+               align: 'center'
+           });
+        
+        // Right signature line
+        doc.moveTo(signatureRightX, signatureY)
+           .lineTo(signatureRightX + 150, signatureY)
+           .lineWidth(1)
+           .strokeColor(textColor)
+           .stroke();
+        
+        doc.fontSize(10)
+           .fillColor(textColor)
+           .font('Helvetica-Bold')
+           .text('Course Instructor', signatureRightX, signatureY + 8, {
+               width: 150,
+               align: 'center'
+           });
+        
+        doc.fontSize(9)
+           .font('Helvetica')
+           .text(course.instructor || 'Instructor Name', signatureRightX, signatureY + 24, {
+               width: 150,
+               align: 'center'
+           });
+   
+        // FOOTER        
+        doc.fontSize(9)
+           .fillColor('#7f8c8d')
+           .font('Helvetica')
+           .text(`Certificate ID: ${certificateNumber}`, 0, pageHeight - 55, {
+               align: 'center',
+               width: pageWidth
+           });
+        
+        // Decorative seal/badge (optional - simple circle)
+        const sealX = centerX;
+        const sealY = pageHeight - 100;
+        const sealRadius = 35;
+        
+        // Outer circle - Gold
+        doc.circle(sealX, sealY, sealRadius)
+           .lineWidth(3)
+           .strokeColor(accentColor)
+           .stroke();
+        
+        // Inner circle - Blue
+        doc.circle(sealX, sealY, sealRadius - 8)
+           .lineWidth(2)
+           .strokeColor(primaryColor)
+           .stroke();
+        
+        // Seal text
+        doc.fontSize(9)
+           .fillColor(primaryColor)
+           .font('Helvetica-Bold')
+           .text('VERIFIED', sealX - 30, sealY - 20, {
+               width: 60,
+               align: 'center'
+           });
+        
+        doc.fontSize(7)
+           .fillColor(primaryColor)
+           .font('Helvetica')
+           .text(year.toString(), sealX - 30, sealY - 5, {
+               width: 60,
+               align: 'center'
+           });
+        
+        // Finalize PDF
+        doc.end();
+        
+        // Wait for PDF buffer
+        const pdfBuffer = await pdfPromise;
+        
+        if (!pdfBuffer || pdfBuffer.length === 0) {
+            throw new Error("Generated PDF is empty");
         }
-        
-        // Generate PDF to temp file
-        tempFilePath = path.join(tempDir, `certificate-${certificateNumber}.pdf`);
-        await page.pdf({
-            path: tempFilePath,
-            format: 'A4',
-            landscape: true,
-            printBackground: true,
-            margin: { top: 0, right: 0, bottom: 0, left: 0 }
-        });
-        
-        await browser.close();
-        browser = null;
         
         // Upload to Cloudinary
-        const uploadResult = await cloudinary.uploader.upload(tempFilePath, {
-            folder: 'certificates',
-            resource_type: 'raw',
-            public_id: certificateNumber,
-            format: 'pdf'
+        const uploadResult = await new Promise((resolve, reject) => {
+            const uploadStream = cloudinary.uploader.upload_stream(
+                {
+                    folder: 'certificates',
+                    resource_type: 'raw',
+                    public_id: certificateNumber,
+                    format: 'pdf'
+                },
+                (error, result) => {
+                    if (error) reject(error);
+                    else resolve(result);
+                }
+            );
+            
+            const bufferStream = new Readable();
+            bufferStream.push(pdfBuffer);
+            bufferStream.push(null);
+            bufferStream.pipe(uploadStream);
         });
         
-        // Delete temp file
-        if (fs.existsSync(tempFilePath)) {
-            fs.unlinkSync(tempFilePath);
-        }
-        
-        // Create certificate record
+        // Save certificate to database
         const certificate = new Certificate({
             user: userId,
             course: courseId,
@@ -405,24 +409,20 @@ export const generateCertificate = async (req, res) => {
             completionDate,
             averageScore
         });
+        
         await certificate.save();
         
-        res.status(201).json({
+        return res.status(201).json({
             success: true,
             message: "Certificate generated successfully",
             certificate
         });
         
     } catch (error) {
-        // Cleanup
-        if (browser) {
-            await browser.close();
-        }
-        if (tempFilePath && fs.existsSync(tempFilePath)) {
-            fs.unlinkSync(tempFilePath);
-        }
-        
-        res.status(500).json({ success: false, message: error.message });
+        return res.status(500).json({ 
+            success: false, 
+            message: error.message
+        });
     }
 };
 
@@ -431,7 +431,6 @@ export const getCertificate = async (req, res) => {
     try {
         const { userId, courseId } = req.params;
         
-        // Validate IDs
         if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(courseId)) {
             return res.status(400).json({ success: false, message: "Invalid user or course ID" });
         }
@@ -444,12 +443,12 @@ export const getCertificate = async (req, res) => {
             return res.status(404).json({ success: false, message: "Certificate not found" });
         }
         
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             certificate
         });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        return res.status(500).json({ success: false, message: error.message });
     }
 };
 
@@ -458,7 +457,6 @@ export const getUserCertificates = async (req, res) => {
     try {
         const { userId } = req.params;
         
-        // Validate ID
         if (!mongoose.Types.ObjectId.isValid(userId)) {
             return res.status(400).json({ success: false, message: "Invalid user ID" });
         }
@@ -467,12 +465,46 @@ export const getUserCertificates = async (req, res) => {
             .populate('course', 'title description')
             .sort({ issueDate: -1 });
         
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             count: certificates.length,
             certificates
         });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// Verify certificate by certificate number
+export const verifyCertificate = async (req, res) => {
+    try {
+        const { certificateNumber } = req.params;
+        
+        const certificate = await Certificate.findOne({ certificateNumber })
+            .populate('user', 'name username')
+            .populate('course', 'title');
+        
+        if (!certificate) {
+            return res.status(404).json({ 
+                success: false, 
+                message: "Certificate not found",
+                isValid: false
+            });
+        }
+        
+        return res.status(200).json({
+            success: true,
+            isValid: true,
+            certificate: {
+                certificateNumber: certificate.certificateNumber,
+                studentName: certificate.user.name || certificate.user.username,
+                courseName: certificate.course.title,
+                issueDate: certificate.issueDate,
+                completionDate: certificate.completionDate,
+                averageScore: certificate.averageScore
+            }
+        });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
     }
 };

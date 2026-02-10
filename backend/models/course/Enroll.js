@@ -5,6 +5,8 @@ const enrollSchema = new mongoose.Schema({
     course: { type: mongoose.Schema.Types.ObjectId, ref: "Course", required: true },
     progress: { type: Number, default: 0, min: 0, max: 100 },
     completedLessons: [{ type: mongoose.Schema.Types.ObjectId, ref: "Lesson" }],
+    completedQuizzes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Quiz" }],
+    averageScore: { type: Number, default: 0 },
     enrolledAt: { type: Date, default: Date.now },
     completedAt: { type: Date }
 }, { timestamps: true });

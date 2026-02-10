@@ -8,7 +8,8 @@ import {
     enrollUserInCourse,
     getUserEnrollments,
     checkEnrollment,
-    markLessonCompleted
+    markLessonCompleted,
+    markCourseAsCompleted
 } from "../../controllers/courseControllers/courseController.js";
 
 const router = express.Router();
@@ -25,5 +26,6 @@ router.post("/:userId/course/:courseId/enroll", enrollUserInCourse);
 router.get("/:userId/enrollments", getUserEnrollments);
 router.get("/:userId/course/:courseId/check-enrollment", checkEnrollment);
 router.put("/:userId/course/:courseId/lesson/:lessonId/complete", markLessonCompleted);
+router.put("/:userId/course/:courseId/complete", markCourseAsCompleted);
 
 export default router;

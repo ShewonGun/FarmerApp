@@ -5,6 +5,8 @@ import connectDB from "./config/db.js";
 import courseRoutes from "./routes/courseRoutes/courseRoutes.js"; 
 import lessonRoutes from "./routes/courseRoutes/lessonRoutes.js";
 import quizRoutes from "./routes/courseRoutes/quizRoutes.js";
+import questionRoutes from "./routes/courseRoutes/questionRoutes.js";
+import progressRoutes from "./routes/courseRoutes/progressRoutes.js";
 import userRoutes from "./routes/userRoutes/userRoutes.js";
 import certificateRoutes from "./routes/courseRoutes/certifcateRoutes.js";
 
@@ -16,8 +18,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-
-
 app.get("/", (req, res) => {
   res.send("API working");
 });
@@ -27,6 +27,8 @@ app.use("/api", userRoutes);
 app.use("/api", lessonRoutes);
 app.use("/api", courseRoutes);
 app.use("/api", quizRoutes);
+app.use("/api", questionRoutes);
+app.use("/api", progressRoutes);
 app.use("/api", certificateRoutes);
 
 const PORT = process.env.PORT || 5000;
