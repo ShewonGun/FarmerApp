@@ -11,21 +11,22 @@ import {
     markLessonCompleted,
     markCourseAsCompleted
 } from "../../controllers/courseControllers/courseController.js";
+import { authenticate, adminOnly, isSelfOrAdmin } from "../../middlewares/protect.js";
 
 const router = express.Router();
 
-// Course routes
-router.post("/addCourse", addCourse);
-router.get("/course", getAllCourses);
-router.get("/course/:id", getCourseById);
-router.put("/course/:id", updateCourse);
-router.delete("/course/:id", deleteCourse);
+// Course routes - Admin only for create, update, delete
+router.post("/addCourse", authenticate, adminOnly, addCourse);
+router.get("/course", authenticate, getAllCourses);
+router.get("/course/:id", authenticate, getCourseById);
+router.put("/course/:id", authenticate, adminOnly, updateCourse);
+router.delete("/course/:id", authenticate, adminOnly, deleteCourse);
 
-// Enrollment routes
-router.post("/:userId/course/:courseId/enroll", enrollUserInCourse);
-router.get("/:userId/enrollments", getUserEnrollments);
-router.get("/:userId/course/:courseId/check-enrollment", checkEnrollment);
-router.put("/:userId/course/:courseId/lesson/:lessonId/complete", markLessonCompleted);
-router.put("/:userId/course/:courseId/complete", markCourseAsCompleted);
+// Enrollment routes - User can access their own, admin can access any
+router.post("/:userId/course/:courseId/enroll", authenticate, isSelfOrAdmin, enrollUserInCourse);
+router.get("/:userId/enrollments", authenticate, isSelfOrAdmin, getUserEnrollments);
+router.get("/:userId/course/:courseId/check-enrollment", authenticate, isSelfOrAdmin, checkEnrollment);
+router.put("/:userId/course/:courseId/lesson/:lessonId/complete", authenticate, isSelfOrAdmin, markLessonCompleted);
+router.put("/:userId/course/:courseId/complete", authenticate, isSelfOrAdmin, markCourseAsCompleted);
 
 export default router;
