@@ -9,6 +9,8 @@ import questionRoutes from "./routes/courseRoutes/questionRoutes.js";
 import progressRoutes from "./routes/courseRoutes/progressRoutes.js";
 import userRoutes from "./routes/userRoutes/userRoutes.js";
 import certificateRoutes from "./routes/courseRoutes/certifcateRoutes.js";
+import planRoutes from "./routes/adminRoutes/planRoutes.js";
+import aiCourseRoutes from "./routes/courseRoutes/aiCourseRoute.js";
 
 dotenv.config();
 connectDB();
@@ -30,6 +32,8 @@ app.use("/api", quizRoutes);
 app.use("/api", questionRoutes);
 app.use("/api", progressRoutes);
 app.use("/api", certificateRoutes);
+app.use("/api", planRoutes);
+app.use("/api", aiCourseRoutes);
 
 const PORT = process.env.PORT || 5000;
 

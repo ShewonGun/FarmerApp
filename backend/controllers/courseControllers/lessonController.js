@@ -2,6 +2,31 @@ import Course from "../../models/course/Course.js";
 import Lesson from "../../models/course/Lesson.js";
 import mongoose from "mongoose";
 
+// Helper function to extract YouTube video ID and generate thumbnail
+const extractYoutubeThumbnail = (url) => {
+    if (!url) return null;
+    
+    // Extract video ID from various YouTube URL formats
+    const patterns = [
+        /(?:youtube\.com\/watch\?v=)([^&]+)/,
+        /(?:youtube\.com\/embed\/)([^?]+)/,
+        /(?:youtu\.be\/)([^?]+)/,
+        /(?:youtube\.com\/v\/)([^?]+)/
+    ];
+    
+    let videoId = null;
+    for (const pattern of patterns) {
+        const match = url.match(pattern);
+        if (match && match[1]) {
+            videoId = match[1];
+            break;
+        }
+    }
+    
+    // Return high quality thumbnail URL (always available for all videos)
+    return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null;
+};
+
 //Add lesson to a course
 export const addLesson = async (req, res) => {
     try {
@@ -21,12 +46,16 @@ export const addLesson = async (req, res) => {
             return res.status(404).json({ success: false, message: "Course not found" });
         }
         
+        // Auto-generate thumbnail from YouTube URL
+        const thumbnailUrl = extractYoutubeThumbnail(youtubeUrl);
+        
         const lesson = new Lesson({
             course: courseId,
             title,
             content,
             assetUrl,
-            youtubeUrl
+            youtubeUrl,
+            thumbnailUrl
         });
         await lesson.save();
         
@@ -84,9 +113,15 @@ export const updateLesson = async (req, res) => {
             return res.status(400).json({ success: false, message: "Invalid lesson ID" });
         }
         
+        // Auto-generate thumbnail if YouTube URL is provided
+        const updateData = { title, content, assetUrl, youtubeUrl };
+        if (youtubeUrl) {
+            updateData.thumbnailUrl = extractYoutubeThumbnail(youtubeUrl);
+        }
+        
         const lesson = await Lesson.findByIdAndUpdate(
             id,
-            { title, content, assetUrl, youtubeUrl },
+            updateData,
             { new: true, runValidators: true }
         );
         if (!lesson) {
@@ -122,3 +157,43 @@ export const deleteLesson = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+// Test endpoint for YouTube thumbnail extraction
+{/*export const testYoutubeThumbnail = async (req, res) => {
+    try {
+        const { youtubeUrl } = req.body;
+        
+        if (!youtubeUrl) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "YouTube URL is required" 
+            });
+        }
+        
+        const thumbnailUrl = extractYoutubeThumbnail(youtubeUrl);
+        
+        if (!thumbnailUrl) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Invalid YouTube URL format" 
+            });
+        }
+        
+        res.status(200).json({ 
+            success: true, 
+            data: {
+                youtubeUrl,
+                thumbnailUrl,
+                thumbnailQualities: {
+                    maxres: thumbnailUrl.replace('hqdefault', 'maxresdefault'),
+                    hq: thumbnailUrl,
+                    mq: thumbnailUrl.replace('hqdefault', 'mqdefault'),
+                    sd: thumbnailUrl.replace('hqdefault', 'sddefault')
+                }
+            },
+            message: "Thumbnail extracted successfully" 
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+}; */}

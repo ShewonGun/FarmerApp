@@ -4,11 +4,15 @@ import {
     getLessonsByCourse,
     getLessonById,
     updateLesson,
-    deleteLesson
+    deleteLesson,
+ // testYoutubeThumbnail
 } from "../../controllers/courseControllers/lessonController.js";
 import { authenticate, adminOnly } from "../../middlewares/protect.js";
 
 const router = express.Router();
+
+// Test route
+//router.post("/test/youtube-thumbnail", testYoutubeThumbnail);
 
 // Lesson routes 
 router.get("/course/:courseId/lessons", authenticate, getLessonsByCourse);
