@@ -5,7 +5,7 @@ import {
     getLessonById,
     updateLesson,
     deleteLesson,
- // testYoutubeThumbnail
+    //testYoutubeThumbnail
 } from "../../controllers/courseControllers/lessonController.js";
 import { authenticate, adminOnly } from "../../middlewares/protect.js";
 

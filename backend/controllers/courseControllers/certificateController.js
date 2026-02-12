@@ -2,6 +2,9 @@ import Certificate from "../../models/course/Certificate.js";
 import Course from "../../models/course/Course.js";
 import User from "../../models/user/User.js";
 import Enroll from "../../models/course/Enroll.js";
+import Progress from "../../models/course/Progress.js";
+import Quiz from "../../models/course/Quiz.js";
+import Lesson from "../../models/course/Lesson.js";
 import mongoose from "mongoose";
 import PDFDocument from "pdfkit";
 import cloudinary from "../../config/cloudinary.js";
@@ -56,8 +59,33 @@ export const generateCertificate = async (req, res) => {
             });
         }
         
-        // Generate certificate data
-        const averageScore = enrollment.averageScore || 0;
+        // Calculate average score from all quiz attempts
+        const allLessons = await Lesson.find({ course: courseId });
+        const lessonIds = allLessons.map(lesson => lesson._id);
+        const allQuizzes = await Quiz.find({ lesson: { $in: lessonIds } });
+        const allQuizIds = allQuizzes.map(quiz => quiz._id);
+        
+        // Get all passing quiz attempts for this user and course
+        const quizAttempts = await Progress.find({
+            user: userId,
+            course: courseId,
+            quiz: { $in: allQuizIds },
+            passed: true
+        }).sort({ attemptedAt: -1 });
+        
+        // Calculate average score from quiz attempts
+        let totalScore = 0;
+        const quizScores = new Map();
+        
+        for (const attempt of quizAttempts) {
+            const quizId = attempt.quiz.toString();
+            if (!quizScores.has(quizId)) {
+                quizScores.set(quizId, attempt.percentage);
+                totalScore += attempt.percentage;
+            }
+        }
+        
+        const averageScore = quizScores.size > 0 ? Math.round(totalScore / quizScores.size) : 0;
         const completionDate = enrollment.completedAt;
         const year = completionDate.getFullYear();
         const random = Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -89,41 +117,193 @@ export const generateCertificate = async (req, res) => {
         const pageHeight = doc.page.height;
         const centerX = pageWidth / 2;
         
-        // Color scheme - Professional blue and gold
-        const primaryColor = '#1a237e';    // Deep blue
-        const accentColor = '#ffd700';     // Gold
-        const textColor = '#2c3e50';       // Dark gray
-        const lightGray = '#ecf0f1';
+        // Color scheme - Blue and Yellow theme with red seal
+        const primaryColor = '#1E3A8A';    // Deep Blue
+        const accentColor = '#EAB308';     // Yellow/Gold
+        const textColor = '#1F2937';       // Dark gray for text
+        const backgroundColor = '#FFFFFF'; // White background
+        const redSealColor = '#DC2626';    // Red for seal
         
         // ============================
         // BACKGROUND & BORDER
         // ============================
         
-        // Light background
+        // White background
         doc.rect(0, 0, pageWidth, pageHeight)
-           .fill(lightGray);
+           .fill(backgroundColor);
         
-        // Outer border - Gold
-        doc.rect(25, 25, pageWidth - 50, pageHeight - 50)
-           .lineWidth(8)
-           .strokeColor(accentColor)
-           .stroke();
-        
-        // Inner border - Blue
-        doc.rect(35, 35, pageWidth - 70, pageHeight - 70)
-           .lineWidth(2)
+        // Outer border - Blue
+        doc.rect(20, 20, pageWidth - 40, pageHeight - 40)
+           .lineWidth(10)
            .strokeColor(primaryColor)
            .stroke();
         
-        // Decorative corner elements
-        const cornerSize = 40;
-        const cornerOffset = 45;
+        // Inner border - Yellow
+        doc.rect(30, 30, pageWidth - 60, pageHeight - 60)
+           .lineWidth(3)
+           .strokeColor(accentColor)
+           .stroke();
+        
+        // ============================
+        // CERTIFICATE TITLE
+        // ============================
+        
+        doc.fontSize(48)
+           .fillColor(primaryColor)
+           .font('Helvetica-Bold')
+           .text('CERTIFICATE OF COMPLETION', 0, 80, {
+               align: 'center',
+               width: pageWidth
+           });
+        
+        // Decorative line under title
+        doc.moveTo(centerX - 180, 140)
+           .lineTo(centerX + 180, 140)
+           .lineWidth(2)
+           .strokeColor(accentColor)
+           .stroke();
+        
+        // ============================
+        // MAIN CONTENT
+        // ============================
+        
+        doc.fontSize(16)
+           .fillColor(textColor)
+           .font('Helvetica')
+           .text('This is to certify that', 0, 180, {
+               align: 'center',
+               width: pageWidth
+           });
+        
+        // Student name - Large and prominent
+        const userName = user.name || user.username || "Student";
+        doc.fontSize(38)
+           .fillColor(primaryColor)
+           .font('Helvetica-Bold')
+           .text(userName, 0, 220, {
+               align: 'center',
+               width: pageWidth
+           });
+        
+        // Underline for name
+        const nameWidth = doc.widthOfString(userName);
+        const nameUnderlineY = 265;
+        doc.moveTo(centerX - (nameWidth / 2) - 30, nameUnderlineY)
+           .lineTo(centerX + (nameWidth / 2) + 30, nameUnderlineY)
+           .lineWidth(2)
+           .strokeColor(accentColor)
+           .stroke();
+        
+        // Achievement text
+        doc.fontSize(16)
+           .fillColor(textColor)
+           .font('Helvetica')
+           .text('has successfully completed the course', 0, 290, {
+               align: 'center',
+               width: pageWidth
+           });
+        
+        // Course name - Prominent
+        doc.fontSize(28)
+           .fillColor(primaryColor)
+           .font('Helvetica-Bold')
+           .text(course.title.toUpperCase(), 60, 330, {
+               align: 'center',
+               width: pageWidth - 120
+           });
+        
+        // ============================
+        // SCORE AND DATE SECTION
+        // ============================
+        
+        const detailsY = 400;
+        
+        // Score
+        doc.fontSize(14)
+           .fillColor(textColor)
+           .font('Helvetica')
+           .text(`Score: ${averageScore}%`, 0, detailsY, {
+               align: 'center',
+               width: pageWidth
+           });
+        
+        // Completion Date
+        doc.fontSize(14)
+           .fillColor(textColor)
+           .font('Helvetica')
+           .text(`Completion Date: ${completionDate.toLocaleDateString('en-US', { 
+               year: 'numeric', 
+               month: 'long', 
+               day: 'numeric' 
+           })}`, 0, detailsY + 30, {
+               align: 'center',
+               width: pageWidth
+           });
+        
+        // ============================
+        // RED SEAL DESIGN
+        // ============================
+        
+        const sealX = 120;
+        const sealY = pageHeight - 100;
+        const sealRadius = 45;
+        
+        // Outer circle - Red
+        doc.circle(sealX, sealY, sealRadius)
+           .lineWidth(4)
+           .strokeColor(redSealColor)
+           .fillColor('#FEE2E2')
+           .fillAndStroke();
+        
+        // Middle circle
+        doc.circle(sealX, sealY, sealRadius - 10)
+           .lineWidth(2)
+           .strokeColor(redSealColor)
+           .stroke();
+        
+        // Inner circle
+        doc.circle(sealX, sealY, sealRadius - 18)
+           .lineWidth(1)
+           .strokeColor(redSealColor)
+           .stroke();
+        
+        // Seal star/ribbon design
+        for (let i = 0; i < 8; i++) {
+            const angle = (i * Math.PI) / 4;
+            const x1 = sealX + Math.cos(angle) * (sealRadius - 20);
+            const y1 = sealY + Math.sin(angle) * (sealRadius - 20);
+            const x2 = sealX + Math.cos(angle) * (sealRadius - 5);
+            const y2 = sealY + Math.sin(angle) * (sealRadius - 5);
+            
+            doc.moveTo(x1, y1)
+               .lineTo(x2, y2)
+               .lineWidth(1.5)
+               .strokeColor(redSealColor)
+               .stroke();
+        }
+        
+        // Seal text
+        doc.fontSize(8)
+           .fillColor(redSealColor)
+           .font('Helvetica-Bold')
+           .text('CERTIFIED', sealX - 25, sealY - 8, {
+               width: 50,
+               align: 'center'
+           });
+        
+        // ============================
+        // DECORATIVE ELEMENTS
+        // ============================
+        
+        // Corner decorations
+        const cornerSize = 30;
+        const cornerOffset = 40;
         
         // Top-left corner
         doc.moveTo(cornerOffset, cornerOffset + cornerSize)
            .lineTo(cornerOffset, cornerOffset)
            .lineTo(cornerOffset + cornerSize, cornerOffset)
-           .lineWidth(3)
+           .lineWidth(2)
            .strokeColor(accentColor)
            .stroke();
         
@@ -131,15 +311,15 @@ export const generateCertificate = async (req, res) => {
         doc.moveTo(pageWidth - cornerOffset - cornerSize, cornerOffset)
            .lineTo(pageWidth - cornerOffset, cornerOffset)
            .lineTo(pageWidth - cornerOffset, cornerOffset + cornerSize)
-           .lineWidth(3)
+           .lineWidth(2)
            .strokeColor(accentColor)
            .stroke();
         
-        // Bottom-left corner
+        // Bottom-left corner (avoiding seal area)
         doc.moveTo(cornerOffset, pageHeight - cornerOffset - cornerSize)
            .lineTo(cornerOffset, pageHeight - cornerOffset)
            .lineTo(cornerOffset + cornerSize, pageHeight - cornerOffset)
-           .lineWidth(3)
+           .lineWidth(2)
            .strokeColor(accentColor)
            .stroke();
         
@@ -147,226 +327,9 @@ export const generateCertificate = async (req, res) => {
         doc.moveTo(pageWidth - cornerOffset - cornerSize, pageHeight - cornerOffset)
            .lineTo(pageWidth - cornerOffset, pageHeight - cornerOffset)
            .lineTo(pageWidth - cornerOffset, pageHeight - cornerOffset - cornerSize)
-           .lineWidth(3)
-           .strokeColor(accentColor)
-           .stroke();
-        
-        
-        // Organization/Platform name
-        doc.fontSize(14)
-           .fillColor(primaryColor)
-           .font('Helvetica-Bold')
-           .text('LEARNING MANAGEMENT SYSTEM', 0, 65, {
-               align: 'center',
-               width: pageWidth
-           });
-        
-        // Certificate title
-        doc.fontSize(52)
-           .fillColor(primaryColor)
-           .font('Helvetica-Bold')
-           .text('CERTIFICATE', 0, 105, {
-               align: 'center',
-               width: pageWidth
-           });
-        
-        doc.fontSize(24)
-           .fillColor(accentColor)
-           .font('Helvetica-Bold')
-           .text('OF COMPLETION', 0, 165, {
-               align: 'center',
-               width: pageWidth
-           });
-        
-        // Decorative line under title
-        doc.moveTo(centerX - 120, 200)
-           .lineTo(centerX + 120, 200)
-           .lineWidth(3)
-           .strokeColor(accentColor)
-           .stroke();
-        
-        // MAIN CONTENT
-        
-        doc.fontSize(14)
-           .fillColor(textColor)
-           .font('Helvetica')
-           .text('This is proudly presented to', 0, 230, {
-               align: 'center',
-               width: pageWidth
-           });
-        
-        // Student name - Large and prominent
-        const userName = user.name || user.username || "Student";
-        doc.fontSize(36)
-           .fillColor(primaryColor)
-           .font('Helvetica-Bold')
-           .text(userName, 0, 265, {
-               align: 'center',
-               width: pageWidth
-           });
-        
-        // Underline for name
-        const nameWidth = doc.widthOfString(userName);
-        const nameUnderlineY = 308;
-        doc.moveTo(centerX - (nameWidth / 2) - 20, nameUnderlineY)
-           .lineTo(centerX + (nameWidth / 2) + 20, nameUnderlineY)
            .lineWidth(2)
            .strokeColor(accentColor)
            .stroke();
-        
-        // Achievement text
-        doc.fontSize(14)
-           .fillColor(textColor)
-           .font('Helvetica')
-           .text('for successfully completing the course', 0, 330, {
-               align: 'center',
-               width: pageWidth
-           });
-        
-        // Course name - Prominent
-        doc.fontSize(26)
-           .fillColor(primaryColor)
-           .font('Helvetica-Bold')
-           .text(course.title, 60, 365, {
-               align: 'center',
-               width: pageWidth - 120
-           });
-        
-        // DETAILS SECTION        
-        const detailsY = 425;
-        const leftColumnX = 150;
-        const rightColumnX = pageWidth - 250;
-        
-        // Left column - Score
-        doc.fontSize(11)
-           .fillColor(textColor)
-           .font('Helvetica')
-           .text('SCORE', leftColumnX, detailsY, {
-               width: 200,
-               align: 'center'
-           });
-        
-        doc.fontSize(20)
-           .fillColor(primaryColor)
-           .font('Helvetica-Bold')
-           .text(`${averageScore}%`, leftColumnX, detailsY + 20, {
-               width: 200,
-               align: 'center'
-           });
-        
-        // Right column - Date
-        doc.fontSize(11)
-           .fillColor(textColor)
-           .font('Helvetica')
-           .text('COMPLETION DATE', rightColumnX - 50, detailsY, {
-               width: 200,
-               align: 'center'
-           });
-        
-        doc.fontSize(16)
-           .fillColor(primaryColor)
-           .font('Helvetica-Bold')
-           .text(completionDate.toLocaleDateString('en-US', { 
-               year: 'numeric', 
-               month: 'long', 
-               day: 'numeric' 
-           }), rightColumnX - 50, detailsY + 20, {
-               width: 200,
-               align: 'center'
-           });
-        
-        // SIGNATURE SECTION
-        
-        const signatureY = pageHeight - 130;
-        const signatureLeftX = 180;
-        const signatureRightX = pageWidth - 280;
-        
-        // Left signature line
-        doc.moveTo(signatureLeftX, signatureY)
-           .lineTo(signatureLeftX + 150, signatureY)
-           .lineWidth(1)
-           .strokeColor(textColor)
-           .stroke();
-        
-        doc.fontSize(10)
-           .fillColor(textColor)
-           .font('Helvetica-Bold')
-           .text('Director', signatureLeftX, signatureY + 8, {
-               width: 150,
-               align: 'center'
-           });
-        
-        doc.fontSize(9)
-           .font('Helvetica')
-           .text('Learning Management System', signatureLeftX, signatureY + 24, {
-               width: 150,
-               align: 'center'
-           });
-        
-        // Right signature line
-        doc.moveTo(signatureRightX, signatureY)
-           .lineTo(signatureRightX + 150, signatureY)
-           .lineWidth(1)
-           .strokeColor(textColor)
-           .stroke();
-        
-        doc.fontSize(10)
-           .fillColor(textColor)
-           .font('Helvetica-Bold')
-           .text('Course Instructor', signatureRightX, signatureY + 8, {
-               width: 150,
-               align: 'center'
-           });
-        
-        doc.fontSize(9)
-           .font('Helvetica')
-           .text(course.instructor || 'Instructor Name', signatureRightX, signatureY + 24, {
-               width: 150,
-               align: 'center'
-           });
-   
-        // FOOTER        
-        doc.fontSize(9)
-           .fillColor('#7f8c8d')
-           .font('Helvetica')
-           .text(`Certificate ID: ${certificateNumber}`, 0, pageHeight - 55, {
-               align: 'center',
-               width: pageWidth
-           });
-        
-        // Decorative seal/badge (optional - simple circle)
-        const sealX = centerX;
-        const sealY = pageHeight - 100;
-        const sealRadius = 35;
-        
-        // Outer circle - Gold
-        doc.circle(sealX, sealY, sealRadius)
-           .lineWidth(3)
-           .strokeColor(accentColor)
-           .stroke();
-        
-        // Inner circle - Blue
-        doc.circle(sealX, sealY, sealRadius - 8)
-           .lineWidth(2)
-           .strokeColor(primaryColor)
-           .stroke();
-        
-        // Seal text
-        doc.fontSize(9)
-           .fillColor(primaryColor)
-           .font('Helvetica-Bold')
-           .text('VERIFIED', sealX - 30, sealY - 20, {
-               width: 60,
-               align: 'center'
-           });
-        
-        doc.fontSize(7)
-           .fillColor(primaryColor)
-           .font('Helvetica')
-           .text(year.toString(), sealX - 30, sealY - 5, {
-               width: 60,
-               align: 'center'
-           });
         
         // Finalize PDF
         doc.end();

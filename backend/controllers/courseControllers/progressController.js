@@ -3,7 +3,73 @@ import Quiz from "../../models/course/Quiz.js";
 import Question from "../../models/course/Question.js";
 import Lesson from "../../models/course/Lesson.js";
 import Enroll from "../../models/course/Enroll.js";
+import Course from "../../models/course/Course.js";
 import mongoose from "mongoose";
+
+// Helper function to check and auto-complete course
+const checkAndCompleteCourse = async (enrollment, courseId, userId) => {
+    try {
+        // Skip if already completed
+        if (enrollment.completedAt) {
+            return;
+        }
+
+        // Get all lessons for the course
+        const allLessons = await Lesson.find({ course: courseId });
+        const totalLessons = allLessons.length;
+
+        // Get all quizzes for the course
+        const lessonIds = allLessons.map(lesson => lesson._id);
+        const allQuizzes = await Quiz.find({ lesson: { $in: lessonIds } });
+        const totalQuizzes = allQuizzes.length;
+
+        // Check if all lessons are completed
+        const completedLessonsCount = enrollment.completedLessons.length;
+        if (completedLessonsCount < totalLessons) {
+            return; // Not all lessons completed
+        }
+
+        // Check if all quizzes are completed (if there are quizzes)
+        const completedQuizzesCount = enrollment.completedQuizzes.length;
+        if (totalQuizzes > 0 && completedQuizzesCount < totalQuizzes) {
+            return; // Not all quizzes passed
+        }
+
+        // All lessons and quizzes completed - auto-complete the course
+        const allQuizIds = allQuizzes.map(quiz => quiz._id);
+        const quizAttempts = await Progress.find({
+            user: userId,
+            course: courseId,
+            quiz: { $in: allQuizIds },
+            passed: true
+        }).sort({ attemptedAt: -1 });
+
+        // Calculate average score
+        let totalScore = 0;
+        const quizScores = new Map();
+
+        for (const attempt of quizAttempts) {
+            const quizId = attempt.quiz.toString();
+            if (!quizScores.has(quizId)) {
+                quizScores.set(quizId, attempt.percentage);
+                totalScore += attempt.percentage;
+            }
+        }
+
+        const averageScore = totalQuizzes > 0 ? Math.round(totalScore / totalQuizzes) : 100;
+
+        // Mark course as completed
+        enrollment.completedAt = new Date();
+        enrollment.averageScore = averageScore;
+        enrollment.progress = 100;
+
+        await enrollment.save();
+
+        console.log(`Course ${courseId} auto-completed for user ${userId}`);
+    } catch (error) {
+        console.error("Error in checkAndCompleteCourse:", error.message);
+    }
+};
 
 // Submit quiz attempt
 export const submitQuizAttempt = async (req, res) => {
@@ -91,18 +157,27 @@ export const submitQuizAttempt = async (req, res) => {
         
         await progress.save();
         
-        // If quiz is passed, add to enrollment's completedQuizzes
+        // If quiz is passed, add to enrollment's completedQuizzes and check course completion
+        let courseCompleted = false;
         if (passed) {
             const enrollment = await Enroll.findOne({ user: userId, course: lesson.course });
             if (enrollment && !enrollment.completedQuizzes.includes(quizId)) {
                 enrollment.completedQuizzes.push(quizId);
                 await enrollment.save();
+
+                // Check if course should be auto-completed
+                await checkAndCompleteCourse(enrollment, lesson.course, userId);
+                courseCompleted = !!enrollment.completedAt;
             }
         }
         
         res.status(201).json({
             success: true,
-            message: passed ? "Quiz passed" : "Quiz not passed. Try again!",
+            message: courseCompleted 
+                ? "Quiz passed! Course completed! You can now generate your certificate." 
+                : passed 
+                    ? "Quiz passed!" 
+                    : "Quiz not passed. Try again!",
             results: {
                 correctAnswers: correctCount,
                 totalQuestions,
@@ -114,6 +189,7 @@ export const submitQuizAttempt = async (req, res) => {
                 _id: progress._id,
                 attemptedAt: progress.attemptedAt
             },
+            courseCompleted,
             answerBreakdown: processedAnswers.map(ans => ({
                 questionId: ans.question,
                 isCorrect: ans.isCorrect

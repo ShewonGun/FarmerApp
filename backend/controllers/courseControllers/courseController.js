@@ -7,6 +7,71 @@ import Progress from "../../models/course/Progress.js";
 import User from "../../models/user/User.js";
 import mongoose from "mongoose";
 
+// Helper function to check and auto-complete course
+const checkAndCompleteCourse = async (enrollment, courseId, userId) => {
+    try {
+        // Skip if already completed
+        if (enrollment.completedAt) {
+            return;
+        }
+
+        // Get all lessons for the course
+        const allLessons = await Lesson.find({ course: courseId });
+        const totalLessons = allLessons.length;
+
+        // Get all quizzes for the course
+        const lessonIds = allLessons.map(lesson => lesson._id);
+        const allQuizzes = await Quiz.find({ lesson: { $in: lessonIds } });
+        const totalQuizzes = allQuizzes.length;
+
+        // Check if all lessons are completed
+        const completedLessonsCount = enrollment.completedLessons.length;
+        if (completedLessonsCount < totalLessons) {
+            return; // Not all lessons completed
+        }
+
+        // Check if all quizzes are completed (if there are quizzes)
+        const completedQuizzesCount = enrollment.completedQuizzes.length;
+        if (totalQuizzes > 0 && completedQuizzesCount < totalQuizzes) {
+            return; // Not all quizzes passed
+        }
+
+        // All lessons and quizzes completed - auto-complete the course
+        const allQuizIds = allQuizzes.map(quiz => quiz._id);
+        const quizAttempts = await Progress.find({
+            user: userId,
+            course: courseId,
+            quiz: { $in: allQuizIds },
+            passed: true
+        }).sort({ attemptedAt: -1 });
+
+        // Calculate average score
+        let totalScore = 0;
+        const quizScores = new Map();
+
+        for (const attempt of quizAttempts) {
+            const quizId = attempt.quiz.toString();
+            if (!quizScores.has(quizId)) {
+                quizScores.set(quizId, attempt.percentage);
+                totalScore += attempt.percentage;
+            }
+        }
+
+        const averageScore = totalQuizzes > 0 ? Math.round(totalScore / totalQuizzes) : 100;
+
+        // Mark course as completed
+        enrollment.completedAt = new Date();
+        enrollment.averageScore = averageScore;
+        enrollment.progress = 100;
+
+        await enrollment.save();
+
+        console.log(`Course ${courseId} auto-completed for user ${userId}`);
+    } catch (error) {
+        console.error("Error in checkAndCompleteCourse:", error.message);
+    }
+};
+
 // Add a new course
 export const addCourse = async (req, res) => {
   try {
@@ -230,6 +295,23 @@ export const markLessonCompleted = async (req, res) => {
             return res.status(404).json({ success: false, message: "Lesson not found in this course" });
         }
         
+        // If lesson has a quiz, check if user has passed it
+        if (lesson.isQuizAvailable) {
+            const quiz = await Quiz.findOne({ lesson: lessonId });
+            if (quiz) {
+                // Check if user has passed this quiz
+                const hasPassedQuiz = enrollment.completedQuizzes.includes(quiz._id);
+                if (!hasPassedQuiz) {
+                    return res.status(400).json({ 
+                        success: false, 
+                        message: "You must pass the quiz before marking this lesson as completed",
+                        quizRequired: true,
+                        quizId: quiz._id
+                    });
+                }
+            }
+        }
+        
         // Check if already completed
         if (enrollment.completedLessons.includes(lessonId)) {
             return res.status(400).json({ success: false, message: "Lesson already marked as completed" });
@@ -250,14 +332,20 @@ export const markLessonCompleted = async (req, res) => {
         }
         
         await enrollment.save();
+
+        // Check if course should be auto-completed
+        await checkAndCompleteCourse(enrollment, courseId, userId);
         
         await enrollment.populate('completedLessons', 'title');
         await enrollment.populate('course', 'title noOfLessons');
         
         res.status(200).json({ 
             success: true, 
-            message: "Lesson marked as completed",
-            enrollment 
+            message: enrollment.completedAt 
+                ? "Lesson marked as completed. Course completed!" 
+                : "Lesson marked as completed",
+            enrollment,
+            courseCompleted: !!enrollment.completedAt
         });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
