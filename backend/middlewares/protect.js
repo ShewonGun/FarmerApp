@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import User from "../models/user/User.js";
+import User from "../models/user/CoreIdentity.js";
 
 // Authenticate user with JWT token
 export const authenticate = async (req, res, next) => {

@@ -1,6 +1,6 @@
 import Certificate from "../../models/course/Certificate.js";
 import Course from "../../models/course/Course.js";
-import User from "../../models/user/User.js";
+import User from "../../models/user/CoreIdentity.js";
 import Enroll from "../../models/course/Enroll.js";
 import Progress from "../../models/course/Progress.js";
 import Quiz from "../../models/course/Quiz.js";
