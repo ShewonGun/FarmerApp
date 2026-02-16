@@ -4,7 +4,7 @@ import Quiz from "../../models/course/Quiz.js";
 import Question from "../../models/course/Question.js";
 import Enroll from "../../models/course/Enroll.js";
 import Progress from "../../models/course/Progress.js";
-import User from "../../models/user/User.js";
+import User from "../../models/user/CoreIdentity.js";
 import mongoose from "mongoose";
 
 // Helper function to check and auto-complete course
