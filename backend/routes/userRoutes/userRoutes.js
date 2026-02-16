@@ -1,25 +1,18 @@
 import express from "express";
-import {
-    signup,
-    login,
-    viewAccount,
-    deactivateAccount,
-    getAllUsers
-} from "../../controllers/userControllers/coreIdentityController.js";
+import { signup, login, viewAccount, deactivateAccount, getAllUsers } from "../../controllers/userControllers/userController.js";
 import { authenticate, adminOnly, isSelfOrAdmin } from "../../middlewares/protect.js";
 
 const router = express.Router();
 
-// ========== Core Identity - Public routes (no authentication required) ==========
+// Public routes - No authentication required
 router.post("/signup", signup);
 router.post("/login", login);
 
-// ========== Core Identity - Protected routes ==========
+// Protected routes - User can access their own, admin can access any
 router.get("/user/:userId", authenticate, isSelfOrAdmin, viewAccount);
 router.put("/user/:userId/deactivate", authenticate, isSelfOrAdmin, deactivateAccount);
 
-// ========== Core Identity - Restricted routes ==========
+// Admin only routes
 router.get("/users", authenticate, adminOnly, getAllUsers);
 
 export default router;
-

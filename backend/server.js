@@ -7,13 +7,7 @@ import lessonRoutes from "./routes/courseRoutes/lessonRoutes.js";
 import quizRoutes from "./routes/courseRoutes/quizRoutes.js";
 import questionRoutes from "./routes/courseRoutes/questionRoutes.js";
 import progressRoutes from "./routes/courseRoutes/progressRoutes.js";
-
-import coreIdentityRoutes from "./routes/userRoutes/coreIdentityRoutes.js";
-import financialRoutes from "./routes/userRoutes/financialRoutes.js";
-import locationFarmingRoutes from "./routes/userRoutes/locationFarmingRoutes.js";
-import trainingEngagementRoutes from "./routes/userRoutes/trainingEngagementRoutes.js";
-import verificationTrustRoutes from "./routes/userRoutes/verificationTrustRoutes.js";
-
+import userRoutes from "./routes/userRoutes/userRoutes.js";
 import certificateRoutes from "./routes/courseRoutes/certifcateRoutes.js";
 import planRoutes from "./routes/adminRoutes/planRoutes.js";
 import aiCourseRoutes from "./routes/courseRoutes/aiCourseRoute.js";
@@ -31,12 +25,7 @@ app.get("/", (req, res) => {
 });
 
 // Routes
-app.use("/api", coreIdentityRoutes);
-app.use("/api", financialRoutes);
-app.use("/api", locationFarmingRoutes);
-app.use("/api", trainingEngagementRoutes);
-app.use("/api", verificationTrustRoutes);
-
+app.use("/api", userRoutes);
 app.use("/api", lessonRoutes);
 app.use("/api", courseRoutes);
 app.use("/api", quizRoutes);
