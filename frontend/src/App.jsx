@@ -7,6 +7,7 @@ import Dashboard from "./Pages/AdminPages/Dashboard"
 import Course from "./Pages/AdminPages/Course"
 import Users from "./Pages/AdminPages/Users"
 import Requests from "./Pages/AdminPages/Requests"
+import RepayPlans from "./Pages/AdminPages/RepayPlans"
 import Login from "./Pages/SharedPages/Login"
 import Signup from "./Pages/SharedPages/Signup"
 import ProtectedRoute from "./Routes/ProtectedRoute"
@@ -51,6 +52,7 @@ const App = () => {
           <Route path="/admin/courses" element={<ProtectedRoute><Course /></ProtectedRoute>} />
           <Route path="/admin/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
           <Route path="/admin/requests" element={<ProtectedRoute><Requests /></ProtectedRoute>} />
+          <Route path="/admin/repayments" element={<ProtectedRoute><RepayPlans /></ProtectedRoute>} />
         </Routes>
       </main>
     </div>

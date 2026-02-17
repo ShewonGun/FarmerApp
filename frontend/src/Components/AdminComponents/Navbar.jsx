@@ -136,19 +136,20 @@ export default function Navbar({ collapsed, toggleSidebar }) {
           {/* User dropdown */}
           {showUser && (
             <div
-              className="absolute right-0 mt-2 rounded-xl overflow-hidden animate-in slide-in-from-top-2 fade-in duration-150 w-50 top-full bg-white dark:bg-slate-800 border border-slate-200/8 dark:border-slate-700 shadow-lg z-50"
+              className="absolute right-0 mt-2 rounded-xl overflow-hidden animate-in slide-in-from-top-2 fade-in duration-150 w-64 top-full bg-white dark:bg-slate-800 border border-slate-200/8 dark:border-slate-700 shadow-lg z-50"
             >
               {/* Profile info */}
               <div
                 className="px-4 py-3 border-b border-slate-200/6 dark:border-slate-700"
               >
                 <p
-                  className="text-xs font-semibold text-slate-800 dark:text-slate-200 font-['Sora']"
+                  className="text-xs font-semibold text-slate-800 dark:text-slate-200 font-['Sora'] truncate"
                 >
                   {user?.name || 'User'}
                 </p>
                 <p
-                  className="text-xs mt-0.5 text-slate-500 dark:text-slate-400 font-['Sora']"
+                  className="text-xs mt-0.5 text-slate-500 dark:text-slate-400 font-['Sora'] truncate"
+                  title={user?.email || 'email@example.com'}
                 >
                   {user?.email || 'email@example.com'}
                 </p>
