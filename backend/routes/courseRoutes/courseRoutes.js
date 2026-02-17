@@ -2,6 +2,7 @@ import express from "express";
 import {
     addCourse,
     getAllCourses,
+    getAllCoursesWithDetails,
     getCourseById,
     updateCourse,
     deleteCourse,
@@ -18,6 +19,7 @@ const router = express.Router();
 // Course routes - Admin only for create, update, delete
 router.post("/addCourse", authenticate, adminOnly, addCourse);
 router.get("/course", getAllCourses);
+router.get("/courseWithDetails", getAllCoursesWithDetails);
 router.get("/course/:id", authenticate, getCourseById);
 router.put("/course/:id", authenticate, adminOnly, updateCourse);
 router.delete("/course/:id", authenticate, adminOnly, deleteCourse);

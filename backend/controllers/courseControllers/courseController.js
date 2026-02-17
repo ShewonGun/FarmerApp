@@ -456,3 +456,57 @@ export const markCourseAsCompleted = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+// Get all courses with lessons and quizzes (for admin)
+export const getAllCoursesWithDetails = async (req, res) => {
+    try {
+        const courses = await Course.find().sort({ createdAt: -1 });
+        
+        // Fetch lessons and quizzes for each course
+        const coursesWithDetails = await Promise.all(
+            courses.map(async (course) => {
+                // Get all lessons for this course
+                const lessons = await Lesson.find({ course: course._id }).sort({ createdAt: 1 });
+                
+                // Get quizzes for all lessons
+                const lessonIds = lessons.map(l => l._id);
+                const quizzes = await Quiz.find({ lesson: { $in: lessonIds } });
+
+                // Get question counts for each quiz, only for questions belonging to the quiz's lesson
+                const quizzesWithQuestions = await Promise.all(
+                    quizzes.map(async (quiz) => {
+                        // Only count questions for this quiz and its lesson
+                        const questionCount = await Question.countDocuments({ quiz: quiz._id, });
+                        return {
+                            _id: quiz._id,
+                            lesson: quiz.lesson,
+                            title: quiz.title,
+                            passingScore: quiz.passingScore,
+                            questionCount
+                        };
+                    })
+                );
+
+                return {
+                    ...course.toObject(),
+                    lessons: lessons.map(l => ({
+                        _id: l._id,
+                        title: l.title,
+                        content: l.content,
+                        youtubeUrl: l.youtubeUrl,
+                        thumbnailUrl: l.thumbnailUrl,
+                        isQuizAvailable: l.isQuizAvailable
+                    })),
+                    quizzes: quizzesWithQuestions
+                };
+            })
+        );
+        
+        res.status(200).json({ 
+            success: true, 
+            courses: coursesWithDetails
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
