@@ -5,7 +5,8 @@ import {
   MdPeople,
   MdLogout,
   MdBook,
-  MdMoney,
+  MdPayments,
+  MdAttachMoney,
 } from "react-icons/md";
 import AgroFundLogo from "../../assets/AgroFundLogo.png";
 import { sidebarState } from "../../utils/sidebarState";
@@ -13,9 +14,9 @@ import { sidebarState } from "../../utils/sidebarState";
 const navItems = [
   { label: "Dashboard", icon: MdDashboard, path: "/admin" },
   { label: "Users", icon: MdPeople, path: "/admin/users"},
-  //{ label: "Add Course", icon: MdAdd, path: "/admin/add-course"},
   { label: "Courses", icon: MdBook, path: "/admin/courses"},
-  { label: "Requests", icon: MdMoney, path: "/admin/requests"},
+  { label: "Requests", icon: MdAttachMoney, path: "/admin/requests"},
+  { label: "Payment Plans", icon: MdPayments, path: "/admin/repayments"},
   //{ label: "Analytics", icon: MdBarChart, path: "/admin/analytics"},
 ];
 
