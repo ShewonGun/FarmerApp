@@ -3,6 +3,8 @@ import { useState, useEffect } from "react"
 import ToasterConfig from "./Components/SharedComponents/ToasterConfig"
 import Navbar from "./Components/AdminComponents/Navbar"
 import Sidebar from "./Components/AdminComponents/Sidebar"
+import UserNavbar from "./Components/UserComponents/UserNavbar"
+import UserSidebar from "./Components/UserComponents/UserSidebar"
 import Dashboard from "./Pages/AdminPages/Dashboard"
 import Course from "./Pages/AdminPages/Course"
 import Users from "./Pages/AdminPages/Users"
@@ -10,6 +12,11 @@ import Requests from "./Pages/AdminPages/Requests"
 import RepayPlans from "./Pages/AdminPages/RepayPlans"
 import Login from "./Pages/SharedPages/Login"
 import Signup from "./Pages/SharedPages/Signup"
+import LandingPage from "./Pages/UserPages/LandingPage"
+import CoursesPage from "./Pages/UserPages/CoursesPage"
+import CoursePageUser from "./Pages/UserPages/CoursePageUser"
+import MyCourses from "./Pages/UserPages/MyCourses"
+import LoanPage from "./Pages/UserPages/LoanPage"
 import ProtectedRoute from "./Routes/ProtectedRoute"
 import { sidebarState } from "./utils/sidebarState"
 
@@ -24,21 +31,37 @@ const App = () => {
 
   // Check if current route is an auth page (login/signup)
   const isAuthPage = location.pathname === '/login' || location.pathname === '/signup'
+  
+  // Check if current route is a user/farmer page
+  const isUserPage = location.pathname.startsWith('/landing') || location.pathname.startsWith('/courses') || location.pathname.startsWith('/my-courses') || location.pathname.startsWith('/loan') || location.pathname.match(/^\/course\/[^/]+$/)
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
       {/* Toast Notifications */}
       <ToasterConfig />
       
-      {!isAuthPage && (
+      {!isAuthPage && !isUserPage && (
         <>
           <Navbar />
           <Sidebar />
         </>
       )}
       
+      {isUserPage && (
+        <>
+          <UserNavbar />
+          <UserSidebar />
+        </>
+      )}
+      
       {/* Main Content Area */}
-      <main className={`transition-all duration-300 ${!isAuthPage ? `pt-16 ${state.collapsed ? 'md:ml-18' : 'md:ml-60'}` : ''}`}>
+      <main className={`transition-all duration-300 ${
+        !isAuthPage && !isUserPage 
+          ? `pt-16 ${state.collapsed ? 'md:ml-18' : 'md:ml-60'}` 
+          : isUserPage 
+          ? 'pt-16' 
+          : ''
+      }`}>
         <Routes>
           {/* Default Route - Redirect to Login */}
           <Route path="/" element={<Navigate to="/login" replace />} />
@@ -46,6 +69,13 @@ const App = () => {
           {/* Auth Routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          
+          {/* Protected User/Farmer Routes */}
+          <Route path="/landing" element={<ProtectedRoute><LandingPage /></ProtectedRoute>} />
+          <Route path="/courses" element={<ProtectedRoute><CoursesPage /></ProtectedRoute>} />
+          <Route path="/course/:courseId" element={<ProtectedRoute><CoursePageUser /></ProtectedRoute>} />
+          <Route path="/my-courses" element={<ProtectedRoute><MyCourses /></ProtectedRoute>} />
+          <Route path="/loan" element={<ProtectedRoute><LoanPage /></ProtectedRoute>} />
           
           {/* Protected Admin Routes */}
           <Route path="/admin" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

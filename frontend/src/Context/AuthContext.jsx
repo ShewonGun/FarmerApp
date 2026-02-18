@@ -52,7 +52,14 @@ export const AuthProvider = ({ children }) => {
         setUser(userData);
         localStorage.setItem('user', JSON.stringify(userData));
         localStorage.setItem('token', data.token);
-        navigate('/admin');
+        
+        // Redirect based on role
+        if (data.user.role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/landing');
+        }
+        
         return data;
       } else {
         throw new Error(data.message || 'Login failed');
@@ -89,7 +96,14 @@ export const AuthProvider = ({ children }) => {
         setUser(newUser);
         localStorage.setItem('user', JSON.stringify(newUser));
         localStorage.setItem('token', data.token);
-        navigate('/admin');
+        
+        // Redirect based on role
+        if (data.user.role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/landing');
+        }
+        
         return data;
       } else {
         throw new Error(data.message || 'Signup failed');
