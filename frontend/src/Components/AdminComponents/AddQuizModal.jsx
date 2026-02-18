@@ -16,7 +16,7 @@ const createEmptyQuestion = () => ({
   ],
 });
 
-const AddQuizModal = ({ isOpen, onClose, onSubmit, lessonId, initialData = null }) => {
+const AddQuizModal = ({ isOpen, onClose, onSubmit, lessonId, initialData = null, isPublished = true }) => {
   const [quizForm, setQuizForm] = useState(initialQuizForm);
   const [questions, setQuestions] = useState([createEmptyQuestion()]);
   const [errors, setErrors] = useState({});
@@ -188,7 +188,11 @@ const AddQuizModal = ({ isOpen, onClose, onSubmit, lessonId, initialData = null 
       <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-lg shadow-2xl shadow-slate-900/20 dark:shadow-slate-950/60 border border-slate-200 dark:border-slate-700/60 overflow-hidden max-h-[90vh] flex flex-col">
 
         {/* Header */}
-        <div className="bg-linear-to-br from-emerald-500 to-teal-600 px-3 py-2 flex items-center justify-between">
+        <div className={`px-3 py-2 flex items-center justify-between ${
+          isPublished 
+            ? 'bg-linear-to-br from-emerald-500 to-teal-600' 
+            : 'bg-linear-to-br from-slate-400 to-slate-500'
+        }`}>
           <div className="flex items-center gap-2">
             <h2 className="text-white font-bold text-[15px] leading-tight font-['Sora']">
                   {initialData ? 'Edit Quiz' : 'Add Quiz'}
@@ -216,11 +220,13 @@ const AddQuizModal = ({ isOpen, onClose, onSubmit, lessonId, initialData = null 
                 name="title"
                 value={quizForm.title}
                 onChange={handleQuizChange}
-                placeholder="e.g. React Hooks Quiz"
+                placeholder="e.g. Financial Literacy Quiz"
                 className={`w-full px-3 py-2.5 rounded-md text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border transition-all duration-150 outline-none placeholder:text-slate-400 dark:placeholder:text-slate-600
                   ${errors.title
                     ? 'border-red-400 dark:border-red-500 focus:ring-2 focus:ring-red-400/20'
-                    : 'border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20'
+                    : isPublished
+                    ? 'border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20'
+                    : 'border-slate-200 dark:border-slate-700 focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-slate-400/20'
                   }`}
               />
               {errors.title && (
@@ -243,7 +249,9 @@ const AddQuizModal = ({ isOpen, onClose, onSubmit, lessonId, initialData = null 
                 className={`w-full px-3 py-2.5 rounded-md text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border transition-all duration-150 outline-none
                   ${errors.passingScore
                     ? 'border-red-400 dark:border-red-500 focus:ring-2 focus:ring-red-400/20'
-                    : 'border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20'
+                    : isPublished
+                    ? 'border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20'
+                    : 'border-slate-200 dark:border-slate-700 focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-slate-400/20'
                   }`}
               />
               {errors.passingScore && (
@@ -260,10 +268,22 @@ const AddQuizModal = ({ isOpen, onClose, onSubmit, lessonId, initialData = null 
                 <button
                   type="button"
                   onClick={addQuestion}
-                  className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800/50 transition-all duration-150 cursor-pointer"
+                  className={`flex items-center gap-1 px-2.5 py-1 rounded-md border transition-all duration-150 cursor-pointer ${
+                    isPublished
+                      ? 'bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 border-emerald-200 dark:border-emerald-800/50'
+                      : 'bg-slate-100 dark:bg-slate-700/20 hover:bg-slate-200 dark:hover:bg-slate-700/30 border-slate-300 dark:border-slate-600/50'
+                  }`}
                 >
-                  <MdAdd className="text-sm text-emerald-600 dark:text-emerald-400" />
-                  <span className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 font-['Sora']">Add Question</span>
+                  <MdAdd className={`text-sm ${
+                    isPublished
+                      ? 'text-emerald-600 dark:text-emerald-400'
+                      : 'text-slate-600 dark:text-slate-400'
+                  }`} />
+                  <span className={`text-[11px] font-medium font-['Sora'] ${
+                    isPublished
+                      ? 'text-emerald-600 dark:text-emerald-400'
+                      : 'text-slate-600 dark:text-slate-400'
+                  }`}>Add Question</span>
                 </button>
               </div>
 
@@ -293,7 +313,9 @@ const AddQuizModal = ({ isOpen, onClose, onSubmit, lessonId, initialData = null 
                     className={`w-full px-3 py-2 rounded-md text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800/60 border transition-all duration-150 outline-none placeholder:text-slate-400 dark:placeholder:text-slate-600 resize-none
                       ${errors[`question_${qIdx}`]
                         ? 'border-red-400 dark:border-red-500 focus:ring-2 focus:ring-red-400/20'
-                        : 'border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20'
+                        : isPublished
+                        ? 'border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20'
+                        : 'border-slate-200 dark:border-slate-700 focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-slate-400/20'
                       }`}
                   />
                   {errors[`question_${qIdx}`] && (
@@ -312,7 +334,11 @@ const AddQuizModal = ({ isOpen, onClose, onSubmit, lessonId, initialData = null 
                           name={`correct_${qIdx}`}
                           checked={choice.isCorrect}
                           onChange={() => handleCorrectChange(qIdx, cIdx)}
-                          className="w-4 h-4 text-emerald-600 focus:ring-emerald-500 focus:ring-2 border-slate-300 dark:border-slate-600 cursor-pointer"
+                          className={`w-4 h-4 focus:ring-2 border-slate-300 dark:border-slate-600 cursor-pointer ${
+                            isPublished
+                              ? 'text-emerald-600 focus:ring-emerald-500'
+                              : 'text-slate-500 focus:ring-slate-400'
+                          }`}
                           title="Mark as correct answer"
                         />
                         <input
@@ -323,7 +349,9 @@ const AddQuizModal = ({ isOpen, onClose, onSubmit, lessonId, initialData = null 
                           className={`flex-1 px-3 py-1.5 rounded-md text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800/60 border transition-all duration-150 outline-none placeholder:text-slate-400 dark:placeholder:text-slate-600
                             ${errors[`question_${qIdx}_choice_${cIdx}`]
                               ? 'border-red-400 dark:border-red-500 focus:ring-2 focus:ring-red-400/20'
-                              : 'border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20'
+                              : isPublished
+                              ? 'border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20'
+                              : 'border-slate-200 dark:border-slate-700 focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-slate-400/20'
                             }`}
                         />
                       </div>
@@ -354,7 +382,11 @@ const AddQuizModal = ({ isOpen, onClose, onSubmit, lessonId, initialData = null 
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-[12px] font-semibold text-white bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 shadow-sm shadow-emerald-200 dark:shadow-emerald-900/30 hover:shadow-md hover:shadow-emerald-200/80 dark:hover:shadow-emerald-900/40 transition-all duration-200 cursor-pointer font-['Sora'] active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
+                className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-[12px] font-semibold text-white shadow-sm transition-all duration-200 cursor-pointer font-['Sora'] active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed ${
+                  isPublished
+                    ? 'bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 shadow-emerald-200 dark:shadow-emerald-900/30 hover:shadow-md hover:shadow-emerald-200/80 dark:hover:shadow-emerald-900/40'
+                    : 'bg-linear-to-r from-slate-400 to-slate-500 hover:from-slate-500 hover:to-slate-600 shadow-slate-200 dark:shadow-slate-900/30 hover:shadow-md hover:shadow-slate-200/80 dark:hover:shadow-slate-900/40'
+                }`}
               >
                 {loading ? (
                   <>

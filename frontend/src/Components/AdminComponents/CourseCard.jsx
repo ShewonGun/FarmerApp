@@ -360,6 +360,7 @@ const CourseCard = ({ course, onEdit, onDelete, onToggleActive, onAddLesson, onE
         onSubmit={handleLessonSubmit}
         courseId={_id}
         initialData={editingLesson}
+        isPublished={isPublished}
       />
 
       {/* Add Quiz Modal */}
@@ -369,6 +370,7 @@ const CourseCard = ({ course, onEdit, onDelete, onToggleActive, onAddLesson, onE
         onSubmit={handleQuizSubmit}
         lessonId={selectedLessonForQuiz?._id || selectedLessonForQuiz?.id}
         initialData={editingQuiz}
+        isPublished={isPublished}
       />
 
       {/* Preview Modal */}
