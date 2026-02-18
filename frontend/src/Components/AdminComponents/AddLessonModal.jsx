@@ -9,7 +9,7 @@ const initialForm = {
   thumbnailUrl: '',
 };
 
-const AddLessonModal = ({ isOpen, onClose, onSubmit, courseId, initialData = null }) => {
+const AddLessonModal = ({ isOpen, onClose, onSubmit, courseId, initialData = null, isPublished = true }) => {
   const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -87,7 +87,11 @@ const AddLessonModal = ({ isOpen, onClose, onSubmit, courseId, initialData = nul
       <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-lg shadow-2xl shadow-slate-900/20 dark:shadow-slate-950/60 border border-slate-200 dark:border-slate-700/60 overflow-hidden">
 
         {/* Header */}
-        <div className="bg-linear-to-br from-emerald-500 to-teal-600 px-3 py-2 flex items-center justify-between">
+        <div className={`px-3 py-2 flex items-center justify-between ${
+          isPublished 
+            ? 'bg-linear-to-br from-emerald-500 to-teal-600' 
+            : 'bg-linear-to-br from-slate-400 to-slate-500'
+        }`}>
           <div className="flex items-center gap-2">
             <h2 className="text-white font-bold text-[15px] leading-tight font-['Sora']">
                   {initialData ? 'Edit Lesson' : 'Add Lesson'}
@@ -115,11 +119,13 @@ const AddLessonModal = ({ isOpen, onClose, onSubmit, courseId, initialData = nul
                 name="title"
                 value={form.title}
                 onChange={handleChange}
-                placeholder="e.g. Introduction to React Hooks"
+                placeholder="e.g. Introduction to Financial Literacy"
                 className={`w-full px-3 py-2.5 rounded-md text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border transition-all duration-150 outline-none placeholder:text-slate-400 dark:placeholder:text-slate-600
                   ${errors.title
                     ? 'border-red-400 dark:border-red-500 focus:ring-2 focus:ring-red-400/20'
-                    : 'border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20'
+                    : isPublished
+                    ? 'border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20'
+                    : 'border-slate-200 dark:border-slate-700 focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-slate-400/20'
                   }`}
               />
               {errors.title && (
@@ -141,7 +147,9 @@ const AddLessonModal = ({ isOpen, onClose, onSubmit, courseId, initialData = nul
                 className={`w-full px-3 py-2.5 rounded-md text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border transition-all duration-150 outline-none placeholder:text-slate-400 dark:placeholder:text-slate-600 resize-none
                   ${errors.content
                     ? 'border-red-400 dark:border-red-500 focus:ring-2 focus:ring-red-400/20'
-                    : 'border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20'
+                    : isPublished
+                    ? 'border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20'
+                    : 'border-slate-200 dark:border-slate-700 focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-slate-400/20'
                   }`}
               />
               {errors.content && (
@@ -163,7 +171,9 @@ const AddLessonModal = ({ isOpen, onClose, onSubmit, courseId, initialData = nul
                 className={`w-full px-3 py-2.5 rounded-md text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border transition-all duration-150 outline-none placeholder:text-slate-400 dark:placeholder:text-slate-600
                   ${errors.youtubeUrl
                     ? 'border-red-400 dark:border-red-500 focus:ring-2 focus:ring-red-400/20'
-                    : 'border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20'
+                    : isPublished
+                    ? 'border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20'
+                    : 'border-slate-200 dark:border-slate-700 focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-slate-400/20'
                   }`}
               />
               {errors.youtubeUrl && (
@@ -189,7 +199,11 @@ const AddLessonModal = ({ isOpen, onClose, onSubmit, courseId, initialData = nul
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-[12px] font-semibold text-white bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 shadow-sm shadow-emerald-200 dark:shadow-emerald-900/30 hover:shadow-md hover:shadow-emerald-200/80 dark:hover:shadow-emerald-900/40 transition-all duration-200 cursor-pointer font-['Sora'] active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
+                className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-[12px] font-semibold text-white shadow-sm transition-all duration-200 cursor-pointer font-['Sora'] active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed ${
+                  isPublished
+                    ? 'bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 shadow-emerald-200 dark:shadow-emerald-900/30 hover:shadow-md hover:shadow-emerald-200/80 dark:hover:shadow-emerald-900/40'
+                    : 'bg-linear-to-r from-slate-400 to-slate-500 hover:from-slate-500 hover:to-slate-600 shadow-slate-200 dark:shadow-slate-900/30 hover:shadow-md hover:shadow-slate-200/80 dark:hover:shadow-slate-900/40'
+                }`}
               >
                 {loading ? (
                   <>

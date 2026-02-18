@@ -19,7 +19,7 @@ const PlanCard = ({ plan, onEdit, onDelete, onToggleActive }) => {
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'LKR',
       minimumFractionDigits: 0,
     }).format(amount);
   };

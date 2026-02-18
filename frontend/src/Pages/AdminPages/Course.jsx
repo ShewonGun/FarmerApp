@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MdAdd } from 'react-icons/md';
 import CourseCard from '../../Components/AdminComponents/CourseCard';
-import AddCourseModal from '../../Components/AdminComponents/addCourseModal';
+import AddCourseModal from '../../Components/AdminComponents/AddCourseModal';
 import ConfirmBox from '../../Components/SharedComponents/ConfirmBox';
 import axios from 'axios';
 import { showSuccess, showError } from '../../utils/toast';

@@ -11,6 +11,7 @@ import userRoutes from "./routes/userRoutes/userRoutes.js";
 import certificateRoutes from "./routes/courseRoutes/certifcateRoutes.js";
 import planRoutes from "./routes/adminRoutes/planRoutes.js";
 import aiCourseRoutes from "./routes/courseRoutes/aiCourseRoute.js";
+import uploadRoutes from "./routes/sharedRoutes/uploadRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -34,6 +35,7 @@ app.use("/api", progressRoutes);
 app.use("/api", certificateRoutes);
 app.use("/api", planRoutes);
 app.use("/api", aiCourseRoutes);
+app.use("/api", uploadRoutes);
 
 const PORT = process.env.PORT || 5000;
 

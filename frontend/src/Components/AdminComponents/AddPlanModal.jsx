@@ -25,6 +25,9 @@ const AddPlanModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const nameRef = useRef(null);
+  
+  // Use gray colors when editing an inactive plan
+  const isInactiveEdit = initialData && !initialData.isActive;
 
   useEffect(() => {
     if (isOpen) {
@@ -111,7 +114,11 @@ const AddPlanModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
       {/* Modal panel */}
       <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-lg shadow-2xl shadow-slate-900/20 dark:shadow-slate-950/60 border border-slate-200 dark:border-slate-700/60 overflow-hidden">
         {/* Header */}
-        <div className="bg-linear-to-br from-emerald-500 to-teal-600 px-3 py-2 flex items-center justify-between">
+        <div className={`px-3 py-2 flex items-center justify-between ${
+          isInactiveEdit 
+            ? 'bg-linear-to-br from-slate-400 to-slate-500' 
+            : 'bg-linear-to-br from-emerald-500 to-teal-600'
+        }`}>
           <div className="flex items-center gap-2">
             <h2 className="text-white font-bold text-[15px] leading-tight font-['Sora']">
               {initialData ? 'Edit Plan' : 'Add Repayment Plan'}
@@ -143,6 +150,8 @@ const AddPlanModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                 className={`w-full px-3 py-2.5 rounded-md text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border transition-all duration-150 outline-none placeholder:text-slate-400 dark:placeholder:text-slate-600
                   ${errors.planName
                     ? 'border-red-400 dark:border-red-500 focus:ring-2 focus:ring-red-400/20'
+                    : isInactiveEdit
+                    ? 'border-slate-200 dark:border-slate-700 focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-slate-400/20'
                     : 'border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20'
                   }`}
               />
@@ -164,6 +173,8 @@ const AddPlanModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                 className={`w-full px-3 py-2.5 rounded-md text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border transition-all duration-150 outline-none placeholder:text-slate-400 dark:placeholder:text-slate-600 resize-none
                   ${errors.description
                     ? 'border-red-400 dark:border-red-500 focus:ring-2 focus:ring-red-400/20'
+                    : isInactiveEdit
+                    ? 'border-slate-200 dark:border-slate-700 focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-slate-400/20'
                     : 'border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20'
                   }`}
               />
@@ -185,6 +196,8 @@ const AddPlanModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                     className={`px-3 py-2.5 rounded-md text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border transition-all duration-150 outline-none
                       ${errors.duration
                         ? 'border-red-400 dark:border-red-500 focus:ring-2 focus:ring-red-400/20'
+                        : isInactiveEdit
+                        ? 'border-slate-200 dark:border-slate-700 focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-slate-400/20'
                         : 'border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20'
                       }`}
                   />
@@ -192,7 +205,11 @@ const AddPlanModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                     name="duration.unit"
                     value={form.duration.unit}
                     onChange={handleChange}
-                    className="px-3 py-2.5 rounded-md text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20 transition-all duration-150 outline-none"
+                    className={`px-3 py-2.5 rounded-md text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border transition-all duration-150 outline-none ${
+                      isInactiveEdit
+                        ? 'border-slate-200 dark:border-slate-700 focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-slate-400/20'
+                        : 'border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20'
+                    }`}
                   >
                     <option value="days">Days</option>
                     <option value="weeks">Weeks</option>
@@ -218,6 +235,8 @@ const AddPlanModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                   className={`w-full px-3 py-2.5 rounded-md text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border transition-all duration-150 outline-none
                     ${errors.interestRate
                       ? 'border-red-400 dark:border-red-500 focus:ring-2 focus:ring-red-400/20'
+                      : isInactiveEdit
+                      ? 'border-slate-200 dark:border-slate-700 focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-slate-400/20'
                       : 'border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20'
                     }`}
                 />
@@ -235,7 +254,11 @@ const AddPlanModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                   name="interestType"
                   value={form.interestType}
                   onChange={handleChange}
-                  className="w-full px-3 py-2.5 rounded-md text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20 transition-all duration-150 outline-none"
+                  className={`w-full px-3 py-2.5 rounded-md text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border transition-all duration-150 outline-none ${
+                    isInactiveEdit
+                      ? 'border-slate-200 dark:border-slate-700 focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-slate-400/20'
+                      : 'border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20'
+                  }`}
                 >
                   <option value="simple">Simple</option>
                   <option value="compound">Compound</option>
@@ -252,7 +275,11 @@ const AddPlanModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                   name="paymentFrequency"
                   value={form.paymentFrequency}
                   onChange={handleChange}
-                  className="w-full px-3 py-2.5 rounded-md text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20 transition-all duration-150 outline-none"
+                  className={`w-full px-3 py-2.5 rounded-md text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border transition-all duration-150 outline-none ${
+                    isInactiveEdit
+                      ? 'border-slate-200 dark:border-slate-700 focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-slate-400/20'
+                      : 'border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20'
+                  }`}
                 >
                   <option value="weekly">Weekly</option>
                   <option value="biweekly">Biweekly</option>
@@ -278,6 +305,8 @@ const AddPlanModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                   className={`w-full px-3 py-2.5 rounded-md text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border transition-all duration-150 outline-none
                     ${errors.minLoanAmount
                       ? 'border-red-400 dark:border-red-500 focus:ring-2 focus:ring-red-400/20'
+                      : isInactiveEdit
+                      ? 'border-slate-200 dark:border-slate-700 focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-slate-400/20'
                       : 'border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20'
                     }`}
                 />
@@ -298,6 +327,8 @@ const AddPlanModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                   className={`w-full px-3 py-2.5 rounded-md text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border transition-all duration-150 outline-none
                     ${errors.maxLoanAmount
                       ? 'border-red-400 dark:border-red-500 focus:ring-2 focus:ring-red-400/20'
+                      : isInactiveEdit
+                      ? 'border-slate-200 dark:border-slate-700 focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-slate-400/20'
                       : 'border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20'
                     }`}
                 />
@@ -316,7 +347,11 @@ const AddPlanModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                   name="latePenalty.type"
                   value={form.latePenalty.type}
                   onChange={handleChange}
-                  className="px-3 py-2.5 rounded-md text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20 transition-all duration-150 outline-none"
+                  className={`px-3 py-2.5 rounded-md text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border transition-all duration-150 outline-none ${
+                    isInactiveEdit
+                      ? 'border-slate-200 dark:border-slate-700 focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-slate-400/20'
+                      : 'border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20'
+                  }`}
                 >
                   <option value="percentage">Percentage</option>
                   <option value="fixed">Fixed Amount</option>
@@ -329,7 +364,11 @@ const AddPlanModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                   min="0"
                   step="0.1"
                   placeholder={form.latePenalty.type === 'percentage' ? 'e.g., 5' : 'e.g., 50'}
-                  className="col-span-2 px-3 py-2.5 rounded-md text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20 transition-all duration-150 outline-none placeholder:text-slate-400 dark:placeholder:text-slate-600"
+                  className={`col-span-2 px-3 py-2.5 rounded-md text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border transition-all duration-150 outline-none placeholder:text-slate-400 dark:placeholder:text-slate-600 ${
+                    isInactiveEdit
+                      ? 'border-slate-200 dark:border-slate-700 focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-slate-400/20'
+                      : 'border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20'
+                  }`}
                 />
               </div>
               {errors.latePenalty && <p className="mt-1 text-[11px] text-red-500 font-['Sora']">{errors.latePenalty}</p>}
@@ -352,7 +391,9 @@ const AddPlanModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                 onClick={() => setForm((f) => ({ ...f, isActive: !f.isActive }))}
                 className={`relative inline-flex w-10 h-5.5 rounded-full transition-colors duration-200 cursor-pointer focus:outline-none shrink-0
                   ${form.isActive
-                    ? 'bg-linear-to-r from-emerald-500 to-teal-500'
+                    ? isInactiveEdit
+                      ? 'bg-linear-to-r from-slate-400 to-slate-500'
+                      : 'bg-linear-to-r from-emerald-500 to-teal-500'
                     : 'bg-slate-200 dark:bg-slate-700'
                   }`}
               >
@@ -380,7 +421,11 @@ const AddPlanModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-[12px] font-semibold text-white bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 shadow-sm shadow-emerald-200 dark:shadow-emerald-900/30 hover:shadow-md hover:shadow-emerald-200/80 dark:hover:shadow-emerald-900/40 transition-all duration-200 cursor-pointer font-['Sora'] active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
+                className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-[12px] font-semibold text-white shadow-sm transition-all duration-200 cursor-pointer font-['Sora'] active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed ${
+                  isInactiveEdit
+                    ? 'bg-linear-to-r from-slate-400 to-slate-500 hover:from-slate-500 hover:to-slate-600 shadow-slate-200 dark:shadow-slate-900/30 hover:shadow-md hover:shadow-slate-200/80 dark:hover:shadow-slate-900/40'
+                    : 'bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 shadow-emerald-200 dark:shadow-emerald-900/30 hover:shadow-md hover:shadow-emerald-200/80 dark:hover:shadow-emerald-900/40'
+                }`}
               >
                 {loading ? (
                   <>

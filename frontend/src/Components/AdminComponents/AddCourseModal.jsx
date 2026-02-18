@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MdClose, MdCloudUpload, MdBook } from 'react-icons/md';
+import { MdClose, MdCloudUpload } from 'react-icons/md';
+import axios from 'axios';
+
+const API_BASE_URL = 'http://localhost:5000/api';
 
 const initialForm = {
   title: '',
@@ -8,11 +11,26 @@ const initialForm = {
   isPublished: false,
 };
 
+// Helper to get auth headers
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  return {
+    ...(token && { Authorization: `Bearer ${token}` }),
+  };
+};
+
 const AddCourseModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
   const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const titleRef = useRef(null);
+  const fileInputRef = useRef(null);
+  
+  // Use gray colors when editing an unpublished course
+  const isUnpublishedEdit = initialData && !initialData.isPublished;
 
   // Auto-focus title on open
   useEffect(() => {
@@ -24,6 +42,9 @@ const AddCourseModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
         thumbnailUrl: initialData.thumbnailUrl || '',
         isPublished: initialData.isPublished || false,
       } : initialForm);
+      setImageFile(null);
+      setImagePreview(initialData?.thumbnailUrl || null);
+      setUploadProgress(0);
       setErrors({});
     }
   }, [isOpen, initialData]);
@@ -39,9 +60,83 @@ const AddCourseModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
     const errs = {};
     if (!form.title.trim()) errs.title = 'Course title is required.';
     if (!form.description.trim()) errs.description = 'Description is required.';
-    if (form.thumbnailUrl && !/^https?:\/\/.+/.test(form.thumbnailUrl))
-      errs.thumbnailUrl = 'Must be a valid URL starting with http(s)://';
     return errs;
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        setErrors((prev) => ({ ...prev, thumbnailUrl: 'Please select an image file.' }));
+        return;
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setErrors((prev) => ({ ...prev, thumbnailUrl: 'Image size should be less than 5MB.' }));
+        return;
+      }
+      
+      setImageFile(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+      
+      // Clear error
+      if (errors.thumbnailUrl) {
+        const newErrors = { ...errors };
+        delete newErrors.thumbnailUrl;
+        setErrors(newErrors);
+      }
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    setForm((f) => ({ ...f, thumbnailUrl: '' }));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const uploadImageToBackend = async (file) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('folder', 'courses');
+
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/upload/image`,
+        formData,
+        {
+          headers: {
+            ...getAuthHeaders(),
+            'Content-Type': 'multipart/form-data',
+          },
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            setUploadProgress(percentCompleted);
+          },
+        }
+      );
+
+      if (response.data.success) {
+        return response.data.url;
+      } else {
+        throw new Error('Upload failed');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      throw error;
+    }
   };
 
   const handleChange = (e) => {
@@ -55,11 +150,32 @@ const AddCourseModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setLoading(true);
+    setUploadProgress(0);
+    
     try {
-      await onSubmit?.({ ...form, enrollmentCount: 0, noOfLessons: 0 });
+      let thumbnailUrl = form.thumbnailUrl;
+      
+      // Upload new image if selected
+      if (imageFile) {
+        thumbnailUrl = await uploadImageToBackend(imageFile);
+      }
+      
+      await onSubmit?.({ 
+        ...form, 
+        thumbnailUrl,
+        enrollmentCount: 0, 
+        noOfLessons: 0 
+      });
       onClose();
+    } catch (error) {
+      console.error('Error:', error);
+      setErrors((prev) => ({ 
+        ...prev, 
+        thumbnailUrl: 'Failed to upload image. Please try again.' 
+      }));
     } finally {
       setLoading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -81,7 +197,11 @@ const AddCourseModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
       <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-lg shadow-2xl shadow-slate-900/20 dark:shadow-slate-950/60 border border-slate-200 dark:border-slate-700/60 overflow-hidden">
 
         {/* Header */}
-        <div className="bg-linear-to-br from-emerald-500 to-teal-600 px-3 py-2 flex items-center justify-between">
+        <div className={`px-3 py-2 flex items-center justify-between ${
+          isUnpublishedEdit 
+            ? 'bg-linear-to-br from-slate-400 to-slate-500' 
+            : 'bg-linear-to-br from-emerald-500 to-teal-600'
+        }`}>
           <div className="flex items-center gap-2">
             <h2 className="text-white font-bold text-[15px] leading-tight font-['Sora']">
                   {initialData ? 'Edit Course' : 'Add Course'}
@@ -113,6 +233,8 @@ const AddCourseModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                 className={`w-full px-3 py-2.5 rounded-md text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border transition-all duration-150 outline-none placeholder:text-slate-400 dark:placeholder:text-slate-600
                   ${errors.title
                     ? 'border-red-400 dark:border-red-500 focus:ring-2 focus:ring-red-400/20'
+                    : isUnpublishedEdit
+                    ? 'border-slate-200 dark:border-slate-700 focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-slate-400/20'
                     : 'border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20'
                   }`}
               />
@@ -135,6 +257,8 @@ const AddCourseModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                 className={`w-full px-3 py-2.5 rounded-md text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border transition-all duration-150 outline-none placeholder:text-slate-400 dark:placeholder:text-slate-600 resize-none
                   ${errors.description
                     ? 'border-red-400 dark:border-red-500 focus:ring-2 focus:ring-red-400/20'
+                    : isUnpublishedEdit
+                    ? 'border-slate-200 dark:border-slate-700 focus:border-slate-400 dark:focus:border-slate-500 focus:ring-2 focus:ring-slate-400/20'
                     : 'border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20'
                   }`}
               />
@@ -143,28 +267,95 @@ const AddCourseModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
               )}
             </div>
 
-            {/* Thumbnail URL */}
+            {/* Thumbnail Upload */}
             <div>
               <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 font-['Sora']">
-                Thumbnail URL
+                Course Thumbnail
                 <span className="ml-1.5 normal-case tracking-normal font-normal text-slate-400 dark:text-slate-500">(optional)</span>
               </label>
-              <div className="relative">
-                <MdCloudUpload className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-base pointer-events-none" />
-                <input
-                  name="thumbnailUrl"
-                  value={form.thumbnailUrl}
-                  onChange={handleChange}
-                  placeholder="https://example.com/thumbnail.jpg"
-                  className={`w-full pl-8 pr-3 py-2.5 rounded-md text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border transition-all duration-150 outline-none placeholder:text-slate-400 dark:placeholder:text-slate-600
-                    ${errors.thumbnailUrl
-                      ? 'border-red-400 dark:border-red-500 focus:ring-2 focus:ring-red-400/20'
-                      : 'border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20'
-                    }`}
-                />
-              </div>
+              
+              {!imagePreview ? (
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`relative w-full h-32 rounded-md border-2 border-dashed transition-all duration-150 cursor-pointer flex flex-col items-center justify-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-800/40 ${
+                    errors.thumbnailUrl
+                      ? 'border-red-400 dark:border-red-500 bg-red-50/50 dark:bg-red-900/10'
+                      : isUnpublishedEdit
+                      ? 'border-slate-300 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/20'
+                      : 'border-emerald-300 dark:border-emerald-700 bg-emerald-50/50 dark:bg-emerald-900/10'
+                  }`}
+                >
+                  <MdCloudUpload className={`text-3xl ${
+                    errors.thumbnailUrl
+                      ? 'text-red-400 dark:text-red-500'
+                      : isUnpublishedEdit
+                      ? 'text-slate-400 dark:text-slate-500'
+                      : 'text-emerald-400 dark:text-emerald-500'
+                  }`} />
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300 font-['Sora']">
+                    Click to upload image
+                  </p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-500">
+                    PNG, JPG, GIF up to 5MB
+                  </p>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                </div>
+              ) : (
+                <div className="relative w-full h-32 rounded-md border border-slate-200 dark:border-slate-700 overflow-hidden group">
+                  <img
+                    src={imagePreview}
+                    alt="Thumbnail preview"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="px-3 py-1.5 rounded-md text-[11px] font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors duration-150 font-['Sora']"
+                    >
+                      Change
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="px-3 py-1.5 rounded-md text-[11px] font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors duration-150 font-['Sora']"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                </div>
+              )}
+              
               {errors.thumbnailUrl && (
                 <p className="mt-1 text-[11px] text-red-500 font-['Sora']">{errors.thumbnailUrl}</p>
+              )}
+              
+              {uploadProgress > 0 && uploadProgress < 100 && (
+                <div className="mt-2">
+                  <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 mb-1">
+                    <span>Uploading...</span>
+                    <span>{uploadProgress}%</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-emerald-500 transition-all duration-300"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
+                </div>
               )}
             </div>
 
@@ -185,7 +376,9 @@ const AddCourseModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
                 onClick={() => setForm((f) => ({ ...f, isPublished: !f.isPublished }))}
                 className={`relative inline-flex w-10 h-5.5 rounded-full transition-colors duration-200 cursor-pointer focus:outline-none shrink-0
                   ${form.isPublished
-                    ? 'bg-linear-to-r from-emerald-500 to-teal-500'
+                    ? isUnpublishedEdit
+                      ? 'bg-linear-to-r from-slate-500 to-slate-600'
+                      : 'bg-linear-to-r from-emerald-500 to-teal-500'
                     : 'bg-slate-200 dark:bg-slate-700'
                   }`}
               >
@@ -214,7 +407,11 @@ const AddCourseModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-[12px] font-semibold text-white bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 shadow-sm shadow-emerald-200 dark:shadow-emerald-900/30 hover:shadow-md hover:shadow-emerald-200/80 dark:hover:shadow-emerald-900/40 transition-all duration-200 cursor-pointer font-['Sora'] active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
+                className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-[12px] font-semibold text-white shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer font-['Sora'] active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed ${
+                  isUnpublishedEdit
+                    ? 'bg-linear-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 shadow-slate-200 dark:shadow-slate-900/30 hover:shadow-slate-200/80 dark:hover:shadow-slate-900/40'
+                    : 'bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 shadow-emerald-200 dark:shadow-emerald-900/30 hover:shadow-emerald-200/80 dark:hover:shadow-emerald-900/40'
+                }`}
               >
                 {loading ? (
                   <>
