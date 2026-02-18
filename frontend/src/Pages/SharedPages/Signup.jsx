@@ -26,7 +26,12 @@ const Signup = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/admin');
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user?.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/landing');
+      }
     }
   }, [isAuthenticated, navigate]);
 

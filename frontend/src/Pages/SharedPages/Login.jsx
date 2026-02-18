@@ -23,7 +23,12 @@ const Login = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/admin');
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user?.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/landing');
+      }
     }
   }, [isAuthenticated, navigate]);
 
@@ -153,16 +158,6 @@ const Login = () => {
               {errors.password && (
                 <p className="mt-1 text-[11px] text-red-500 font-['Sora']">{errors.password}</p>
               )}
-            </div>
-
-            {/* Forgot password link */}
-            <div className="flex justify-end">
-              <Link
-                to="/forgot-password"
-                className="text-xs text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-semibold font-['Sora'] transition-colors"
-              >
-                Forgot password?
-              </Link>
             </div>
 
             {/* Submit button */}
