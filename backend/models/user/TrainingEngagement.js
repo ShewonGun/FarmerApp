@@ -9,7 +9,7 @@ export const trainingEngagementFields = {
     },
     preferredLanguage: {
         type: String,
-        enum: ["english", "local", "other"],
+        enum: ["english", "sinhala", "tamil", "other"],
         default: "local"
     },
     areasOfInterest: [{ type: String }] // e.g., irrigation, crop disease, finance

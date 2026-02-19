@@ -1,16 +1,13 @@
 import UserTrust from "../../models/user/VerificationTrust.js";
 
-/**
- * @desc    Create Verification Record (KYC Submit)
- * @route   POST /api/verification
- * @access  Private
- */
+
+//FARMER: Submit KYC
 export const createVerification = async (req, res) => {
     try {
-        const { userId } = req.body;
+        const userId = req.user._id;
 
-        // Prevent duplicate verification record
         const existing = await UserTrust.findOne({ userId });
+
         if (existing) {
             return res.status(400).json({
                 success: false,
@@ -18,7 +15,10 @@ export const createVerification = async (req, res) => {
             });
         }
 
-        const verification = await UserTrust.create(req.body);
+        const verification = await UserTrust.create({
+            ...req.body,
+            userId
+        });
 
         res.status(201).json({
             success: true,
@@ -35,18 +35,15 @@ export const createVerification = async (req, res) => {
 };
 
 
-/**
- * @desc    Get Verification Info by User ID
- * @route   GET /api/verification/:userId
- * @access  Private/Admin
- */
-export const getVerificationByUser = async (req, res) => {
+
+//FARMER: Get My Verification
+export const getMyVerification = async (req, res) => {
     try {
-        const { userId } = req.params;
+        const userId = req.user._id;
 
         const verification = await UserTrust
             .findOne({ userId })
-            .populate("userId");
+            .populate("userId", "name email role");
 
         if (!verification) {
             return res.status(404).json({
@@ -69,14 +66,44 @@ export const getVerificationByUser = async (req, res) => {
 };
 
 
-/**
- * @desc    Get All Verification Records (Admin Panel)
- * @route   GET /api/verification
- * @access  Admin
- */
+
+//ADMIN: Get Verification by User ID
+export const getVerificationByUser = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        const verification = await UserTrust
+            .findOne({ userId })
+            .populate("userId", "name email role");
+
+        if (!verification) {
+            return res.status(404).json({
+                success: false,
+                message: "Verification record not found"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: verification
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+
+
+//ADMIN: Get All Verifications
 export const getAllVerifications = async (req, res) => {
     try {
-        const records = await UserTrust.find().populate("userId");
+        const records = await UserTrust.find()
+            .populate("userId", "name email role")
+            .sort({ createdAt: -1 });
 
         res.status(200).json({
             success: true,
@@ -93,16 +120,12 @@ export const getAllVerifications = async (req, res) => {
 };
 
 
-/**
- * @desc    Update Verification Info (Admin Decision)
- * @route   PUT /api/verification/:userId
- * @access  Admin
- */
+
+//ADMIN: Update Verification Status
 export const updateVerification = async (req, res) => {
     try {
         const { userId } = req.params;
 
-        // If admin verifies user → set verifiedDate automatically
         if (req.body.verificationStatus === "Verified") {
             req.body.verifiedDate = new Date();
         }
@@ -135,11 +158,8 @@ export const updateVerification = async (req, res) => {
 };
 
 
-/**
- * @desc    Delete Verification Record
- * @route   DELETE /api/verification/:userId
- * @access  Admin
- */
+
+//ADMIN: Delete Verification
 export const deleteVerification = async (req, res) => {
     try {
         const { userId } = req.params;

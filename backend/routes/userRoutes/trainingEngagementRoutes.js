@@ -1,18 +1,29 @@
 import express from "express";
 import {
     createTrainingEngagement,
-    getTrainingEngagementByUser,
+    getMyTrainingEngagement,
     getAllTrainingEngagements,
     updateTrainingEngagement,
     deleteTrainingEngagement
 } from "../../controllers/userControllers/trainingEngagementController.js";
 
+import {
+    authenticate,
+    farmerOnly,
+    adminOnly
+} from "../../middlewares/protect.js";
+
 const router = express.Router();
 
-router.post("/", createTrainingEngagement);
-router.get("/", getAllTrainingEngagements);
-router.get("/:userId", getTrainingEngagementByUser);
-router.put("/:userId", updateTrainingEngagement);
-router.delete("/:userId", deleteTrainingEngagement);
+
+//Farmer Routes
+router.post("/", authenticate, farmerOnly, createTrainingEngagement);
+router.get("/my", authenticate, farmerOnly, getMyTrainingEngagement);
+router.put("/my", authenticate, farmerOnly, updateTrainingEngagement);
+router.delete("/my", authenticate, farmerOnly, deleteTrainingEngagement);
+
+//Admin Routes
+router.get("/", authenticate, adminOnly, getAllTrainingEngagements);
+
 
 export default router;

@@ -1,12 +1,13 @@
 import UserFarmingLocation from "../../models/user/LocationFarming.js";
 
-// @route   POST /api/farming
+
+//CREATE Location & Farming Info (Farmer Only)
 export const createLocationFarming = async (req, res) => {
     try {
-        const { userId } = req.body;
+        const userId = req.user._id;
 
-        // Check if record already exists
         const existing = await UserFarmingLocation.findOne({ userId });
+
         if (existing) {
             return res.status(400).json({
                 success: false,
@@ -14,7 +15,10 @@ export const createLocationFarming = async (req, res) => {
             });
         }
 
-        const farmingInfo = await UserFarmingLocation.create(req.body);
+        const farmingInfo = await UserFarmingLocation.create({
+            ...req.body,
+            userId
+        });
 
         res.status(201).json({
             success: true,
@@ -31,18 +35,15 @@ export const createLocationFarming = async (req, res) => {
 };
 
 
-/**
- * @desc    Get Location & Farming Info by User ID
- * @route   GET /api/farming/:userId
- * @access  Private
- */
-export const getLocationFarmingByUser = async (req, res) => {
+
+//GET My Location & Farming Info (Farmer)
+export const getMyLocationFarming = async (req, res) => {
     try {
-        const { userId } = req.params;
+        const userId = req.user._id;
 
         const farmingInfo = await UserFarmingLocation
             .findOne({ userId })
-            .populate("userId");
+            .populate("userId", "name email role");
 
         if (!farmingInfo) {
             return res.status(404).json({
@@ -65,14 +66,12 @@ export const getLocationFarmingByUser = async (req, res) => {
 };
 
 
-/**
- * @desc    Get All Location & Farming Records (Admin)
- * @route   GET /api/farming
- * @access  Admin
- */
+
+//GET All Location & Farming Records (Admin Only)
 export const getAllLocationFarmings = async (req, res) => {
     try {
-        const records = await UserFarmingLocation.find().populate("userId");
+        const records = await UserFarmingLocation.find()
+            .populate("userId", "name email role");
 
         res.status(200).json({
             success: true,
@@ -89,14 +88,11 @@ export const getAllLocationFarmings = async (req, res) => {
 };
 
 
-/**
- * @desc    Update Location & Farming Info
- * @route   PUT /api/farming/:userId
- * @access  Private
- */
+
+//UPDATE My Location & Farming Info (Farmer)
 export const updateLocationFarming = async (req, res) => {
     try {
-        const { userId } = req.params;
+        const userId = req.user._id;
 
         const updated = await UserFarmingLocation.findOneAndUpdate(
             { userId },
@@ -126,14 +122,11 @@ export const updateLocationFarming = async (req, res) => {
 };
 
 
-/**
- * @desc    Delete Location & Farming Info
- * @route   DELETE /api/farming/:userId
- * @access  Admin
- */
+
+// DELETE location & Farming Info (Farmer Only)
 export const deleteLocationFarming = async (req, res) => {
     try {
-        const { userId } = req.params;
+        const userId = req.user._id;
 
         const deleted = await UserFarmingLocation.findOneAndDelete({ userId });
 
@@ -156,3 +149,5 @@ export const deleteLocationFarming = async (req, res) => {
         });
     }
 };
+
+
