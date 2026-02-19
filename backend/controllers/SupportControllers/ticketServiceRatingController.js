@@ -2,10 +2,10 @@ import TicketServiceRating from "../../models/support/TicketServiceRating.js";
 import SupportTicket from "../../models/Support/SupportTicket.js";
 
 
-// 🟢 CREATE Ticket Rating (Farmer Only)
+//CREATE Ticket Rating (Farmer Only)
 export const createTicketRating = async (req, res) => {
     try {
-        const userId = req.user._id;      // 🔥 from token
+        const userId = req.user._id; 
         const { ticketId, rating, comment } = req.body;
 
         // Check ticket exists
@@ -18,7 +18,7 @@ export const createTicketRating = async (req, res) => {
             });
         }
 
-        // 🔒 Ensure farmer owns the ticket
+        //Ensure farmer owns the ticket
         if (ticket.userId.toString() !== userId.toString()) {
             return res.status(403).json({
                 success: false,
@@ -67,7 +67,7 @@ export const createTicketRating = async (req, res) => {
 
 
 
-// 🔵 GET All Ticket Ratings (Admin Only)
+//GET All Ticket Ratings (Admin Only)
 export const getAllTicketRatings = async (req, res) => {
     try {
         const ratings = await TicketServiceRating.find()
@@ -91,7 +91,7 @@ export const getAllTicketRatings = async (req, res) => {
 
 
 
-// 🔵 GET Rating by Ticket ID (Admin or Owner)
+//GET Rating by Ticket ID (Admin or Owner)
 export const getRatingByTicket = async (req, res) => {
     try {
         const { ticketId } = req.params;
@@ -134,7 +134,7 @@ export const getRatingByTicket = async (req, res) => {
 
 
 
-// 🟢 DELETE My Ticket Rating (Farmer) or Admin
+//DELETE My Ticket Rating (Farmer) or Admin
 export const deleteTicketRating = async (req, res) => {
     try {
         const { ticketId } = req.params;

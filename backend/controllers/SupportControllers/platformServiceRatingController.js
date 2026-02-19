@@ -4,7 +4,7 @@ import PlatformServiceRating from "../../models/Support/PlatformServiceRating.js
 // CREATE Platform Rating (Farmer Only)
 export const createPlatformRating = async (req, res) => {
     try {
-        const userId = req.user._id;   // 🔥 Get from token
+        const userId = req.user._id;  
 
         // Prevent duplicate rating per user
         const existing = await PlatformServiceRating.findOne({ userId });

@@ -4,7 +4,7 @@ import SupportTicket from "../../models/Support/SupportTicket.js";
 //Create new ticket (Farmer Only)
 export const createSupportTicket = async (req, res) => {
     try {
-        const userId = req.user._id;  // 🔥 from token
+        const userId = req.user._id;  
 
         const ticket = await SupportTicket.create({
             ...req.body,
@@ -188,7 +188,7 @@ export const replyToTicket = async (req, res) => {
         }
 
         ticket.adminReply = req.body.adminReply;
-        ticket.repliedBy = req.user._id;  // 🔥 from token
+        ticket.repliedBy = req.user._id; 
         ticket.repliedAt = new Date();
         ticket.status = "Resolved";
         ticket.resolvedAt = new Date();
