@@ -1,25 +1,36 @@
 import express from "express";
 import {
     createPlatformRating,
+    getMyPlatformRating,
     getPlatformRatingByUser,
     getAllPlatformRatings,
-    deletePlatformRating
+    deleteMyPlatformRating
 } from "../../controllers/SupportControllers/platformServiceRatingController.js";
+
+import {
+    authenticate,
+    farmerOnly,
+    adminOnly
+} from "../../middlewares/protect.js";
 
 const router = express.Router();
 
 
-// Create platform rating
-router.post("/", createPlatformRating);
+//Farmer submits rating
+router.post("/", authenticate, farmerOnly, createPlatformRating);
 
-// Get all ratings (Admin)
-router.get("/", getAllPlatformRatings);
+//Farmer gets their own rating
+router.get("/my", authenticate, farmerOnly, getMyPlatformRating);
 
-// Get rating by user ID
-router.get("/:userId", getPlatformRatingByUser);
+//Farmer deletes their own rating
+router.delete("/my", authenticate, farmerOnly, deleteMyPlatformRating);
 
-// Delete rating
-router.delete("/:userId", deletePlatformRating);
+
+//Admin gets all ratings
+router.get("/", authenticate, adminOnly, getAllPlatformRatings);
+
+//Admin gets rating by user ID
+router.get("/:userId", authenticate, adminOnly, getPlatformRatingByUser);
 
 
 export default router;

@@ -1,7 +1,7 @@
 import express from "express";
 import {
     createSupportTicket,
-    getTicketsByUser,
+    getMyTickets,
     getAllTickets,
     updateSupportTicket,
     deleteSupportTicket,
@@ -9,33 +9,37 @@ import {
     updateTicketStatus
 } from "../../controllers/SupportControllers/supportTicketController.js";
 
+import {
+    authenticate,
+    farmerOnly,
+    adminOnly
+} from "../../middlewares/protect.js";
+
 const router = express.Router();
 
 
-
-// 👨‍🌾 Farmer Routes
 // Create ticket
-router.post("/", createSupportTicket);
+router.post("/", authenticate, farmerOnly, createSupportTicket);
 
-// Get tickets by farmer
-router.get("/user/:userId", getTicketsByUser);
+// Get MY tickets
+router.get("/my", authenticate, farmerOnly, getMyTickets);
 
-// Update ticket (only if Open)
-router.put("/:ticketId", updateSupportTicket);
+// Update ticket (only if Open & owner)
+router.put("/:ticketId", authenticate, farmerOnly, updateSupportTicket);
 
-// Delete ticket (only if Open)
-router.delete("/:ticketId", deleteSupportTicket);
+// Delete ticket (only if Open & owner)
+router.delete("/:ticketId", authenticate, farmerOnly, deleteSupportTicket);
 
 
-// 👨‍💼 Admin Routes
+
 // Get all tickets
-router.get("/", getAllTickets);
+router.get("/", authenticate, adminOnly, getAllTickets);
 
 // Admin reply to ticket
-router.put("/:ticketId/reply", replyToTicket);
+router.put("/:ticketId/reply", authenticate, adminOnly, replyToTicket);
 
 // Admin update ticket status
-router.put("/:ticketId/status", updateTicketStatus);
+router.put("/:ticketId/status", authenticate, adminOnly, updateTicketStatus);
 
 
 export default router;

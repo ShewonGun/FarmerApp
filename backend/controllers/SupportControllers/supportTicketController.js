@@ -1,10 +1,15 @@
 import SupportTicket from "../../models/Support/SupportTicket.js";
 
 
-// Create new ticket
+//Create new ticket (Farmer Only)
 export const createSupportTicket = async (req, res) => {
     try {
-        const ticket = await SupportTicket.create(req.body);
+        const userId = req.user._id;  // 🔥 from token
+
+        const ticket = await SupportTicket.create({
+            ...req.body,
+            userId
+        });
 
         res.status(201).json({
             success: true,
@@ -21,10 +26,11 @@ export const createSupportTicket = async (req, res) => {
 };
 
 
-// Get tickets by farmer
-export const getTicketsByUser = async (req, res) => {
+
+//Get My Tickets (Farmer)
+export const getMyTickets = async (req, res) => {
     try {
-        const { userId } = req.params;
+        const userId = req.user._id;
 
         const tickets = await SupportTicket.find({ userId })
             .sort({ createdAt: -1 });
@@ -44,10 +50,12 @@ export const getTicketsByUser = async (req, res) => {
 };
 
 
-// Update ticket (only if still Open)
+
+//Update ticket (only owner & if Open)
 export const updateSupportTicket = async (req, res) => {
     try {
         const { ticketId } = req.params;
+        const userId = req.user._id;
 
         const ticket = await SupportTicket.findById(ticketId);
 
@@ -55,6 +63,14 @@ export const updateSupportTicket = async (req, res) => {
             return res.status(404).json({
                 success: false,
                 message: "Ticket not found"
+            });
+        }
+
+        // 🔒 Ownership check
+        if (ticket.userId.toString() !== userId.toString()) {
+            return res.status(403).json({
+                success: false,
+                message: "You can only update your own ticket"
             });
         }
 
@@ -86,10 +102,12 @@ export const updateSupportTicket = async (req, res) => {
 };
 
 
-// Delete ticket (only if still Open)
+
+//Delete ticket (only owner & if Open)
 export const deleteSupportTicket = async (req, res) => {
     try {
         const { ticketId } = req.params;
+        const userId = req.user._id;
 
         const ticket = await SupportTicket.findById(ticketId);
 
@@ -97,6 +115,13 @@ export const deleteSupportTicket = async (req, res) => {
             return res.status(404).json({
                 success: false,
                 message: "Ticket not found"
+            });
+        }
+
+        if (ticket.userId.toString() !== userId.toString()) {
+            return res.status(403).json({
+                success: false,
+                message: "You can only delete your own ticket"
             });
         }
 
@@ -125,11 +150,11 @@ export const deleteSupportTicket = async (req, res) => {
 
 
 
-// Get all tickets (Admin)
+//Get all tickets (Admin Only)
 export const getAllTickets = async (req, res) => {
     try {
         const tickets = await SupportTicket.find()
-            .populate("userId")
+            .populate("userId", "name email role")
             .sort({ createdAt: -1 });
 
         res.status(200).json({
@@ -147,7 +172,8 @@ export const getAllTickets = async (req, res) => {
 };
 
 
-//  Admin reply to ticket
+
+//Admin reply to ticket
 export const replyToTicket = async (req, res) => {
     try {
         const { ticketId } = req.params;
@@ -162,7 +188,7 @@ export const replyToTicket = async (req, res) => {
         }
 
         ticket.adminReply = req.body.adminReply;
-        ticket.repliedBy = req.body.adminId; 
+        ticket.repliedBy = req.user._id;  // 🔥 from token
         ticket.repliedAt = new Date();
         ticket.status = "Resolved";
         ticket.resolvedAt = new Date();
@@ -184,7 +210,8 @@ export const replyToTicket = async (req, res) => {
 };
 
 
-// Admin edit ticket status manually
+
+//Admin edit ticket status manually
 export const updateTicketStatus = async (req, res) => {
     try {
         const { ticketId } = req.params;

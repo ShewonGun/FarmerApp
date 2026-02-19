@@ -1,12 +1,40 @@
 import TicketServiceRating from "../../models/support/TicketServiceRating.js";
+import SupportTicket from "../../models/Support/SupportTicket.js";
 
 
-// CREATE Ticket Rating
+// 🟢 CREATE Ticket Rating (Farmer Only)
 export const createTicketRating = async (req, res) => {
     try {
-        const { ticketId } = req.body;
+        const userId = req.user._id;      // 🔥 from token
+        const { ticketId, rating, comment } = req.body;
 
-        // Prevent duplicate rating per ticket
+        // Check ticket exists
+        const ticket = await SupportTicket.findById(ticketId);
+
+        if (!ticket) {
+            return res.status(404).json({
+                success: false,
+                message: "Ticket not found"
+            });
+        }
+
+        // 🔒 Ensure farmer owns the ticket
+        if (ticket.userId.toString() !== userId.toString()) {
+            return res.status(403).json({
+                success: false,
+                message: "You can only rate your own ticket"
+            });
+        }
+
+        // Optional: allow rating only if resolved
+        if (ticket.status !== "Resolved") {
+            return res.status(400).json({
+                success: false,
+                message: "You can only rate resolved tickets"
+            });
+        }
+
+        // Prevent duplicate rating
         const existing = await TicketServiceRating.findOne({ ticketId });
 
         if (existing) {
@@ -16,12 +44,17 @@ export const createTicketRating = async (req, res) => {
             });
         }
 
-        const rating = await TicketServiceRating.create(req.body);
+        const newRating = await TicketServiceRating.create({
+            userId,
+            ticketId,
+            rating,
+            comment
+        });
 
         res.status(201).json({
             success: true,
             message: "Ticket service rating submitted successfully",
-            data: rating
+            data: newRating
         });
 
     } catch (error) {
@@ -34,11 +67,11 @@ export const createTicketRating = async (req, res) => {
 
 
 
-//  GET All Ticket Ratings (Admin) 
+// 🔵 GET All Ticket Ratings (Admin Only)
 export const getAllTicketRatings = async (req, res) => {
     try {
         const ratings = await TicketServiceRating.find()
-            .populate("userId")
+            .populate("userId", "name email role")
             .populate("ticketId")
             .sort({ createdAt: -1 });
 
@@ -58,19 +91,31 @@ export const getAllTicketRatings = async (req, res) => {
 
 
 
-// GET Rating by Ticket ID
+// 🔵 GET Rating by Ticket ID (Admin or Owner)
 export const getRatingByTicket = async (req, res) => {
     try {
         const { ticketId } = req.params;
+        const userId = req.user._id;
 
         const rating = await TicketServiceRating.findOne({ ticketId })
-            .populate("userId")
+            .populate("userId", "name email role")
             .populate("ticketId");
 
         if (!rating) {
             return res.status(404).json({
                 success: false,
                 message: "Rating not found for this ticket"
+            });
+        }
+
+        // If farmer → only allow access to own rating
+        if (
+            req.user.role === "farmer" &&
+            rating.userId._id.toString() !== userId.toString()
+        ) {
+            return res.status(403).json({
+                success: false,
+                message: "You can only view your own ticket rating"
             });
         }
 
@@ -89,12 +134,13 @@ export const getRatingByTicket = async (req, res) => {
 
 
 
-// DELETE Ticket Rating
+// 🟢 DELETE My Ticket Rating (Farmer) or Admin
 export const deleteTicketRating = async (req, res) => {
     try {
         const { ticketId } = req.params;
+        const userId = req.user._id;
 
-        const rating = await TicketServiceRating.findOneAndDelete({ ticketId });
+        const rating = await TicketServiceRating.findOne({ ticketId });
 
         if (!rating) {
             return res.status(404).json({
@@ -102,6 +148,19 @@ export const deleteTicketRating = async (req, res) => {
                 message: "Rating not found"
             });
         }
+
+        // Farmer can delete only own rating
+        if (
+            req.user.role === "farmer" &&
+            rating.userId.toString() !== userId.toString()
+        ) {
+            return res.status(403).json({
+                success: false,
+                message: "You can only delete your own rating"
+            });
+        }
+
+        await rating.deleteOne();
 
         res.status(200).json({
             success: true,
@@ -115,4 +174,3 @@ export const deleteTicketRating = async (req, res) => {
         });
     }
 };
-
