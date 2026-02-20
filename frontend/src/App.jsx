@@ -19,6 +19,7 @@ import MyCourses from "./Pages/UserPages/MyCourses"
 import LoanPage from "./Pages/UserPages/LoanPage"
 import ProtectedRoute from "./Routes/ProtectedRoute"
 import { sidebarState } from "./utils/sidebarState"
+import UserLoanPlans from "./Pages/UserPages/UserLoanPlans"
 
 const App = () => {
   const [state, setState] = useState(sidebarState.getState())
@@ -76,6 +77,7 @@ const App = () => {
           <Route path="/course/:courseId" element={<ProtectedRoute><CoursePageUser /></ProtectedRoute>} />
           <Route path="/my-courses" element={<ProtectedRoute><MyCourses /></ProtectedRoute>} />
           <Route path="/loan" element={<ProtectedRoute><LoanPage /></ProtectedRoute>} />
+          <Route path="/loan-plans" element={<ProtectedRoute><UserLoanPlans /></ProtectedRoute>} />
           
           {/* Protected Admin Routes */}
           <Route path="/admin" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

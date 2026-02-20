@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import {
   MdAttachMoney,
   MdBook,
+  MdPayments,
 } from "react-icons/md";
 import AgroFundLogo from "../../assets/AgroFundLogo.png";
 import { sidebarState } from "../../utils/sidebarState";
@@ -11,6 +12,7 @@ import { useAuth } from "../../Context/AuthContext";
 const navItems = [
   { label: "Loans", icon: MdAttachMoney, path: "/loan" },
   { label: "Courses", icon: MdBook, path: "/courses" },
+  { label: "Loan Plans", icon: MdPayments, path: "/loan-plans" },
 ];
 
 function NavItem({ item, onClick }) {

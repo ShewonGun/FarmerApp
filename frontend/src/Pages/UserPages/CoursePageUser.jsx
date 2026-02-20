@@ -548,6 +548,10 @@ ${data.certificate.averageScore ? `Average Score: ${data.certificate.averageScor
                   {/* Stats */}
                   <div className="flex flex-wrap items-center gap-3 mb-4">
                     <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 font-['Sora']">
+                      <HiUsers className="w-3.5 h-3.5" />
+                      <span>{course.enrollmentCount} enrolled</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 font-['Sora']">
                       <HiBookOpen className="w-3.5 h-3.5" />
                       <span>{course.noOfLessons} lessons</span>
                     </div>

@@ -71,6 +71,18 @@ const UserNavbar = () => {
         >
           Courses
         </NavLink>
+        <NavLink
+          to="/loan-plans"
+          className={({ isActive }) =>
+            `px-4 py-2 rounded-lg text-sm font-medium font-['Sora'] transition-all duration-150 ${
+              isActive
+                ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+            }`
+          }
+        >
+          Loan Plans
+        </NavLink>
       </nav>
 
       {/* Right side - Theme toggle + User dropdown */}
