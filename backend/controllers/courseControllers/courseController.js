@@ -99,9 +99,19 @@ export const getAllCourses = async (req, res) => {
         const courses = await Course.find().skip(skip).limit(limit);
         const total = await Course.countDocuments();
         
+        const coursesWithEnrollmentCount = await Promise.all(
+            courses.map(async (course) => {
+                const enrollmentCount = await Enroll.countDocuments({ course: course._id });
+                return {
+                    ...course.toObject(),
+                    enrollmentCount
+                };
+            })
+        );
+        
         res.status(200).json({ 
             success: true, 
-            courses, 
+            courses: coursesWithEnrollmentCount, 
             pagination: {
                 currentPage: page,
                 totalPages: Math.ceil(total / limit),
@@ -121,7 +131,17 @@ export const getCourseById = async (req, res) => {
         if (!course) {
             return res.status(404).json({ success: false, message: "Course not found" });
         }
-        res.status(200).json({ success: true, course });
+        
+        // Calculate actual enrollment count
+        const enrollmentCount = await Enroll.countDocuments({ course: course._id });
+        
+        res.status(200).json({ 
+            success: true, 
+            course: {
+                ...course.toObject(),
+                enrollmentCount
+            }
+        });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -487,8 +507,12 @@ export const getAllCoursesWithDetails = async (req, res) => {
                     })
                 );
 
+                // Calculate actual enrollment count from Enroll collection
+                const enrollmentCount = await Enroll.countDocuments({ course: course._id });
+
                 return {
                     ...course.toObject(),
+                    enrollmentCount,
                     lessons: lessons.map(l => ({
                         _id: l._id,
                         title: l.title,

@@ -2,13 +2,10 @@ import { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import {
   MdMenu,
-  MdSearch,
   MdChevronRight,
   MdKeyboardArrowDown,
   MdPerson,
-  MdSettings,
   MdLogout,
-  MdOpenInNew,
 } from "react-icons/md";
 import { sidebarState } from "../../utils/sidebarState";
 import ThemeToggle from "./ThemeToggle";

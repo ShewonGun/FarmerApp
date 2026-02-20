@@ -1,6 +1,8 @@
+import React from 'react'
+
 const LoanPage = () => {
   return (
-    <div>Loans</div>
+    <div>LoanPage</div>
   )
 }
 
