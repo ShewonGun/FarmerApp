@@ -50,7 +50,7 @@ export default function Navbar({ collapsed, toggleSidebar }) {
     <header
       className={`fixed top-0 z-20 flex items-center justify-between h-16 px-4 md:px-5 gap-2 md:gap-4 transition-all duration-300 left-0 right-0 ${
         state.collapsed ? 'md:left-18' : 'md:left-60'
-      } bg-white/92 dark:bg-slate-900/92 backdrop-blur-[14px] border-b border-slate-200/7 dark:border-slate-700/50`}
+      } bg-white/92 dark:bg-slate-900/92 backdrop-blur-[14px] border-b border-slate-200/70 dark:border-slate-700/50`}
     >
       {/* Left side - Menu button + Logo/Breadcrumb */}
       <div className="flex items-center gap-2 md:gap-4">

@@ -45,8 +45,8 @@ export default function LoanPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
       {/* Page Header */}
-      <div className="px-6 pt-8 pb-6">
-        <div className="flex items-start justify-between mb-3">
+      <div className="px-6 pt-6 pb-3">
+        <div className="flex items-start justify-between mb-1">
           <div>
             <h1 className="text-2xl font-extrabold text-gray-900 dark:text-slate-100 tracking-tight font-['Sora'] mb-2">
               Loan Plans

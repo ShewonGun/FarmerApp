@@ -24,6 +24,18 @@ const getYouTubeVideoId = (url) => {
 const PreviewModal = ({ isOpen, onClose, course }) => {
   const [expandedQuizzes, setExpandedQuizzes] = useState({});
   const [quizQuestions, setQuizQuestions] = useState({});
+
+  // Prevent background scrolling when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
   
   // Close on Escape
   useEffect(() => {

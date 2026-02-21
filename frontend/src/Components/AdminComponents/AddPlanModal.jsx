@@ -29,6 +29,18 @@ const AddPlanModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
   // Use gray colors when editing an inactive plan
   const isInactiveEdit = initialData && !initialData.isActive;
 
+  // Prevent background scrolling when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => nameRef.current?.focus(), 80);

@@ -11,6 +11,7 @@ import {
   HiEye
 } from "react-icons/hi";
 import UserQuizModal from "../../Components/UserComponents/UserQuizModal.jsx";
+import QuizResultsModal from "../../Components/UserComponents/QuizResultsModal.jsx";
 import CourseContent from "../../Components/UserComponents/CourseContent.jsx";
 import { useAuth } from "../../Context/AuthContext";
 
@@ -34,6 +35,10 @@ export default function CoursePageUser() {
   const [completingLesson, setCompletingLesson] = useState(null);
   const [generatingCertificate, setGeneratingCertificate] = useState(false);
   const [certificate, setCertificate] = useState(null);
+  const [quizResults, setQuizResults] = useState(null);
+  const [attemptId, setAttemptId] = useState(null);
+  const [showResultsModal, setShowResultsModal] = useState(false);
+  const [lastQuizLessonId, setLastQuizLessonId] = useState(null);
 
   useEffect(() => {
     if (courseId && user) {
@@ -288,12 +293,29 @@ export default function CoursePageUser() {
       if (data.success) {
         // Refresh enrollment to update completed quizzes
         await checkEnrollment();
-        // Show results
-        const passed = data.progress?.passed || false;
-        const percentage = data.progress?.percentage || 0;
-        alert(
-          `${data.message}\n\nScore: ${percentage}%\nPassing Score: ${activeQuiz.passingScore}%`
-        );
+        
+        // Store the lessonId for retake functionality
+        setLastQuizLessonId(activeQuiz.lessonId);
+        
+        // Store results from backend response
+        const passed = data.results?.passed || false;
+        const percentage = data.results?.percentage || 0;
+        const correctAnswers = data.results?.correctAnswers || 0;
+        const totalQuestions = data.results?.totalQuestions || 0;
+        const passingScore = data.results?.passingScore || activeQuiz.passingScore;
+        
+        const resultsData = {
+          passed,
+          percentage,
+          correctAnswers,
+          totalQuestions,
+          passingScore,
+          message: data.message
+        };
+        
+        setQuizResults(resultsData);
+        setAttemptId(data.progress?._id);
+        
         // Record failure locally so user can retake only when failed
         if (passed) {
           setFailedQuizzes(prev => {
@@ -305,9 +327,11 @@ export default function CoursePageUser() {
           setFailedQuizzes(prev => ({ ...prev, [activeQuiz._id]: true }));
         }
 
+        // Close quiz modal and show results modal
         setActiveQuiz(null);
         setQuizQuestions([]);
         setUserAnswers({});
+        setShowResultsModal(true);
       } else {
         alert(data.message || "Failed to submit quiz");
       }
@@ -323,6 +347,26 @@ export default function CoursePageUser() {
     setActiveQuiz(null);
     setQuizQuestions([]);
     setUserAnswers({});
+  };
+
+  const closeResultsModal = () => {
+    setShowResultsModal(false);
+    setQuizResults(null);
+    setAttemptId(null);
+  };
+
+  const retakeQuiz = () => {
+    if (!lastQuizLessonId) return;
+    
+    // Find the quiz for the lesson
+    const quiz = quizzes[lastQuizLessonId];
+    if (quiz) {
+      closeResultsModal();
+      // Slight delay before opening quiz again
+      setTimeout(() => {
+        startQuiz(lastQuizLessonId);
+      }, 300);
+    }
   };
 
   const markLessonComplete = async (lessonId) => {
@@ -676,6 +720,16 @@ ${data.certificate.averageScore ? `Average Score: ${data.certificate.averageScor
           submitQuiz={submitQuiz}
           submittingQuiz={submittingQuiz}
           closeQuiz={closeQuiz}
+        />
+      )}
+
+      {/* Quiz Results Modal with AI Explanations */}
+      {showResultsModal && quizResults && (
+        <QuizResultsModal
+          quizResults={quizResults}
+          attemptId={attemptId}
+          onClose={closeResultsModal}
+          onRetake={retakeQuiz}
         />
       )}
     </div>
