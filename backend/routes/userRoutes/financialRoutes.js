@@ -1,18 +1,29 @@
 import express from "express";
 import {
     createFinancialInfo,
-    getFinancialInfoByUser,
+    getMyFinancialInfo,
     getAllFinancialInfos,
     updateFinancialInfo,
     deleteFinancialInfo
 } from "../../controllers/userControllers/financialInfoController.js";
 
+import {
+    authenticate,
+    farmerOnly,
+    adminOnly
+} from "../../middlewares/protect.js";
+
 const router = express.Router();
 
-router.post("/", createFinancialInfo);
-router.get("/", getAllFinancialInfos);
-router.get("/:userId", getFinancialInfoByUser);
-router.put("/:userId", updateFinancialInfo);
-router.delete("/:userId", deleteFinancialInfo);
+
+//Farmer Routes
+router.post("/", authenticate, farmerOnly, createFinancialInfo);
+router.get("/my", authenticate, farmerOnly, getMyFinancialInfo);
+router.put("/my", authenticate, farmerOnly, updateFinancialInfo);
+router.delete("/my", authenticate, farmerOnly, deleteFinancialInfo);
+
+
+//Admin Route
+router.get("/", authenticate, adminOnly, getAllFinancialInfos);
 
 export default router;

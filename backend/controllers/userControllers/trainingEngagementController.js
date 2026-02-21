@@ -1,12 +1,13 @@
 import UserEngagement from "../../models/user/TrainingEngagement.js";
 
-//POST /api/engagement
+
+//CREATE Training Engagement (Farmer Only)
 export const createTrainingEngagement = async (req, res) => {
     try {
-        const { userId } = req.body;
+        const userId = req.user._id;
 
-        // Prevent duplicate record per user
         const existing = await UserEngagement.findOne({ userId });
+
         if (existing) {
             return res.status(400).json({
                 success: false,
@@ -14,7 +15,10 @@ export const createTrainingEngagement = async (req, res) => {
             });
         }
 
-        const engagement = await UserEngagement.create(req.body);
+        const engagement = await UserEngagement.create({
+            ...req.body,
+            userId
+        });
 
         res.status(201).json({
             success: true,
@@ -31,14 +35,15 @@ export const createTrainingEngagement = async (req, res) => {
 };
 
 
-//GET /api/engagement/:userId
-export const getTrainingEngagementByUser = async (req, res) => {
+
+//GET My Training Engagement (Farmer)
+export const getMyTrainingEngagement = async (req, res) => {
     try {
-        const { userId } = req.params;
+        const userId = req.user._id;
 
         const engagement = await UserEngagement
             .findOne({ userId })
-            .populate("userId");
+            .populate("userId", "name email role");
 
         if (!engagement) {
             return res.status(404).json({
@@ -61,10 +66,12 @@ export const getTrainingEngagementByUser = async (req, res) => {
 };
 
 
-//GET /api/engagement
+
+//GET All Training Engagements (Admin Only)
 export const getAllTrainingEngagements = async (req, res) => {
     try {
-        const engagements = await UserEngagement.find().populate("userId");
+        const engagements = await UserEngagement.find()
+            .populate("userId", "name email role");
 
         res.status(200).json({
             success: true,
@@ -81,10 +88,11 @@ export const getAllTrainingEngagements = async (req, res) => {
 };
 
 
-//PUT /api/engagement/:userId
+
+//UPDATE My Training Engagement (Farmer)
 export const updateTrainingEngagement = async (req, res) => {
     try {
-        const { userId } = req.params;
+        const userId = req.user._id;
 
         const updated = await UserEngagement.findOneAndUpdate(
             { userId },
@@ -114,10 +122,11 @@ export const updateTrainingEngagement = async (req, res) => {
 };
 
 
-//DELETE /api/engagement/:userId
+
+// DELETE My Training Engagement (Farmer Only)
 export const deleteTrainingEngagement = async (req, res) => {
     try {
-        const { userId } = req.params;
+        const userId = req.user._id;
 
         const deleted = await UserEngagement.findOneAndDelete({ userId });
 

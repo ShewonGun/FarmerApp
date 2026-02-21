@@ -1,18 +1,29 @@
 import express from "express";
 import {
     createLocationFarming,
-    getLocationFarmingByUser,
+    getMyLocationFarming,
     getAllLocationFarmings,
     updateLocationFarming,
     deleteLocationFarming
 } from "../../controllers/userControllers/locationFarmingController.js";
 
+import {
+    authenticate,
+    farmerOnly,
+    adminOnly
+} from "../../middlewares/protect.js";
+
 const router = express.Router();
 
-router.post("/", createLocationFarming);
-router.get("/", getAllLocationFarmings);
-router.get("/:userId", getLocationFarmingByUser);
-router.put("/:userId", updateLocationFarming);
-router.delete("/:userId", deleteLocationFarming);
+
+//Farmer Routes
+router.post("/", authenticate, farmerOnly, createLocationFarming);
+router.get("/my", authenticate, farmerOnly, getMyLocationFarming);
+router.put("/my", authenticate, farmerOnly, updateLocationFarming);
+router.delete("/my", authenticate, farmerOnly, deleteLocationFarming);
+
+//Admin Routes
+router.get("/", authenticate, adminOnly, getAllLocationFarmings);
+
 
 export default router;

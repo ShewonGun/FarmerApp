@@ -15,6 +15,10 @@ import locationFarmingRoutes from "./routes/userRoutes/locationFarmingRoutes.js"
 import trainingEngagementRoutes from "./routes/userRoutes/trainingEngagementRoutes.js";
 import verificationTrustRoutes from "./routes/userRoutes/verificationTrustRoutes.js";
 
+import supportTicketRoutes from "./routes/SupportRoutes/supportTicketRoutes.js";
+import ticketServiceRatingRoutes from "./routes/SupportRoutes/ticketServiceRatingRoutes.js";
+import platformServiceRatingRoutes from "./routes/SupportRoutes/platformServiceRatingRoutes.js";
+
 
 import planRoutes from "./routes/adminRoutes/planRoutes.js";
 import aiCourseRoutes from "./routes/courseRoutes/aiCourseRoute.js";
@@ -24,7 +28,6 @@ dotenv.config();
 connectDB();
 
 const app = express();
-
 app.use(cors());
 app.use(express.json());
 
@@ -48,6 +51,10 @@ app.use("/api", certificateRoutes);
 //app.use("/api", planRoutes);
 app.use("/api", aiCourseRoutes);
 app.use("/api", uploadRoutes);
+
+app.use("/api/support-tickets", supportTicketRoutes);
+app.use("/api/ticket-ratings", ticketServiceRatingRoutes);
+app.use("/api/platform-ratings", platformServiceRatingRoutes);
 
 const PORT = process.env.PORT || 5000;
 
