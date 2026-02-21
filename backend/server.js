@@ -45,7 +45,7 @@ app.use("/api", quizRoutes);
 app.use("/api", questionRoutes);
 app.use("/api", progressRoutes);
 app.use("/api", certificateRoutes);
-app.use("/api", planRoutes);
+//app.use("/api", planRoutes);
 app.use("/api", aiCourseRoutes);
 app.use("/api", uploadRoutes);
 
