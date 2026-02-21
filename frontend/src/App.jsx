@@ -1,5 +1,6 @@
 import { Routes, Route, useLocation, Navigate } from "react-router-dom"
 import { useState, useEffect } from "react"
+import { useAuth } from "./Context/AuthContext"
 import ToasterConfig from "./Components/SharedComponents/ToasterConfig"
 import Navbar from "./Components/AdminComponents/Navbar"
 import Sidebar from "./Components/AdminComponents/Sidebar"
@@ -21,6 +22,20 @@ import ProtectedRoute from "./Routes/ProtectedRoute"
 import { sidebarState } from "./utils/sidebarState"
 import UserLoanPlans from "./Pages/UserPages/UserLoanPlans"
 
+// Renders landing page for everyone, but bumps admins to their dashboard
+const RootRoute = () => {
+  const { user, isAuthenticated, loading } = useAuth();
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
+        <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-emerald-500 border-t-transparent" />
+      </div>
+    );
+  }
+  if (isAuthenticated && user?.role === 'admin') return <Navigate to="/admin" replace />;
+  return <LandingPage />;
+};
+
 const App = () => {
   const [state, setState] = useState(sidebarState.getState())
   const location = useLocation()
@@ -34,7 +49,7 @@ const App = () => {
   const isAuthPage = location.pathname === '/login' || location.pathname === '/signup'
   
   // Check if current route is a user/farmer page
-  const isUserPage = location.pathname.startsWith('/landing') || location.pathname.startsWith('/courses') || location.pathname.startsWith('/my-courses') || location.pathname.startsWith('/loan') || location.pathname.match(/^\/course\/[^/]+$/)
+  const isUserPage = location.pathname === '/' || location.pathname.startsWith('/landing') || location.pathname.startsWith('/courses') || location.pathname.startsWith('/my-courses') || location.pathname.startsWith('/loan') || location.pathname.match(/^\/course\/[^/]+$/)
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
@@ -64,15 +79,15 @@ const App = () => {
           : ''
       }`}>
         <Routes>
-          {/* Default Route - Redirect to Login */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          
+          {/* Default Route - Landing page (public) */}
+          <Route path="/" element={<RootRoute />} />
+          <Route path="/landing" element={<RootRoute />} />
+
           {/* Auth Routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          
+
           {/* Protected User/Farmer Routes */}
-          <Route path="/landing" element={<ProtectedRoute><LandingPage /></ProtectedRoute>} />
           <Route path="/courses" element={<ProtectedRoute><CoursesPage /></ProtectedRoute>} />
           <Route path="/course/:courseId" element={<ProtectedRoute><CoursePageUser /></ProtectedRoute>} />
           <Route path="/my-courses" element={<ProtectedRoute><MyCourses /></ProtectedRoute>} />

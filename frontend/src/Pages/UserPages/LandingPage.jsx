@@ -4,6 +4,7 @@ import Hero from '../../Sections/UserSections/Hero'
 import PhotoGrid from '../../Sections/UserSections/PhotoGrid'
 import Banner from '../../Sections/UserSections/Banner'
 import Contact from '../../Sections/UserSections/Contact'
+import Faq from '../../Sections/UserSections/Faq'
 
 const LandingPage = () => {
   return (
@@ -12,8 +13,9 @@ const LandingPage = () => {
      <Hero/>
     <PhotoGrid/>
     <Features/>
-    <Banner/>
+    <Faq/>
     <Contact/>
+    <Banner/>
     <Footer/>
     </div>
     </>
