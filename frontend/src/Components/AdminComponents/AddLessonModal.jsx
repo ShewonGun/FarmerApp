@@ -15,6 +15,18 @@ const AddLessonModal = ({ isOpen, onClose, onSubmit, courseId, initialData = nul
   const [loading, setLoading] = useState(false);
   const titleRef = useRef(null);
 
+  // Prevent background scrolling when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   // Auto-focus title on open
   useEffect(() => {
     if (isOpen) {

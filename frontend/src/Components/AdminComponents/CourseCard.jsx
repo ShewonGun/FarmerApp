@@ -249,18 +249,20 @@ const CourseCard = ({ course, onEdit, onDelete, onToggleActive, onAddLesson, onE
                   >
                     <MdDelete className="text-[12px] text-slate-400 dark:text-slate-500 transition-colors duration-150 group-hover:text-red-500 dark:group-hover:text-red-400" />
                   </button>
-                  <button
-                    onClick={() => openAddQuizToLesson(lesson)}
-                    title="Add quiz to this lesson"
-                    className={`flex items-center gap-1 px-1.5 py-0.5 rounded transition-all duration-150 cursor-pointer whitespace-nowrap ${
-                      isPublished
-                        ? 'bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/30 border border-amber-200 dark:border-amber-800/50'
-                        : 'bg-slate-100 dark:bg-slate-700/20 hover:bg-slate-200 dark:hover:bg-slate-700/30 border border-slate-300 dark:border-slate-600/50'
-                    }`}
-                  >
-                    <MdAdd className={`text-[10px] ${isPublished ? 'text-amber-600 dark:text-amber-400' : 'text-slate-600 dark:text-slate-400'}`} />
-                    <span className={`text-[9px] font-medium font-['Sora'] ${isPublished ? 'text-amber-600 dark:text-amber-400' : 'text-slate-600 dark:text-slate-400'}`}>Quiz</span>
-                  </button>
+                  {!quizzes.find(quiz => quiz.lesson === (lesson._id || lesson.id)) && (
+                    <button
+                      onClick={() => openAddQuizToLesson(lesson)}
+                      title="Add quiz to this lesson"
+                      className={`flex items-center gap-1 px-1.5 py-0.5 rounded transition-all duration-150 cursor-pointer whitespace-nowrap ${
+                        isPublished
+                          ? 'bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/30 border border-amber-200 dark:border-amber-800/50'
+                          : 'bg-slate-100 dark:bg-slate-700/20 hover:bg-slate-200 dark:hover:bg-slate-700/30 border border-slate-300 dark:border-slate-600/50'
+                      }`}
+                    >
+                      <MdAdd className={`text-[10px] ${isPublished ? 'text-amber-600 dark:text-amber-400' : 'text-slate-600 dark:text-slate-400'}`} />
+                      <span className={`text-[9px] font-medium font-['Sora'] ${isPublished ? 'text-amber-600 dark:text-amber-400' : 'text-slate-600 dark:text-slate-400'}`}>Quiz</span>
+                    </button>
+                  )}
                 </div>
               </li>
             ))}

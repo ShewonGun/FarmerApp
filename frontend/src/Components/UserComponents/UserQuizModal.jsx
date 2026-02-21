@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   HiAcademicCap,
 } from "react-icons/hi";
@@ -12,6 +12,14 @@ export default function UserQuizModal({
   submittingQuiz,
   closeQuiz,
 }) {
+  // Prevent background scrolling when modal is open
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
+
   if (!activeQuiz) return null;
 
   return (

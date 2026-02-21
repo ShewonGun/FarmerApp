@@ -28,6 +28,18 @@ const AddCourseModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const titleRef = useRef(null);
   const fileInputRef = useRef(null);
+
+  // Prevent background scrolling when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
   
   // Use gray colors when editing an unpublished course
   const isUnpublishedEdit = initialData && !initialData.isPublished;

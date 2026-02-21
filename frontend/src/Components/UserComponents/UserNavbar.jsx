@@ -12,6 +12,7 @@ import { useAuth } from "../../Context/AuthContext";
 import AgroFundLogo from "../../assets/AgroFundLogo.png";
 import { sidebarState } from "../../utils/sidebarState";
 
+
 const UserNavbar = () => {
   const [showUser, setShowUser] = useState(false);
   const { user, logout } = useAuth();
@@ -27,7 +28,7 @@ const UserNavbar = () => {
   }, []);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-20 flex items-center justify-between h-16 px-4 md:px-5 gap-4 md:gap-6 bg-white/92 dark:bg-slate-900/92 backdrop-blur-[14px] border-b border-slate-200/70 dark:border-slate-700/50">
+    <header className="fixed top-0 left-0 right-0 z-20 flex items-center justify-between h-16 lg:px-20 px-4 md:px-5 gap-4 md:gap-6 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border-b border-white/20 dark:border-slate-700/30">
       
       {/* Mobile Menu Button */}
       <button
@@ -37,13 +38,13 @@ const UserNavbar = () => {
         <MdMenu className="text-xl" />
       </button>
 
-      {/* Left side - Logo and Brand Name */}
-      <div className="hidden md:flex items-center gap-2">
+      {/* Left side - Brand Name */}
+      <Link to="/" className="hidden md:flex items-center gap-2">
         <img src={AgroFundLogo} alt="AgroFund Logo" className="w-8 h-8 rounded-lg object-cover shadow-sm" />
-        <h1 className="text-base font-bold text-slate-800 dark:text-slate-200 font-['Sora']">
-          AgroFund
-        </h1>
-      </div>
+        <span className="text-base font-bold font-['Sora']">
+          <span className="text-white">Agro</span><span className="text-emerald-500">Fund</span>
+        </span>
+      </Link>
 
       {/* Middle - Navigation Links */}
       <nav className="hidden md:flex items-center gap-1 flex-1 justify-center">
@@ -52,8 +53,8 @@ const UserNavbar = () => {
           className={({ isActive }) =>
             `px-4 py-2 rounded-lg text-sm font-medium font-['Sora'] transition-all duration-150 ${
               isActive
-                ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400'
-                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                ? ' text-emerald-600 dark:text-emerald-400'
+                : 'text-slate-600 dark:text-slate-400'
             }`
           }
         >
@@ -64,8 +65,8 @@ const UserNavbar = () => {
           className={({ isActive }) =>
             `px-4 py-2 rounded-lg text-sm font-medium font-['Sora'] transition-all duration-150 ${
               isActive
-                ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400'
-                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                ? ' text-emerald-600 dark:text-emerald-400'
+                : 'text-slate-600 dark:text-slate-400'
             }`
           }
         >
@@ -76,12 +77,12 @@ const UserNavbar = () => {
           className={({ isActive }) =>
             `px-4 py-2 rounded-lg text-sm font-medium font-['Sora'] transition-all duration-150 ${
               isActive
-                ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400'
-                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                ? ' text-emerald-600 dark:text-emerald-400'
+                : 'text-slate-600 dark:text-slate-400'
             }`
           }
         >
-          Loan Plans
+          Plans
         </NavLink>
       </nav>
 
@@ -118,7 +119,7 @@ const UserNavbar = () => {
 
           {/* User dropdown */}
           {showUser && (
-            <div className="absolute right-0 mt-2 rounded-xl overflow-hidden animate-in slide-in-from-top-2 fade-in duration-150 w-64 top-full bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 shadow-lg z-50">
+            <div className="absolute right-0 mt-2 rounded-xl overflow-hidden animate-in slide-in-from-top-2 fade-in duration-150 w-64 top-full bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/20 dark:border-slate-700/30 shadow-lg z-50">
               {/* Profile info */}
               <div className="px-4 py-3 border-b border-slate-200/60 dark:border-slate-700">
                 <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 font-['Sora'] truncate">

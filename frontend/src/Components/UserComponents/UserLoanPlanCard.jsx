@@ -62,8 +62,8 @@ export default function UserLoanPlanCard({ plan, onApply }) {
         border transition-all duration-200
         ${
           hovered
-            ? "border-emerald-300 dark:border-emerald-700 shadow-lg dark:shadow-xl -translate-y-0.5"
-            : "border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-md"
+            ? "border-emerald-300 dark:border-emerald-700 shadow-lgd dark:shadow-xld -translate-y-0.5"
+            : "border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-mdm"
         }
       `}
     >
