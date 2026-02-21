@@ -28,7 +28,7 @@ const Footer = () => {
         {/* Logo */}
         <div className="flex items-center gap-2">
           <span className="text-lg font-bold font-['Sora']">
-            <span className="text-white">Agro</span><span className="text-emerald-500">Fund</span>
+            <span className="text-slate-800 dark:text-white">Agro</span><span className="text-emerald-600 dark:text-emerald-400">Fund</span>
           </span>
         </div>
 

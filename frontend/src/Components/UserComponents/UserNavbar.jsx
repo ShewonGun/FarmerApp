@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { NavLink, Link } from "react-router-dom";
+import toast from "react-hot-toast";
 import {
   MdKeyboardArrowDown,
   MdPerson,
@@ -9,7 +10,6 @@ import {
 } from "react-icons/md";
 import ThemeToggle from "../AdminComponents/ThemeToggle";
 import { useAuth } from "../../Context/AuthContext";
-import AgroFundLogo from "../../assets/AgroFundLogo.png";
 import { sidebarState } from "../../utils/sidebarState";
 
 
@@ -17,6 +17,15 @@ const UserNavbar = () => {
   const [showUser, setShowUser] = useState(false);
   const { user, logout } = useAuth();
   const userRef = useRef(null);
+
+  const handleProtectedNav = (e) => {
+    if (!user) {
+      e.preventDefault();
+      toast('Please log in to continue.', {
+        icon: '⚠️',
+      });
+    }
+  };
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -40,9 +49,9 @@ const UserNavbar = () => {
 
       {/* Left side - Brand Name */}
       <Link to="/" className="hidden md:flex items-center gap-2">
-        <img src={AgroFundLogo} alt="AgroFund Logo" className="w-8 h-8 rounded-lg object-cover shadow-sm" />
+        <img src="/AgroFundLogo.png" alt="AgroFund Logo" className="w-8 h-8 rounded-lg object-cover shadow-sm" />
         <span className="text-base font-bold font-['Sora']">
-          <span className="text-white">Agro</span><span className="text-emerald-500">Fund</span>
+          <span className="text-slate-800 dark:text-white">Agro</span><span className="text-emerald-600 dark:text-emerald-400">Fund</span>
         </span>
       </Link>
 
@@ -50,6 +59,7 @@ const UserNavbar = () => {
       <nav className="hidden md:flex items-center gap-1 flex-1 justify-center">
         <NavLink
           to="/loan"
+          onClick={handleProtectedNav}
           className={({ isActive }) =>
             `px-4 py-2 rounded-lg text-sm font-medium font-['Sora'] transition-all duration-150 ${
               isActive
@@ -62,6 +72,7 @@ const UserNavbar = () => {
         </NavLink>
         <NavLink
           to="/courses"
+          onClick={handleProtectedNav}
           className={({ isActive }) =>
             `px-4 py-2 rounded-lg text-sm font-medium font-['Sora'] transition-all duration-150 ${
               isActive
@@ -74,6 +85,7 @@ const UserNavbar = () => {
         </NavLink>
         <NavLink
           to="/loan-plans"
+          onClick={handleProtectedNav}
           className={({ isActive }) =>
             `px-4 py-2 rounded-lg text-sm font-medium font-['Sora'] transition-all duration-150 ${
               isActive
@@ -86,13 +98,31 @@ const UserNavbar = () => {
         </NavLink>
       </nav>
 
-      {/* Right side - Theme toggle + User dropdown */}
+      {/* Right side - Theme toggle + Auth/User */}
       <div className="flex items-center gap-2 md:gap-4">
         <ThemeToggle />
-        
+
         <div className="hidden md:block w-px h-6 bg-slate-200/90 dark:bg-slate-700" />
 
-        <div ref={userRef} className="relative">
+        {/* Not logged in → Login + Signup buttons */}
+        {!user ? (
+          <div className="flex items-center gap-2">
+            <Link
+              to="/login"
+              className="px-4 py-1.5 rounded-md text-sm font-medium font-['Sora'] text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors duration-150"
+            >
+              Login
+            </Link>
+            <Link
+              to="/signup"
+              className="px-4 py-1.5 rounded-md text-sm font-medium font-['Sora'] bg-emerald-600 hover:bg-emerald-700 text-white transition-colors duration-150"
+            >
+              Sign Up
+            </Link>
+          </div>
+        ) : (
+          /* Logged in → User dropdown */
+          <div ref={userRef} className="relative">
           <button
             onClick={() => setShowUser(!showUser)}
             className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 transition-all duration-150 hover:bg-slate-50 dark:hover:bg-slate-800 bg-transparent border-none cursor-pointer"
@@ -162,6 +192,7 @@ const UserNavbar = () => {
             </div>
           )}
         </div>
+        )} {/* end auth ternary */}
       </div>
     </header>
   );

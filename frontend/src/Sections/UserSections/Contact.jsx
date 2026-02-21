@@ -99,7 +99,7 @@ const Contact = () => {
           <button
             type="submit"
             disabled={status === 'sending'}
-            className="self-center mt-1 px-10 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-medium rounded-full transition-colors duration-200 font-['Sora']"
+            className="self-center mt-1 px-10 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-medium rounded-md transition-colors duration-200 font-['Sora']"
           >
             {status === 'sending' ? 'Sending…' : 'Send Message'}
           </button>
