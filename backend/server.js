@@ -11,6 +11,8 @@ import userRoutes from "./routes/userRoutes/userRoutes.js";
 import certificateRoutes from "./routes/courseRoutes/certifcateRoutes.js";
 import planRoutes from "./routes/adminRoutes/planRoutes.js";
 import aiCourseRoutes from "./routes/courseRoutes/aiCourseRoute.js";
+import loanRoutes from "./routes/loanRoutes/loanRoutes.js"
+import loanCategoryRoutes from "./routes/loanRoutes/loanCategoryRoutes.js"
 
 dotenv.config();
 connectDB();
@@ -34,6 +36,13 @@ app.use("/api", progressRoutes);
 app.use("/api", certificateRoutes);
 app.use("/api", planRoutes);
 app.use("/api", aiCourseRoutes);
+app.use("/api/loans", loanRoutes);
+app.use("/api/loan-categories", loanCategoryRoutes);
+
+// Test route to check if Express is working
+app.post("/api/test", (req, res) => {
+  res.json({ message: "Test works!" });
+});
 
 const PORT = process.env.PORT || 5000;
 
