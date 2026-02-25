@@ -22,7 +22,12 @@ import platformServiceRatingRoutes from "./routes/SupportRoutes/platformServiceR
 
 import planRoutes from "./routes/adminRoutes/planRoutes.js";
 import aiCourseRoutes from "./routes/courseRoutes/aiCourseRoute.js";
+
+import loanRoutes from "./routes/loanRoutes/loanRoutes.js"
+import loanCategoryRoutes from "./routes/loanRoutes/loanCategoryRoutes.js"
+
 import uploadRoutes from "./routes/sharedRoutes/uploadRoutes.js";
+
 
 dotenv.config();
 connectDB();
@@ -50,11 +55,21 @@ app.use("/api", progressRoutes);
 app.use("/api", certificateRoutes);
 app.use("/api", planRoutes);
 app.use("/api", aiCourseRoutes);
+
+app.use("/api/loans", loanRoutes);
+app.use("/api/loan-categories", loanCategoryRoutes);
+
+// Test route to check if Express is working
+app.post("/api/test", (req, res) => {
+  res.json({ message: "Test works!" });
+});
+
 app.use("/api", uploadRoutes);
 
 app.use("/api/support-tickets", supportTicketRoutes);
 app.use("/api/ticket-ratings", ticketServiceRatingRoutes);
 app.use("/api/platform-ratings", platformServiceRatingRoutes);
+
 
 const PORT = process.env.PORT || 5000;
 
