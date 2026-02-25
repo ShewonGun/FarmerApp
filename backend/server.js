@@ -23,6 +23,9 @@ import platformServiceRatingRoutes from "./routes/SupportRoutes/platformServiceR
 
 import planRoutes from "./routes/adminRoutes/planRoutes.js";
 
+import loanRoutes from "./routes/loanRoutes/loanRoutes.js"
+import loanCategoryRoutes from "./routes/loanRoutes/loanCategoryRoutes.js"
+
 import uploadRoutes from "./routes/sharedRoutes/uploadRoutes.js";
 
 dotenv.config();
@@ -55,13 +58,18 @@ app.use("/api/certificates", certificateRoutes);
 app.use("/api/ai", aiCourseRoutes);
 app.use("/api/upload", uploadRoutes);
 
-// plans routes
-app.use("/api/plans", planRoutes);
+// Loan and related routes
+app.use("/api/loans", loanRoutes);
+app.use("/api/loan-categories", loanCategoryRoutes);
+
+// Plan and related routes
+app.use("/api", uploadRoutes);
 
 // Support and rating routes
 app.use("/api/support-tickets", supportTicketRoutes);
 app.use("/api/ticket-ratings", ticketServiceRatingRoutes);
 app.use("/api/platform-ratings", platformServiceRatingRoutes);
+
 
 const PORT = process.env.PORT || 5000;
 
