@@ -58,7 +58,7 @@ const PreviewModal = ({ isOpen, onClose, course }) => {
     
     try {
       const response = await axios.get(
-        `${API_BASE_URL}/quiz/${quizId}/questions`,
+        `${API_BASE_URL}/questions/quiz/${quizId}`,
         { headers: getAuthHeaders() }
       );
       

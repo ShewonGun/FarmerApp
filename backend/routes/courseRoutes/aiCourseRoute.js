@@ -5,6 +5,6 @@ import { authenticate } from "../../middlewares/protect.js";
 const router = express.Router();
 
 // AI-powered quiz explanation route
-router.get("/progress/:attemptId/ai-explanations", authenticate, getQuizExplanations);
+router.get("/:attemptId/explanations", authenticate, getQuizExplanations);
 
 export default router;

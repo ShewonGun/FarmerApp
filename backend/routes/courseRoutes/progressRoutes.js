@@ -12,7 +12,7 @@ const router = express.Router();
 // Progress routes 
 router.post("/:userId/quiz/:quizId/attempt", authenticate, isSelfOrAdmin, submitQuizAttempt);
 router.get("/:userId/quiz/:quizId/attempts", authenticate, isSelfOrAdmin, getUserQuizAttempts);
-router.get("/progress/:attemptId", authenticate, getQuizAttemptById);
-router.get("/:userId/course/:courseId/progress", authenticate, isSelfOrAdmin, getUserCourseQuizAttempts);
+router.get("/attempt/:attemptId", authenticate, getQuizAttemptById);
+router.get("/:userId/course/:courseId", authenticate, isSelfOrAdmin, getUserCourseQuizAttempts);
 
 export default router;

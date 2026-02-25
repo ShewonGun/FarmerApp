@@ -11,15 +11,12 @@ import { authenticate, adminOnly } from "../../middlewares/protect.js";
 
 const router = express.Router();
 
-// Test route
-//router.post("/test/youtube-thumbnail", testYoutubeThumbnail);
-
 // Lesson routes 
-router.get("/course/:courseId/lessons", authenticate, getLessonsByCourse);
-router.post("/course/:courseId/lessons", authenticate, adminOnly, addLesson);
-router.get("/lessons/:id", authenticate, getLessonById);
-router.put("/lessons/:id", authenticate, adminOnly, updateLesson);
-router.delete("/lessons/:id", authenticate, adminOnly, deleteLesson);
+router.get("/course/:courseId", authenticate, getLessonsByCourse);
+router.post("/course/:courseId", authenticate, adminOnly, addLesson);
+router.get("/:id", authenticate, getLessonById);
+router.put("/:id", authenticate, adminOnly, updateLesson);
+router.delete("/:id", authenticate, adminOnly, deleteLesson);
 
 export default router;
 
