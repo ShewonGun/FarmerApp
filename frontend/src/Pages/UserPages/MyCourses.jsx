@@ -26,7 +26,7 @@ export default function MyCourses() {
 
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:5000/api/${user.id}/enrollments`,
+        `http://localhost:5000/api/enrollments/${user.id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -57,7 +57,7 @@ export default function MyCourses() {
       const token = localStorage.getItem("token");
       
       const getResponse = await fetch(
-        `http://localhost:5000/api/user/${user.id}/course/${courseId}/certificate`,
+        `http://localhost:5000/api/certificates/${user.id}/course/${courseId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -76,7 +76,7 @@ export default function MyCourses() {
 
       if (!certificateData) {
         const generateResponse = await fetch(
-          `http://localhost:5000/api/user/${user.id}/course/${courseId}/certificate`,
+          `http://localhost:5000/api/certificates/${user.id}/course/${courseId}`,
           {
             method: "POST",
             headers: {

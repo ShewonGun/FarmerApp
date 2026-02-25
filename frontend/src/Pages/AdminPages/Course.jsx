@@ -31,7 +31,7 @@ const Course = () => {
   const fetchCourses = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_BASE_URL}/courseWithDetails`, {
+      const response = await axios.get(`${API_BASE_URL}/courses/with-details`, {
         headers: getAuthHeaders(),
       });
       if (response.data.success) {
@@ -64,7 +64,7 @@ const Course = () => {
       const payload = { ...data };
       if (editingCourse) {
         const res = await axios.put(
-          `${API_BASE_URL}/course/${editingCourse._id}`, 
+          `${API_BASE_URL}/courses/${editingCourse._id}`, 
           payload,
           { headers: getAuthHeaders() }
         );
@@ -74,7 +74,7 @@ const Course = () => {
         }
       } else {
         const res = await axios.post(
-          `${API_BASE_URL}/addCourse`, 
+          `${API_BASE_URL}/courses`, 
           payload,
           { headers: getAuthHeaders() }
         );
@@ -106,13 +106,13 @@ const Course = () => {
     
     try {
       if (type === 'course') {
-        await axios.delete(`${API_BASE_URL}/course/${id}`, { headers: getAuthHeaders() });
+        await axios.delete(`${API_BASE_URL}/courses/${id}`, { headers: getAuthHeaders() });
         showSuccess('Course deleted successfully');
       } else if (type === 'lesson') {
         await axios.delete(`${API_BASE_URL}/lessons/${id}`, { headers: getAuthHeaders() });
         showSuccess('Lesson deleted successfully');
       } else if (type === 'quiz') {
-        await axios.delete(`${API_BASE_URL}/quiz/${id}`, { headers: getAuthHeaders() });
+        await axios.delete(`${API_BASE_URL}/quizzes/${id}`, { headers: getAuthHeaders() });
         showSuccess('Quiz deleted successfully');
       }
       
@@ -133,7 +133,7 @@ const Course = () => {
   const handleToggleActive = async (courseId, currentStatus) => {
     try {
       const res = await axios.put(
-        `${API_BASE_URL}/course/${courseId}`,
+        `${API_BASE_URL}/courses/${courseId}`,
         { isPublished: !currentStatus },
         { headers: getAuthHeaders() }
       );
@@ -151,7 +151,7 @@ const Course = () => {
     try {
       const payload = { ...lessonData };
       const res = await axios.post(
-        `${API_BASE_URL}/course/${courseId}/lessons`, 
+        `${API_BASE_URL}/lessons/course/${courseId}`, 
         payload,
         { headers: getAuthHeaders() }
       );
@@ -197,7 +197,7 @@ const Course = () => {
       };
       
       const res = await axios.post(
-        `${API_BASE_URL}/lessons/${lessonId}/quiz`, 
+        `${API_BASE_URL}/quizzes/lessons/${lessonId}`, 
         quizPayload,
         { headers: getAuthHeaders() }
       );
@@ -209,7 +209,7 @@ const Course = () => {
         if (quizData.questions && quizData.questions.length > 0) {
           for (const question of quizData.questions) {
             await axios.post(
-              `${API_BASE_URL}/quiz/${quizId}/question`,
+              `${API_BASE_URL}/questions/quiz/${quizId}`,
               {
                 questionText: question.questionText,
                 choices: question.choices,
@@ -239,7 +239,7 @@ const Course = () => {
       };
       
       const res = await axios.put(
-        `${API_BASE_URL}/quiz/${quizId}`, 
+        `${API_BASE_URL}/quizzes/${quizId}`, 
         quizPayload,
         { headers: getAuthHeaders() }
       );
@@ -247,14 +247,14 @@ const Course = () => {
       if (res.data.success) {
         // Step 2: Delete old questions
         const existingQuestions = await axios.get(
-          `${API_BASE_URL}/quiz/${quizId}/questions`,
+          `${API_BASE_URL}/questions/quiz/${quizId}`,
           { headers: getAuthHeaders() }
         );
         
         if (existingQuestions.data.success && existingQuestions.data.questions) {
           for (const question of existingQuestions.data.questions) {
             await axios.delete(
-              `${API_BASE_URL}/question/${question._id}`,
+              `${API_BASE_URL}/questions/${question._id}`,
               { headers: getAuthHeaders() }
             );
           }
@@ -264,7 +264,7 @@ const Course = () => {
         if (quizData.questions && quizData.questions.length > 0) {
           for (const question of quizData.questions) {
             await axios.post(
-              `${API_BASE_URL}/quiz/${quizId}/question`,
+              `${API_BASE_URL}/questions/quiz/${quizId}`,
               {
                 questionText: question.questionText,
                 choices: question.choices,

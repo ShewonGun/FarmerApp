@@ -32,7 +32,7 @@ export default function QuizResultsModal({
     
     try {
       const response = await fetch(
-        `http://localhost:5000/api/progress/${attemptId}/ai-explanations`,
+        `http://localhost:5000/api/ai/${attemptId}/explanations`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,

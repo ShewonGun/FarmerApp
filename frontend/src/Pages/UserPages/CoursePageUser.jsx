@@ -57,7 +57,7 @@ export default function CoursePageUser() {
   const fetchCourseDetails = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5000/api/course/${courseId}`, {
+      const response = await fetch(`http://localhost:5000/api/courses/${courseId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`
         }
@@ -79,7 +79,7 @@ export default function CoursePageUser() {
 
   const fetchLessons = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/course/${courseId}/lessons`, {
+      const response = await fetch(`http://localhost:5000/api/lessons/course/${courseId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`
         }
@@ -102,7 +102,7 @@ export default function CoursePageUser() {
 
   const fetchQuizForLesson = async (lessonId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/lessons/${lessonId}/quiz`, {
+      const response = await fetch(`http://localhost:5000/api/quizzes/lessons/${lessonId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`
         }
@@ -122,7 +122,7 @@ export default function CoursePageUser() {
     
     try {
       const response = await fetch(
-        `http://localhost:5000/api/${user.id}/course/${courseId}/check-enrollment`,
+        `http://localhost:5000/api/enrollments/${user.id}/course/${courseId}/check-enrollment`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -143,7 +143,7 @@ export default function CoursePageUser() {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/user/${user.id}/course/${courseId}/certificate`,
+        `http://localhost:5000/api/certificates/${user.id}/course/${courseId}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -169,7 +169,7 @@ export default function CoursePageUser() {
     try {
       setEnrolling(true);
       const response = await fetch(
-        `http://localhost:5000/api/${user.id}/course/${courseId}/enroll`,
+        `http://localhost:5000/api/enrollments/${user.id}/course/${courseId}/enroll`,
         {
           method: "POST",
           headers: {
@@ -277,7 +277,7 @@ export default function CoursePageUser() {
 
       // Submit to backend
       const response = await fetch(
-        `http://localhost:5000/api/${user.id}/quiz/${activeQuiz._id}/attempt`,
+        `http://localhost:5000/api/progress/${user.id}/quiz/${activeQuiz._id}/attempt`,
         {
           method: "POST",
           headers: {
@@ -375,7 +375,7 @@ export default function CoursePageUser() {
     setCompletingLesson(lessonId);
     try {
       const response = await fetch(
-        `http://localhost:5000/api/${user.id}/course/${courseId}/lesson/${lessonId}/complete`,
+        `http://localhost:5000/api/enrollments/${user.id}/course/${courseId}/lesson/${lessonId}/complete`,
         {
           method: "PUT",
           headers: {
@@ -417,7 +417,7 @@ export default function CoursePageUser() {
     setGeneratingCertificate(true);
     try {
       const response = await fetch(
-        `http://localhost:5000/api/user/${user.id}/course/${courseId}/certificate`,
+        `http://localhost:5000/api/certificates/${user.id}/course/${courseId}`,
         {
           method: "POST",
           headers: {
@@ -449,7 +449,7 @@ export default function CoursePageUser() {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/user/${user.id}/course/${courseId}/certificate`,
+        `http://localhost:5000/api/certificates/${user.id}/course/${courseId}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`

@@ -84,7 +84,7 @@ const CourseCard = ({ course, onEdit, onDelete, onToggleActive, onAddLesson, onE
     try {
       // Fetch the full quiz data with questions from the backend
       const response = await axios.get(
-        `${API_BASE_URL}/lessons/${quiz.lesson}/quiz`,
+        `${API_BASE_URL}/quizzes/lessons/${quiz.lesson}`,
         { headers: getAuthHeaders() }
       );
       
