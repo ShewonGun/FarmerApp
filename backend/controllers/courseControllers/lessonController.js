@@ -113,10 +113,19 @@ export const updateLesson = async (req, res) => {
             return res.status(400).json({ success: false, message: "Invalid lesson ID" });
         }
         
-        // Auto-generate thumbnail if YouTube URL is provided
-        const updateData = { title, content, assetUrl, youtubeUrl };
-        if (youtubeUrl) {
-            updateData.thumbnailUrl = extractYoutubeThumbnail(youtubeUrl);
+        // Build update data object with only provided fields
+        const updateData = {};
+        if (title !== undefined) updateData.title = title;
+        if (content !== undefined) updateData.content = content;
+        if (assetUrl !== undefined) updateData.assetUrl = assetUrl;
+        if (youtubeUrl !== undefined) {
+            updateData.youtubeUrl = youtubeUrl;
+            // Auto-generate thumbnail if YouTube URL is provided
+            if (youtubeUrl) {
+                updateData.thumbnailUrl = extractYoutubeThumbnail(youtubeUrl);
+            } else {
+                updateData.thumbnailUrl = null;
+            }
         }
         
         const lesson = await Lesson.findByIdAndUpdate(

@@ -99,9 +99,19 @@ export const getAllCourses = async (req, res) => {
         const courses = await Course.find().skip(skip).limit(limit);
         const total = await Course.countDocuments();
         
+        const coursesWithEnrollmentCount = await Promise.all(
+            courses.map(async (course) => {
+                const enrollmentCount = await Enroll.countDocuments({ course: course._id });
+                return {
+                    ...course.toObject(),
+                    enrollmentCount
+                };
+            })
+        );
+        
         res.status(200).json({ 
             success: true, 
-            courses, 
+            courses: coursesWithEnrollmentCount, 
             pagination: {
                 currentPage: page,
                 totalPages: Math.ceil(total / limit),
@@ -121,7 +131,17 @@ export const getCourseById = async (req, res) => {
         if (!course) {
             return res.status(404).json({ success: false, message: "Course not found" });
         }
-        res.status(200).json({ success: true, course });
+        
+        // Calculate actual enrollment count
+        const enrollmentCount = await Enroll.countDocuments({ course: course._id });
+        
+        res.status(200).json({ 
+            success: true, 
+            course: {
+                ...course.toObject(),
+                enrollmentCount
+            }
+        });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -451,6 +471,64 @@ export const markCourseAsCompleted = async (req, res) => {
                 averageScore: enrollment.averageScore,
                 progress: enrollment.progress
             }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// Get all courses with lessons and quizzes (for admin)
+export const getAllCoursesWithDetails = async (req, res) => {
+    try {
+        const courses = await Course.find().sort({ createdAt: -1 });
+        
+        // Fetch lessons and quizzes for each course
+        const coursesWithDetails = await Promise.all(
+            courses.map(async (course) => {
+                // Get all lessons for this course
+                const lessons = await Lesson.find({ course: course._id }).sort({ createdAt: 1 });
+                
+                // Get quizzes for all lessons
+                const lessonIds = lessons.map(l => l._id);
+                const quizzes = await Quiz.find({ lesson: { $in: lessonIds } });
+
+                // Get question counts for each quiz, only for questions belonging to the quiz's lesson
+                const quizzesWithQuestions = await Promise.all(
+                    quizzes.map(async (quiz) => {
+                        // Only count questions for this quiz and its lesson
+                        const questionCount = await Question.countDocuments({ quiz: quiz._id, });
+                        return {
+                            _id: quiz._id,
+                            lesson: quiz.lesson,
+                            title: quiz.title,
+                            passingScore: quiz.passingScore,
+                            questionCount
+                        };
+                    })
+                );
+
+                // Calculate actual enrollment count from Enroll collection
+                const enrollmentCount = await Enroll.countDocuments({ course: course._id });
+
+                return {
+                    ...course.toObject(),
+                    enrollmentCount,
+                    lessons: lessons.map(l => ({
+                        _id: l._id,
+                        title: l.title,
+                        content: l.content,
+                        youtubeUrl: l.youtubeUrl,
+                        thumbnailUrl: l.thumbnailUrl,
+                        isQuizAvailable: l.isQuizAvailable
+                    })),
+                    quizzes: quizzesWithQuestions
+                };
+            })
+        );
+        
+        res.status(200).json({ 
+            success: true, 
+            courses: coursesWithDetails
         });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
