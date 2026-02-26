@@ -152,7 +152,7 @@ const WeatherPage = () => {
                   {weather.city}, Sri Lanka
                 </p>
               </div>
-              <WeatherAnimation description={weather.description} size={80} />
+              <WeatherAnimation description={weather.description} icon={weather.icon} size={80} />
             </div>
 
             {/* Divider */}
@@ -231,7 +231,7 @@ const WeatherPage = () => {
                 <div key={i} className="flex items-center justify-between px-5 py-3">
                   <p className="text-sm text-slate-600 dark:text-slate-300 font-['Sora'] w-28">{day.date}</p>
                   <div className="flex items-center gap-2 flex-1">
-                    <WeatherAnimation description={day.description} size={36} />
+                    <WeatherAnimation description={day.description} icon={day.icon} size={36} />
                     <p className="text-xs text-slate-400 font-['Sora'] capitalize hidden sm:block">{day.description}</p>
                   </div>
                   <div className="flex items-center gap-2 text-sm font-['Sora']">
