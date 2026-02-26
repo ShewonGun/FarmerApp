@@ -5,6 +5,7 @@ import {
   MdAttachMoney,
   MdBook,
   MdPayments,
+  MdCloud,
 } from "react-icons/md";
 import { sidebarState } from "../../utils/sidebarState";
 import { useAuth } from "../../Context/AuthContext";
@@ -13,11 +14,12 @@ const navItems = [
   { label: "Loans", icon: MdAttachMoney, path: "/loan" },
   { label: "Courses", icon: MdBook, path: "/courses" },
   { label: "Loan Plans", icon: MdPayments, path: "/loan-plans" },
+  { label: "Weather", icon: MdCloud, path: "/weather", public: true },
 ];
 
 function NavItem({ item, onClick, onProtected, isAuthenticated }) {
   const handleClick = (e) => {
-    if (!isAuthenticated) {
+    if (!item.public && !isAuthenticated) {
       e.preventDefault();
       toast('Please log in to continue.', { icon: '⚠️' });
       return;
