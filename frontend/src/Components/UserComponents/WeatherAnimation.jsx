@@ -13,6 +13,8 @@ const styles = `
 @keyframes wa-snow-fall { 0% { transform:translateY(-6px) rotate(0deg); opacity:0; } 30% { opacity:.9; } 100% { transform:translateY(22px) rotate(180deg); opacity:0; } }
 @keyframes wa-lightning { 0%,90%,100% { opacity:0; } 92%,96% { opacity:1; } 94% { opacity:.3; } }
 @keyframes wa-fog-drift { 0%,100% { opacity:.55; transform:translateX(0); } 50% { opacity:.8; transform:translateX(3px); } }
+@keyframes wa-moon-glow { 0%,100% { opacity:.25; } 50% { opacity:.5; } }
+@keyframes wa-star-twinkle { 0%,100% { opacity:.45; transform:scale(.8); } 50% { opacity:1; transform:scale(1.3); } }
 .wa-sun-rays { transform-origin:50px 50px; animation:wa-spin 12s linear infinite; }
 .wa-sun-core { transform-origin:50px 50px; animation:wa-pulse-glow 3s ease-in-out infinite; }
 .wa-cloud-main { animation:wa-cloud-drift 4s ease-in-out infinite; }
@@ -32,6 +34,10 @@ const styles = `
 .wa-fog-1 { animation:wa-fog-drift 3s ease-in-out infinite 0s; }
 .wa-fog-2 { animation:wa-fog-drift 3s ease-in-out infinite .5s; }
 .wa-fog-3 { animation:wa-fog-drift 3s ease-in-out infinite 1s; }
+.wa-moon-glow { animation:wa-moon-glow 3s ease-in-out infinite; }
+.wa-star-1 { transform-origin:20px 26px; animation:wa-star-twinkle 2.5s ease-in-out infinite 0s; }
+.wa-star-2 { transform-origin:76px 20px; animation:wa-star-twinkle 2.5s ease-in-out infinite .8s; }
+.wa-star-3 { transform-origin:82px 62px; animation:wa-star-twinkle 2.5s ease-in-out infinite 1.6s; }
 `;
 
 /* ── individual animation components ─────────────────────────── */
@@ -154,6 +160,25 @@ const Snowy = () => (
   </svg>
 );
 
+const Moon = () => (
+  <svg viewBox="0 0 100 100" width="100%" height="100%">
+    <defs>
+      <mask id="wa-moon-crescent">
+        <rect width="100" height="100" fill="white" />
+        <circle cx="62" cy="36" r="22" fill="black" />
+      </mask>
+    </defs>
+    {/* Crescent moon body */}
+    <circle cx="46" cy="52" r="21" fill="#FDE68A" mask="url(#wa-moon-crescent)" />
+    {/* Stars */}
+    <circle cx="20" cy="26" r="2.2" fill="#FDE68A" className="wa-star-1" />
+    <circle cx="76" cy="20" r="1.8" fill="#FDE68A" className="wa-star-2" />
+    <circle cx="82" cy="62" r="1.6" fill="#FDE68A" className="wa-star-3" />
+    <circle cx="24" cy="74" r="1.2" fill="#FDE68A" className="wa-star-1" />
+    <circle cx="84" cy="38" r="1.2" fill="#FDE68A" className="wa-star-2" />
+  </svg>
+);
+
 const Foggy = () => (
   <svg viewBox="0 0 100 100" width="100%" height="100%">
     {[
@@ -174,21 +199,24 @@ const Foggy = () => (
 
 /* ── condition resolver ───────────────────────────────────────── */
 
-const getAnimation = (description = "") => {
+const getAnimation = (description = "", isNight = false) => {
   const d = description.toLowerCase();
   if (d.includes("thunderstorm")) return Thunderstorm;
   if (d.includes("drizzle") || d.includes("shower") || d.includes("rain")) return Rainy;
   if (d.includes("snow") || d.includes("sleet") || d.includes("hail") || d.includes("ice")) return Snowy;
   if (d.includes("fog") || d.includes("mist") || d.includes("haze") || d.includes("smoke") || d.includes("dust") || d.includes("sand")) return Foggy;
   if (d.includes("overcast") || d.includes("broken clouds") || d.includes("scattered clouds")) return Cloudy;
-  if (d.includes("few clouds") || d.includes("partly") || d.includes("cloud")) return PartlyCloudy;
-  return Sunny;
+  if (d.includes("few clouds") || d.includes("partly") || d.includes("cloud")) return isNight ? Moon : PartlyCloudy;
+  // "clear sky" or default — show moon at night, sun during day
+  return isNight ? Moon : Sunny;
 };
 
 /* ── public component ─────────────────────────────────────────── */
 
-const WeatherAnimation = ({ description = "", size = 80 }) => {
-  const AnimComponent = getAnimation(description);
+const WeatherAnimation = ({ description = "", icon = "", size = 80 }) => {
+  // OpenWeatherMap icon codes end with 'n' for night (e.g. "01n", "02n")
+  const isNight = icon.endsWith("n");
+  const AnimComponent = getAnimation(description, isNight);
   return (
     <>
       <style>{styles}</style>
