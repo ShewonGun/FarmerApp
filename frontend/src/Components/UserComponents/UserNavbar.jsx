@@ -96,6 +96,18 @@ const UserNavbar = () => {
         >
           Plans
         </NavLink>
+        <NavLink
+          to="/weather"
+          className={({ isActive }) =>
+            `px-4 py-2 rounded-lg text-sm font-medium font-['Sora'] transition-all duration-150 ${
+              isActive
+                ? ' text-emerald-600 dark:text-emerald-400'
+                : 'text-slate-600 dark:text-slate-400'
+            }`
+          }
+        >
+          Weather
+        </NavLink>
       </nav>
 
       {/* Right side - Theme toggle + Auth/User */}
