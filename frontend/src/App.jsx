@@ -76,7 +76,7 @@ const App = () => {
         !isAuthPage && !isUserPage 
           ? `pt-16 ${state.collapsed ? 'md:ml-18' : 'md:ml-60'}` 
           : isUserPage 
-          ? 'pt-16 px-4 lg:px-10' 
+          ? 'pt-16 px-2 lg:px-10' 
           : ''
       }`}>
         <Routes>
