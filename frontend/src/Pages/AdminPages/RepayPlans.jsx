@@ -138,6 +138,14 @@ const RepayPlans = () => {
 
   return (
     <div className="p-6 bg-slate-50 dark:bg-slate-900 min-h-screen">
+      <div className="mb-4">
+        <h1 className="text-lg md:text-xl font-semibold text-slate-900 dark:text-slate-100 font-['Sora'] tracking-tight">
+          Payment Plans
+        </h1>
+        <p className="mt-0.5 text-[11px] md:text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
+          Manage repayment plans, interest settings, and plan availability.
+        </p>
+      </div>
 
       {loading && (
         <div className="flex items-center justify-center py-12">

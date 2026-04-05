@@ -199,6 +199,105 @@ export const deactivateAccount = async (req, res) => {
     }
 };
 
+// Activate Account
+export const activateAccount = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        // Find user by ID
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        // Check if already active
+        if (user.isActive !== false) {
+            return res.status(400).json({
+                success: false,
+                message: "Account is already active"
+            });
+        }
+
+        // Activate account
+        user.isActive = true;
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Account activated successfully"
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// Create Admin Account (Admin only)
+export const createAdmin = async (req, res) => {
+    try {
+        const { name, email, password } = req.body;
+
+        if (!name || !email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: "Name, email, and password are required"
+            });
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid email format"
+            });
+        }
+
+        if (password.length < 6) {
+            return res.status(400).json({
+                success: false,
+                message: "Password must be at least 6 characters long"
+            });
+        }
+
+        const existingUser = await User.findOne({ email: email.toLowerCase() });
+        if (existingUser) {
+            return res.status(409).json({
+                success: false,
+                message: "User with this email already exists"
+            });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        const adminUser = new User({
+            name,
+            email: email.toLowerCase(),
+            password: hashedPassword,
+            role: "admin",
+            isActive: true
+        });
+
+        await adminUser.save();
+
+        res.status(201).json({
+            success: true,
+            message: "Admin account created successfully",
+            user: {
+                id: adminUser._id,
+                name: adminUser.name,
+                email: adminUser.email,
+                role: adminUser.role,
+                isActive: adminUser.isActive
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 // Get All Users (Admin only)
 export const getAllUsers = async (req, res) => {
     try {
