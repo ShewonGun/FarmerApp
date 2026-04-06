@@ -3,7 +3,9 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String, required: false },
+    googleId: { type: String, sparse: true, unique: true },
+    picture: { type: String },
     role: { type: String, enum: ["farmer", "admin"], default: "farmer" },
     isActive: { type: Boolean, default: true },
     createdAt: { type: Date, default: Date.now }

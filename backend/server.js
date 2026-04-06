@@ -11,6 +11,7 @@ import progressRoutes from "./routes/courseRoutes/progressRoutes.js";
 import certificateRoutes from "./routes/courseRoutes/certifcateRoutes.js";
 import enrollmentRoutes from "./routes/courseRoutes/enrollmentRoutes.js";
 import aiCourseRoutes from "./routes/courseRoutes/aiCourseRoute.js";
+import uploadRoutes from "./routes/sharedRoutes/uploadRoutes.js";
 
 import userRoutes from "./routes/userRoutes/userRoutes.js";
 import financialRoutes from "./routes/userRoutes/financialRoutes.js";
@@ -22,11 +23,10 @@ import ticketServiceRatingRoutes from "./routes/SupportRoutes/ticketServiceRatin
 import platformServiceRatingRoutes from "./routes/SupportRoutes/platformServiceRatingRoutes.js";
 
 import planRoutes from "./routes/adminRoutes/planRoutes.js";
+import weatherRoutes from "./routes/adminRoutes/weatherRoutes.js";
 
 import loanRoutes from "./routes/loanRoutes/loanRoutes.js"
 import loanCategoryRoutes from "./routes/loanRoutes/loanCategoryRoutes.js"
-
-import uploadRoutes from "./routes/sharedRoutes/uploadRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -63,7 +63,10 @@ app.use("/api/loans", loanRoutes);
 app.use("/api/loan-categories", loanCategoryRoutes);
 
 // Plan and related routes
-app.use("/api", uploadRoutes);
+app.use("/api/plans", planRoutes);
+
+// Weather routes
+app.use("/api/weather", weatherRoutes);
 
 // Support and rating routes
 app.use("/api/support-tickets", supportTicketRoutes);

@@ -1,5 +1,23 @@
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 import User from "../models/user/User.js";
+
+/**
+ * Use on routes like /:userId so reserved segments (e.g. "my") and invalid ids
+ * never reach adminOnly (which would return 403 for farmers).
+ */
+export const requireMongoIdParam = (paramName = "userId") => {
+    return (req, res, next) => {
+        const raw = req.params[paramName];
+        if (!mongoose.Types.ObjectId.isValid(raw)) {
+            return res.status(404).json({
+                success: false,
+                message: "Not found",
+            });
+        }
+        next();
+    };
+};
 
 // Authenticate user with JWT token
 export const authenticate = async (req, res, next) => {

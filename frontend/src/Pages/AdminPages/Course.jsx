@@ -291,6 +291,15 @@ const Course = () => {
 
   return (
     <div className="p-6 bg-slate-50 dark:bg-slate-900 min-h-screen">
+      <div className="mb-4">
+        <h1 className="text-lg md:text-xl font-semibold text-slate-900 dark:text-slate-100 font-['Sora'] tracking-tight">
+          Courses, Lessons and Quizzes
+        </h1>
+        <p className="mt-0.5 text-[11px] md:text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
+          Create, update, and organize course content, lessons, and quizzes.
+        </p>
+      </div>
+
       {loading && (
         <div className="flex items-center justify-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>

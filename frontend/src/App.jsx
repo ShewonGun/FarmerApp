@@ -21,6 +21,15 @@ import LoanPage from "./Pages/UserPages/LoanPage"
 import ProtectedRoute from "./Routes/ProtectedRoute"
 import { sidebarState } from "./utils/sidebarState"
 import UserLoanPlans from "./Pages/UserPages/UserLoanPlans"
+import WeatherPage from "./Pages/UserPages/WeatherPage"
+import ProfilePage from "./Pages/UserPages/ProfilePage"
+import DataVerificationPage from "./Pages/UserPages/DataVerificationPage"
+import {
+  AccountVerificationSection,
+  PaymentInfoSection,
+  LocationValidationSection,
+  TrainingEngagementSection,
+} from "./Pages/UserPages/DataVerificationSections"
 
 // Renders landing page for everyone, but bumps admins to their dashboard
 const RootRoute = () => {
@@ -49,7 +58,7 @@ const App = () => {
   const isAuthPage = location.pathname === '/login' || location.pathname === '/signup'
   
   // Check if current route is a user/farmer page
-  const isUserPage = location.pathname === '/' || location.pathname.startsWith('/landing') || location.pathname.startsWith('/courses') || location.pathname.startsWith('/my-courses') || location.pathname.startsWith('/loan') || location.pathname.match(/^\/course\/[^/]+$/)
+  const isUserPage = location.pathname === '/' || location.pathname.startsWith('/landing') || location.pathname.startsWith('/courses') || location.pathname.startsWith('/my-courses') || location.pathname.startsWith('/loan') || location.pathname.startsWith('/weather') || location.pathname.startsWith('/profile') || location.pathname.startsWith('/data-verification') || location.pathname.match(/^\/course\/[^/]+$/)
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
@@ -75,7 +84,7 @@ const App = () => {
         !isAuthPage && !isUserPage 
           ? `pt-16 ${state.collapsed ? 'md:ml-18' : 'md:ml-60'}` 
           : isUserPage 
-          ? 'pt-16 px-4 lg:px-10' 
+          ? 'pt-16 px-2 lg:px-10' 
           : ''
       }`}>
         <Routes>
@@ -91,8 +100,24 @@ const App = () => {
           <Route path="/courses" element={<ProtectedRoute><CoursesPage /></ProtectedRoute>} />
           <Route path="/course/:courseId" element={<ProtectedRoute><CoursePageUser /></ProtectedRoute>} />
           <Route path="/my-courses" element={<ProtectedRoute><MyCourses /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route
+            path="/data-verification"
+            element={
+              <ProtectedRoute>
+                <DataVerificationPage />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Navigate to="account-verification" replace />} />
+            <Route path="account-verification" element={<AccountVerificationSection />} />
+            <Route path="payment-info" element={<PaymentInfoSection />} />
+            <Route path="location-validation" element={<LocationValidationSection />} />
+            <Route path="training-engagement" element={<TrainingEngagementSection />} />
+          </Route>
           <Route path="/loan" element={<ProtectedRoute><LoanPage /></ProtectedRoute>} />
           <Route path="/loan-plans" element={<ProtectedRoute><UserLoanPlans /></ProtectedRoute>} />
+          <Route path="/weather" element={<WeatherPage />} />
           
           {/* Protected Admin Routes */}
           <Route path="/admin" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

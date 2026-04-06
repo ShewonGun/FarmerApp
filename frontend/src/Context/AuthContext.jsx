@@ -47,6 +47,7 @@ export const AuthProvider = ({ children }) => {
           name: data.user.name,
           email: data.user.email,
           role: data.user.role,
+          picture: data.user.picture || '',
         };
         
         setUser(userData);
@@ -91,6 +92,7 @@ export const AuthProvider = ({ children }) => {
           name: data.user.name,
           email: data.user.email,
           role: data.user.role,
+          picture: data.user.picture || '',
         };
         
         setUser(newUser);
@@ -120,11 +122,58 @@ export const AuthProvider = ({ children }) => {
     navigate('/');
   };
 
+  const updateUser = (updatedUser) => {
+    setUser(updatedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+  };
+
+  const loginWithGoogle = async (credential) => {
+    const response = await fetch(`${API_BASE_URL}/google-auth`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ credential }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Google sign-in failed');
+    }
+
+    if (data.success) {
+      const userData = {
+        id: data.user.id,
+        name: data.user.name,
+        email: data.user.email,
+        role: data.user.role,
+        picture: data.user.picture || '',
+      };
+
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('token', data.token);
+
+      if (data.user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/landing');
+      }
+
+      return data;
+    }
+
+    throw new Error(data.message || 'Google sign-in failed');
+  };
+
   const value = {
     user,
     login,
     signup,
+    loginWithGoogle,
     logout,
+    updateUser,
     loading,
     isAuthenticated: !!user,
   };

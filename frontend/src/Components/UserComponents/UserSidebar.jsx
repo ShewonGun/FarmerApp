@@ -5,6 +5,7 @@ import {
   MdAttachMoney,
   MdBook,
   MdPayments,
+  MdCloud,
 } from "react-icons/md";
 import { sidebarState } from "../../utils/sidebarState";
 import { useAuth } from "../../Context/AuthContext";
@@ -13,11 +14,12 @@ const navItems = [
   { label: "Loans", icon: MdAttachMoney, path: "/loan" },
   { label: "Courses", icon: MdBook, path: "/courses" },
   { label: "Loan Plans", icon: MdPayments, path: "/loan-plans" },
+  { label: "Weather", icon: MdCloud, path: "/weather", public: true },
 ];
 
 function NavItem({ item, onClick, onProtected, isAuthenticated }) {
   const handleClick = (e) => {
-    if (!isAuthenticated) {
+    if (!item.public && !isAuthenticated) {
       e.preventDefault();
       toast('Please log in to continue.', { icon: '⚠️' });
       return;
@@ -116,9 +118,17 @@ export default function UserSidebar() {
         <div className="py-4 px-2 border-t border-gray-200 dark:border-slate-700">
           {user ? (
             <div className="mx-1 rounded-xl p-3 flex items-center gap-3 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0 bg-linear-to-br from-emerald-500 to-emerald-400 text-white font-['Sora']">
-                {user.name?.charAt(0).toUpperCase() || 'U'}
-              </div>
+              {user.picture ? (
+                <img
+                  src={user.picture}
+                  alt=""
+                  className="w-10 h-10 rounded-full object-cover shrink-0 border border-slate-200 dark:border-slate-600"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0 bg-linear-to-br from-emerald-500 to-emerald-400 text-white font-['Sora']">
+                  {user.name?.charAt(0).toUpperCase() || 'U'}
+                </div>
+              )}
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-semibold leading-tight whitespace-nowrap text-slate-800 dark:text-slate-200 font-['Sora'] truncate">
                   {user.name}
