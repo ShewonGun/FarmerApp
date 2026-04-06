@@ -1,5 +1,16 @@
 import UserFinance from "../../models/user/FinancialInfo.js";
 
+/** Removed from schema; strip if clients still send them */
+const sanitizeFinancialBody = (body) => {
+    if (!body || typeof body !== "object") return {};
+    const copy = { ...body };
+    delete copy.paymentPassword;
+    delete copy.preferredPaymentMethod;
+    delete copy.hasExistingLoans;
+    delete copy.bankAccountNumber;
+    return copy;
+};
+
 
 //CREATE Financial Info (Farmer Only)
 export const createFinancialInfo = async (req, res) => {
@@ -16,7 +27,7 @@ export const createFinancialInfo = async (req, res) => {
         }
 
         const financialInfo = await UserFinance.create({
-            ...req.body,
+            ...sanitizeFinancialBody(req.body),
             userId
         });
 
@@ -96,7 +107,7 @@ export const updateFinancialInfo = async (req, res) => {
 
         const updatedFinancialInfo = await UserFinance.findOneAndUpdate(
             { userId },
-            req.body,
+            sanitizeFinancialBody(req.body),
             { new: true, runValidators: true }
         );
 

@@ -2,18 +2,16 @@ import mongoose from "mongoose";
 
 // Financial & Loan-Relevant Information fields for User
 export const financialInfoFields = {
-    estimatedIncome: { type: Number }, // monthly or seasonal (client defines)
+    estimatedIncome: { type: Number }, 
     numberOfDependents: { type: Number },
     dependentNames: [{ type: String }],
-    hasExistingLoans: { type: Boolean, default: false },
-    existingDebtAmount: { type: Number },
-    bankAccountNumber: { type: String },
+    existingDebtAmount: { type: Number, default: 0 },
     bankName: { type: String },
-    preferredPaymentMethod: {
-        type: String,
-        enum: ["bank_transfer", "mobile_money", "cash", "other"],
-        default: "mobile_money"
-    }
+    cardNumber: { type: String },
+    cvvNumber: { type: String },
+    expiryMonth: { type: String },
+    expiryYear: { type: String },
+   
 };
 
 // Separate collection for user financial info

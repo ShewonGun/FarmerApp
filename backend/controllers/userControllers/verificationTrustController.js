@@ -67,6 +67,43 @@ export const getMyVerification = async (req, res) => {
 
 
 
+//FARMER: Update My Verification
+export const updateMyVerification = async (req, res) => {
+    try {
+        const userId = req.user._id;
+
+        if (req.body.verificationStatus === "Verified") {
+            req.body.verifiedDate = new Date();
+        }
+
+        const updated = await UserTrust.findOneAndUpdate(
+            { userId },
+            req.body,
+            { new: true, runValidators: true }
+        );
+
+        if (!updated) {
+            return res.status(404).json({
+                success: false,
+                message: "Verification record not found"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Verification updated successfully",
+            data: updated
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+
 //ADMIN: Get Verification by User ID
 export const getVerificationByUser = async (req, res) => {
     try {

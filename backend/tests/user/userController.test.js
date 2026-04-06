@@ -162,7 +162,7 @@ describe("login", () => {
 // ─── viewAccount ──────────────────────────────────────────────────────────────
 describe("viewAccount", () => {
   test("should return 404 if user is not found", async () => {
-    User.findById.mockReturnValue({ select: jest.fn().mockResolvedValue(null) });
+    User.findById.mockReturnValue({ lean: jest.fn().mockResolvedValue(null) });
 
     const req = mockRequest({ params: { userId: "nonexistent" } });
     const res = mockResponse();
@@ -173,8 +173,13 @@ describe("viewAccount", () => {
   });
 
   test("should return 200 with user data", async () => {
-    const mockUser = { _id: "user123", name: "John", email: "john@test.com" };
-    User.findById.mockReturnValue({ select: jest.fn().mockResolvedValue(mockUser) });
+    const mockUser = {
+      _id: "user123",
+      name: "John",
+      email: "john@test.com",
+      password: "hashed"
+    };
+    User.findById.mockReturnValue({ lean: jest.fn().mockResolvedValue(mockUser) });
 
     const req = mockRequest({ params: { userId: "user123" } });
     const res = mockResponse();
@@ -182,9 +187,15 @@ describe("viewAccount", () => {
     await viewAccount(req, res);
 
     expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({ success: true, user: mockUser })
-    );
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      user: {
+        _id: "user123",
+        name: "John",
+        email: "john@test.com",
+        hasPassword: true
+      }
+    });
   });
 });
 

@@ -2,6 +2,7 @@ import express from "express";
 import {
     createVerification,
     getMyVerification,
+    updateMyVerification,
     getVerificationByUser,
     getAllVerifications,
     updateVerification,
@@ -11,7 +12,8 @@ import {
 import {
     authenticate,
     farmerOnly,
-    adminOnly
+    adminOnly,
+    requireMongoIdParam,
 } from "../../middlewares/protect.js";
 
 const router = express.Router();
@@ -20,12 +22,13 @@ const router = express.Router();
 // 👨‍🌾 Farmer Routes
 router.post("/", authenticate, farmerOnly, createVerification);
 router.get("/my", authenticate, farmerOnly, getMyVerification);
+router.put("/my", authenticate, farmerOnly, updateMyVerification);
 
 
-// 👨‍💼 Admin Routes
+// 👨‍💼 Admin Routes (ObjectId guard so "my" never hits adminOnly)
 router.get("/", authenticate, adminOnly, getAllVerifications);
-router.get("/:userId", authenticate, adminOnly, getVerificationByUser);
-router.put("/:userId", authenticate, adminOnly, updateVerification);
-router.delete("/:userId", authenticate, adminOnly, deleteVerification);
+router.get("/:userId", authenticate, requireMongoIdParam(), adminOnly, getVerificationByUser);
+router.put("/:userId", authenticate, requireMongoIdParam(), adminOnly, updateVerification);
+router.delete("/:userId", authenticate, requireMongoIdParam(), adminOnly, deleteVerification);
 
 export default router;
