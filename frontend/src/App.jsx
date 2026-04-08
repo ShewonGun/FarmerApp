@@ -24,6 +24,10 @@ import UserLoanPlans from "./Pages/UserPages/UserLoanPlans"
 import WeatherPage from "./Pages/UserPages/WeatherPage"
 import ProfilePage from "./Pages/UserPages/ProfilePage"
 import DataVerificationPage from "./Pages/UserPages/DataVerificationPage"
+import SupportTicketPage from "./Pages/UserPages/SupportTicketPage"
+import MySupportTicketsPage from "./Pages/UserPages/MySupportTicketsPage"
+import PlatformFeedbackPage from "./Pages/UserPages/PlatformFeedbackPage"
+import PlatformRatingPage from "./Pages/UserPages/PlatformRatingPage"
 import {
   AccountVerificationSection,
   PaymentInfoSection,
@@ -58,7 +62,7 @@ const App = () => {
   const isAuthPage = location.pathname === '/login' || location.pathname === '/signup'
   
   // Check if current route is a user/farmer page
-  const isUserPage = location.pathname === '/' || location.pathname.startsWith('/landing') || location.pathname.startsWith('/courses') || location.pathname.startsWith('/my-courses') || location.pathname.startsWith('/loan') || location.pathname.startsWith('/weather') || location.pathname.startsWith('/profile') || location.pathname.startsWith('/data-verification') || location.pathname.match(/^\/course\/[^/]+$/)
+  const isUserPage = location.pathname === '/' || location.pathname.startsWith('/landing') || location.pathname.startsWith('/courses') || location.pathname.startsWith('/my-courses') || location.pathname.startsWith('/loan') || location.pathname.startsWith('/weather') || location.pathname.startsWith('/profile') || location.pathname.startsWith('/data-verification') || location.pathname.startsWith('/support-ticket') || location.pathname.startsWith('/platform-rating') || location.pathname.match(/^\/course\/[^/]+$/)
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
@@ -118,6 +122,38 @@ const App = () => {
           <Route path="/loan" element={<ProtectedRoute><LoanPage /></ProtectedRoute>} />
           <Route path="/loan-plans" element={<ProtectedRoute><UserLoanPlans /></ProtectedRoute>} />
           <Route path="/weather" element={<WeatherPage />} />
+          <Route
+            path="/support-ticket/my-tickets"
+            element={
+              <ProtectedRoute>
+                <MySupportTicketsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/support-ticket/feedback"
+            element={
+              <ProtectedRoute>
+                <PlatformFeedbackPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/support-ticket"
+            element={
+              <ProtectedRoute>
+                <SupportTicketPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/platform-rating"
+            element={
+              <ProtectedRoute>
+                <PlatformRatingPage />
+              </ProtectedRoute>
+            }
+          />
           
           {/* Protected Admin Routes */}
           <Route path="/admin" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
