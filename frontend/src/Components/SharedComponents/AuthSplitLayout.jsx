@@ -37,7 +37,7 @@ const AuthSplitLayout = ({ children }) => {
         <div className="hidden lg:flex lg:w-1/2 h-full min-h-0 max-h-full overflow-hidden relative flex-col shrink-0">
           <div className="absolute inset-0 overflow-hidden">
             <div
-              className="absolute inset-0 bg-gradient-to-br from-emerald-900/90 via-emerald-800/80 to-slate-900"
+              className="absolute inset-0 bg-linear-to-br from-emerald-900/90 via-emerald-800/80 to-slate-900"
               aria-hidden
             />
             {!heroError && (
@@ -51,7 +51,7 @@ const AuthSplitLayout = ({ children }) => {
                 onError={() => setHeroError(true)}
               />
             )}
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/75 via-slate-900/15 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-linear-to-t from-slate-900/75 via-slate-900/15 to-transparent pointer-events-none" />
           </div>
 
           <div className="relative z-10 flex flex-col justify-end flex-1 min-h-0 w-full p-5 xl:p-6 pt-0">
