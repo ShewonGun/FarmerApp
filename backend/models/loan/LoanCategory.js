@@ -5,14 +5,34 @@ const loanCategorySchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
+    trim: true,
   },
-  interestRate: {
-    type: Number,
-    required: true,
+  code: {
+    type: String,
+    trim: true,
+    uppercase: true,
+    unique: true,
+    sparse: true,
   },
-  maxAmount: {
+  description: {
+    type: String,
+    trim: true,
+  },
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
+  requiredDocuments: {
+    type: [String],
+    default: [],
+  },
+  eligiblePurposes: {
+    type: [String],
+    default: [],
+  },
+  displayOrder: {
     type: Number,
-    required: true,
+    default: 0,
   },
 }, { timestamps: true });
 
