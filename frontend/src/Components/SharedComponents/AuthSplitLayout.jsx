@@ -1,29 +1,34 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import { MdArrowBack } from "react-icons/md";
 import loginHeroImage from "../../assets/Loginimage.jpg";
+import ThemeToggle from "../AdminComponents/ThemeToggle";
 
 const AuthSplitLayout = ({ children }) => {
   const [heroLoaded, setHeroLoaded] = useState(false);
   const [heroError, setHeroError] = useState(false);
 
   return (
-    <div
-      className="min-h-dvh h-dvh w-full box-border overflow-hidden flex items-center justify-center p-4 sm:p-5 md:p-6 lg:p-8 bg-slate-100 dark:bg-slate-950"
-      style={{
-        backgroundImage: `
-          linear-gradient(rgba(148, 163, 184, 0.12) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(148, 163, 184, 0.12) 1px, transparent 1px)
-        `,
-        backgroundSize: "28px 28px"
-      }}
-    >
+    <div className="relative min-h-dvh h-dvh w-full box-border overflow-hidden flex items-center justify-center p-4 sm:p-5 md:p-6 lg:p-8 bg-slate-100 dark:bg-slate-950">
+      <Link
+        to="/landing"
+        className="absolute top-4 left-4 sm:top-5 sm:left-5 md:top-6 md:left-6 z-20 inline-flex items-center justify-center w-8 h-8 rounded-lg bg-white/90 hover:bg-white dark:bg-slate-800/90 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shadow-sm transition-colors"
+        aria-label="Back to landing page"
+        title="Back to landing page"
+      >
+        <MdArrowBack className="text-base" />
+      </Link>
+      <div className="absolute top-4 right-4 sm:top-5 sm:right-5 md:top-6 md:right-6 z-20">
+        <ThemeToggle />
+      </div>
       {/* Fixed height card: no page scroll; columns share exact height */}
       <div
-        className="w-full max-w-5xl flex flex-col lg:flex-row min-h-0 overflow-hidden rounded-2xl shadow-2xl border border-slate-200/90 dark:border-slate-700/80 bg-white dark:bg-slate-900
-        h-[calc(100dvh-2rem)] sm:h-[calc(100dvh-2.5rem)] md:h-[calc(100dvh-3rem)] lg:h-[calc(100dvh-4rem)]"
+        className="w-full max-w-4xl flex flex-col lg:flex-row min-h-0 overflow-hidden rounded-2xl shadow-2xl border border-slate-200/90 dark:border-slate-700/80 bg-white dark:bg-slate-900
+        h-[calc(100dvh-2.5rem)] sm:h-[calc(100dvh-3rem)] md:h-[calc(100dvh-3.5rem)] lg:h-[calc(100dvh-5.5rem)]"
       >
         {/* Form column — only this side scrolls if content is tall */}
         <div className="w-full lg:w-1/2 flex flex-col min-h-0 min-w-0 max-h-full overflow-y-auto overscroll-contain px-5 sm:px-7 py-5 sm:py-6 lg:py-7">
-          <div className="flex-1 flex flex-col justify-center min-h-0 max-w-md w-full mx-auto lg:mx-0">
+          <div className="flex-1 flex flex-col justify-center min-h-0 max-w-sm w-full mx-auto lg:mx-0">
             {children}
           </div>
         </div>
@@ -32,7 +37,7 @@ const AuthSplitLayout = ({ children }) => {
         <div className="hidden lg:flex lg:w-1/2 h-full min-h-0 max-h-full overflow-hidden relative flex-col shrink-0">
           <div className="absolute inset-0 overflow-hidden">
             <div
-              className="absolute inset-0 bg-gradient-to-br from-emerald-900/90 via-emerald-800/80 to-slate-900"
+              className="absolute inset-0 bg-linear-to-br from-emerald-900/90 via-emerald-800/80 to-slate-900"
               aria-hidden
             />
             {!heroError && (
@@ -46,7 +51,7 @@ const AuthSplitLayout = ({ children }) => {
                 onError={() => setHeroError(true)}
               />
             )}
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/75 via-slate-900/15 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-linear-to-t from-slate-900/75 via-slate-900/15 to-transparent pointer-events-none" />
           </div>
 
           <div className="relative z-10 flex flex-col justify-end flex-1 min-h-0 w-full p-5 xl:p-6 pt-0">

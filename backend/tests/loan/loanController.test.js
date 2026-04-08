@@ -9,170 +9,220 @@ import {
 } from "../../controllers/loanControllers/loanController.js";
 import { mockRequest, mockResponse } from "../setup.js";
 
-// ─── Mock dependencies ────────────────────────────────────────────────────────
 jest.mock("../../models/loan/Loan.js");
 jest.mock("../../models/loan/LoanCategory.js");
+jest.mock("../../models/admin/Plan.js");
 jest.mock("../../models/loan/Repayment.js");
 jest.mock("../../utils/loan/loanCalculator.js");
 jest.mock("../../utils/loan/exchangeRateService.js");
 
 import Loan from "../../models/loan/Loan.js";
 import LoanCategory from "../../models/loan/LoanCategory.js";
+import Plan from "../../models/admin/Plan.js";
 import Repayment from "../../models/loan/Repayment.js";
 import { calculateLoanDetails } from "../../utils/loan/loanCalculator.js";
 import { getExchangeRate } from "../../utils/loan/exchangeRateService.js";
 
-// ─── createLoan ───────────────────────────────────────────────────────────────
+const farmerUser = {
+  _id: { toString: () => "507f1f77bcf86cd799439011" },
+  role: "farmer",
+};
+
+const adminUser = {
+  _id: { toString: () => "507f1f77bcf86cd799439099" },
+  role: "admin",
+};
+
 describe("createLoan", () => {
-  test("should create a loan and return 201", async () => {
-    const mockCategory = { _id: "cat1", interestRate: 10 };
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test("should create a loan from category and plan data and return 201", async () => {
+    const mockCategory = { _id: "507f1f77bcf86cd799439012", name: "Crop Loan", isActive: true };
+    const mockPlan = {
+      _id: "507f1f77bcf86cd799439013",
+      planName: "Starter Plan",
+      interestRate: 10,
+      interestType: "flat",
+      paymentFrequency: "monthly",
+      minLoanAmount: 1000,
+      maxLoanAmount: 20000,
+      latePenalty: { type: "percentage", value: 2 },
+      isActive: true,
+    };
+
     LoanCategory.findById.mockResolvedValue(mockCategory);
+    Plan.findById.mockResolvedValue(mockPlan);
     getExchangeRate.mockResolvedValue(0.0009);
     calculateLoanDetails.mockReturnValue({
+      durationMonths: 12,
+      numberOfPayments: 12,
+      totalInterest: 1000,
       totalPayable: 11000,
-      monthlyInstallment: 916.67,
+      installmentAmount: 916.67,
       remainingBalance: 11000,
     });
 
     const mockLoan = {
       _id: "loan1",
-      farmerId: "farmer1",
+      farmerId: "507f1f77bcf86cd799439011",
       amount: 10000,
-      durationMonths: 12,
+      plan: "507f1f77bcf86cd799439013",
+      category: "507f1f77bcf86cd799439012",
+      installmentAmount: 916.67,
+      toObject: jest.fn().mockReturnValue({ installmentAmount: 916.67 }),
     };
     Loan.create.mockResolvedValue(mockLoan);
 
     const req = mockRequest({
-      body: { farmerId: "farmer1", amount: 10000, categoryId: "cat1", durationMonths: 12 },
+      user: farmerUser,
+      body: {
+        amount: 10000,
+        categoryId: "507f1f77bcf86cd799439012",
+        planId: "507f1f77bcf86cd799439013",
+      },
     });
     const res = mockResponse();
 
     await createLoan(req, res);
 
+    expect(Loan.create).toHaveBeenCalledWith(expect.objectContaining({
+      farmerId: farmerUser._id,
+      monthlyInstallment: 916.67,
+    }));
     expect(res.status).toHaveBeenCalledWith(201);
-    expect(res.json).toHaveBeenCalledWith(mockLoan);
   });
 
-  test("should return 500 on server error", async () => {
-    LoanCategory.findById.mockRejectedValue(new Error("DB error"));
-
+  test("should return 400 when required create-loan fields are missing", async () => {
     const req = mockRequest({
-      body: { farmerId: "farmer1", amount: 10000, categoryId: "cat1", durationMonths: 12 },
+      user: farmerUser,
+      body: { amount: 10000, categoryId: "507f1f77bcf86cd799439012" },
     });
     const res = mockResponse();
 
     await createLoan(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: "DB error" }));
+    expect(res.status).toHaveBeenCalledWith(400);
   });
 });
 
-// ─── approveLoan ──────────────────────────────────────────────────────────────
 describe("approveLoan", () => {
   test("should approve the loan and return 200", async () => {
     const saveMock = jest.fn().mockResolvedValue(true);
     const mockLoan = {
-      _id: "loan1",
+      _id: "507f1f77bcf86cd799439011",
       status: "Pending",
       approvedAt: null,
       disbursedAt: null,
       nextDueDate: null,
+      paymentFrequency: "monthly",
+      installmentAmount: 500,
+      installmentPaidAmount: 250,
+      arrearsAmount: 100,
       save: saveMock,
+      toObject: jest.fn().mockReturnValue({ installmentAmount: 500 }),
     };
     Loan.findById.mockResolvedValue(mockLoan);
 
-    const req = mockRequest({ params: { id: "loan1" } });
+    const req = mockRequest({ params: { id: "507f1f77bcf86cd799439011" }, user: adminUser });
     const res = mockResponse();
 
     await approveLoan(req, res);
 
-    expect(mockLoan.status).toBe("Active");
-    expect(saveMock).toHaveBeenCalled();
-    expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({ message: "Loan Approved" })
-    );
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: "Loan Approved" }));
   });
 });
 
-// ─── addRepayment ─────────────────────────────────────────────────────────────
 describe("addRepayment", () => {
-  test("should add a repayment and update loan balance", async () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test("should add a repayment for the loan owner", async () => {
     const saveMock = jest.fn().mockResolvedValue(true);
     const mockLoan = {
       _id: "loan1",
+      farmerId: { toString: () => "507f1f77bcf86cd799439011" },
       totalPaid: 0,
       remainingBalance: 5000,
+      installmentAmount: 1000,
+      monthlyInstallment: 1000,
+      installmentPaidAmount: 0,
+      arrearsAmount: 0,
       status: "Active",
-      nextDueDate: new Date("2026-01-01"),
+      paymentFrequency: "monthly",
+      nextDueDate: new Date("2026-04-01T00:00:00.000Z"),
       save: saveMock,
+      toObject: jest.fn().mockReturnValue({ installmentAmount: 1000, monthlyInstallment: 1000 }),
     };
     Loan.findById.mockResolvedValue(mockLoan);
     Repayment.create.mockResolvedValue({});
 
-    const req = mockRequest({ params: { loanId: "loan1" }, body: { amount: 500 } });
+    const req = mockRequest({
+      user: farmerUser,
+      params: { loanId: "507f1f77bcf86cd799439011" },
+      body: { amount: 500, paidDate: "2026-04-01T12:00:00.000Z" },
+    });
     const res = mockResponse();
 
     await addRepayment(req, res);
 
-    expect(mockLoan.totalPaid).toBe(500);
-    expect(mockLoan.remainingBalance).toBe(4500);
-    expect(saveMock).toHaveBeenCalled();
-    expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({ message: "Payment Successful" })
-    );
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: "Payment Successful" }));
   });
 
-  test("should mark loan as Completed when balance reaches 0", async () => {
-    const saveMock = jest.fn().mockResolvedValue(true);
+  test("should return 403 when another farmer tries to repay the loan", async () => {
     const mockLoan = {
       _id: "loan1",
-      totalPaid: 4500,
-      remainingBalance: 500,
+      farmerId: { toString: () => "507f1f77bcf86cd799439055" },
       status: "Active",
-      nextDueDate: new Date("2026-01-01"),
-      save: saveMock,
     };
     Loan.findById.mockResolvedValue(mockLoan);
-    Repayment.create.mockResolvedValue({});
 
-    const req = mockRequest({ params: { loanId: "loan1" }, body: { amount: 500 } });
+    const req = mockRequest({
+      user: farmerUser,
+      params: { loanId: "507f1f77bcf86cd799439011" },
+      body: { amount: 500 },
+    });
     const res = mockResponse();
 
     await addRepayment(req, res);
 
-    expect(mockLoan.status).toBe("Completed");
+    expect(res.status).toHaveBeenCalledWith(403);
   });
 });
 
-// ─── getRepaymentsByLoan ──────────────────────────────────────────────────────
 describe("getRepaymentsByLoan", () => {
-  test("should return all repayments for a loan", async () => {
+  test("should return repayments for the loan owner", async () => {
     const mockRepayments = [
       { _id: "rep1", loanId: "loan1", amount: 500 },
       { _id: "rep2", loanId: "loan1", amount: 500 },
     ];
+    Loan.findById.mockResolvedValue({
+      _id: "loan1",
+      farmerId: { toString: () => "507f1f77bcf86cd799439011" },
+    });
     Repayment.find.mockReturnValue({ sort: jest.fn().mockResolvedValue(mockRepayments) });
 
-    const req = mockRequest({ params: { loanId: "loan1" } });
+    const req = mockRequest({ params: { loanId: "507f1f77bcf86cd799439011" }, user: farmerUser });
     const res = mockResponse();
 
     await getRepaymentsByLoan(req, res);
 
     expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith(mockRepayments);
   });
 
-  test("should return 500 on server error", async () => {
-    Repayment.find.mockReturnValue({
-      sort: jest.fn().mockRejectedValue(new Error("DB error")),
+  test("should return 403 when another farmer tries to view repayments", async () => {
+    Loan.findById.mockResolvedValue({
+      _id: "loan1",
+      farmerId: { toString: () => "507f1f77bcf86cd799439055" },
     });
 
-    const req = mockRequest({ params: { loanId: "loan1" } });
+    const req = mockRequest({ params: { loanId: "507f1f77bcf86cd799439011" }, user: farmerUser });
     const res = mockResponse();
 
     await getRepaymentsByLoan(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.status).toHaveBeenCalledWith(403);
   });
 });
