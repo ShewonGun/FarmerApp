@@ -191,8 +191,10 @@ describe("viewAccount", () => {
       success: true,
       user: {
         _id: "user123",
+        id: "user123",
         name: "John",
         email: "john@test.com",
+        picture: "",
         hasPassword: true
       }
     });

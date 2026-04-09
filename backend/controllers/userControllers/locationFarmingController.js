@@ -1,5 +1,19 @@
 import UserFarmingLocation from "../../models/user/LocationFarming.js";
 
+const normalizeLocationPayload = (payload = {}) => {
+    const districtValue = payload.district ?? payload.regionOrDistrict;
+    const addressValue = payload.address ?? payload.village;
+
+    const normalized = {
+        ...payload,
+        district: typeof districtValue === "string" ? districtValue.trim() : districtValue,
+        address: typeof addressValue === "string" ? addressValue.trim() : addressValue
+    };
+
+    delete normalized.regionOrDistrict;
+    delete normalized.village;
+    return normalized;
+};
 
 //CREATE Location & Farming Info (Farmer Only)
 export const createLocationFarming = async (req, res) => {
@@ -16,7 +30,7 @@ export const createLocationFarming = async (req, res) => {
         }
 
         const farmingInfo = await UserFarmingLocation.create({
-            ...req.body,
+            ...normalizeLocationPayload(req.body),
             userId
         });
 
@@ -96,7 +110,7 @@ export const updateLocationFarming = async (req, res) => {
 
         const updated = await UserFarmingLocation.findOneAndUpdate(
             { userId },
-            req.body,
+            normalizeLocationPayload(req.body),
             { new: true, runValidators: true }
         );
 

@@ -8,6 +8,8 @@ import {
   MdBook,
   MdMenu,
   MdVerifiedUser,
+  MdSupportAgent,
+  MdStar,
 } from "react-icons/md";
 import ThemeToggle from "../AdminComponents/ThemeToggle";
 import { useAuth } from "../../Context/AuthContext";
@@ -16,6 +18,7 @@ import { sidebarState } from "../../utils/sidebarState";
 
 const UserNavbar = () => {
   const [showUser, setShowUser] = useState(false);
+  const [navAvatarError, setNavAvatarError] = useState(false);
   const { user, logout } = useAuth();
   const userRef = useRef(null);
   const navigate = useNavigate();
@@ -37,6 +40,10 @@ const UserNavbar = () => {
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
+
+  useEffect(() => {
+    setNavAvatarError(false);
+  }, [user?.picture]);
 
   const handleMenuNavigate = (path) => {
     setShowUser(false);
@@ -146,11 +153,13 @@ const UserNavbar = () => {
             onClick={() => setShowUser(!showUser)}
             className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 transition-all duration-150 hover:bg-slate-50 dark:hover:bg-slate-800 bg-transparent border-none cursor-pointer"
           >
-            {user?.picture ? (
+            {user?.picture && !navAvatarError ? (
               <img
                 src={user.picture}
                 alt=""
+                referrerPolicy="no-referrer"
                 className="w-8 h-8 rounded-full object-cover shrink-0 border border-white/30 dark:border-slate-600"
+                onError={() => setNavAvatarError(true)}
               />
             ) : (
               <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 bg-linear-to-br from-emerald-500 to-emerald-400 text-white font-['Sora']">
@@ -220,6 +229,28 @@ const UserNavbar = () => {
               >
                 <MdBook className="text-base text-slate-500 dark:text-slate-400" />
                 My Courses
+              </button>
+
+              <div className="border-t border-slate-200/60 dark:border-slate-700 my-1" />
+
+              <button
+                type="button"
+                onClick={() => handleMenuNavigate("/support-ticket")}
+                className="w-full flex items-center gap-3 px-4 py-2.5 transition-all duration-150 hover:bg-slate-50/50 dark:hover:bg-slate-700/50 bg-transparent border-none cursor-pointer text-slate-600 dark:text-slate-300 text-[13px] font-['Sora'] text-left"
+              >
+                <MdSupportAgent className="text-base text-slate-500 dark:text-slate-400" />
+                Support ticket
+              </button>
+
+              <div className="border-t border-slate-200/60 dark:border-slate-700 my-1" />
+
+              <button
+                type="button"
+                onClick={() => handleMenuNavigate("/platform-rating")}
+                className="w-full flex items-center gap-3 px-4 py-2.5 transition-all duration-150 hover:bg-slate-50/50 dark:hover:bg-slate-700/50 bg-transparent border-none cursor-pointer text-slate-600 dark:text-slate-300 text-[13px] font-['Sora'] text-left"
+              >
+                <MdStar className="text-base text-slate-500 dark:text-slate-400" />
+                Rate Us
               </button>
 
               <div className="border-t border-slate-200/60 dark:border-slate-700 my-1" />
