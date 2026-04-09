@@ -1,62 +1,12 @@
 import TicketServiceRating from "../../models/support/TicketServiceRating.js";
 import SupportTicket from "../../models/Support/SupportTicket.js";
 
-/** @returns {undefined | null | number} undefined = omitted, null = invalid */
-const parseOptionalRating = (value) => {
-    if (value === undefined || value === null || value === "") return undefined;
-    const n = Number(value);
-    if (!Number.isFinite(n) || n < 1 || n > 5) return null;
-    return n;
-};
-
-/** Required 1–5 */
-const parseRequiredRating = (value) => {
-    const n = parseOptionalRating(value);
-    if (n === undefined) return undefined;
-    return n;
-};
 
 //CREATE Ticket Rating (Farmer Only)
 export const createTicketRating = async (req, res) => {
     try {
-        const userId = req.user._id;
-        const {
-            ticketId,
-            rating,
-            responseQuality,
-            resolutionSpeed,
-            helpfulness,
-            feedback,
-            comment,
-        } = req.body;
-
-        const mainRating = parseRequiredRating(rating);
-        if (mainRating === undefined) {
-            return res.status(400).json({
-                success: false,
-                message: "rating is required (1–5)",
-            });
-        }
-        if (mainRating === null) {
-            return res.status(400).json({
-                success: false,
-                message: "rating must be between 1 and 5",
-            });
-        }
-
-        const rq = parseOptionalRating(responseQuality);
-        const rs = parseOptionalRating(resolutionSpeed);
-        const hf = parseOptionalRating(helpfulness);
-        if (rq === null || rs === null || hf === null) {
-            return res.status(400).json({
-                success: false,
-                message: "Optional ratings must be between 1 and 5 when provided",
-            });
-        }
-
-        const rawFeedback = feedback ?? comment;
-        const feedbackText =
-            typeof rawFeedback === "string" ? rawFeedback.trim() : "";
+        const userId = req.user._id; 
+        const { ticketId, rating, comment } = req.body;
 
         // Check ticket exists
         const ticket = await SupportTicket.findById(ticketId);
@@ -64,7 +14,7 @@ export const createTicketRating = async (req, res) => {
         if (!ticket) {
             return res.status(404).json({
                 success: false,
-                message: "Ticket not found",
+                message: "Ticket not found"
             });
         }
 
@@ -72,7 +22,7 @@ export const createTicketRating = async (req, res) => {
         if (ticket.userId.toString() !== userId.toString()) {
             return res.status(403).json({
                 success: false,
-                message: "You can only rate your own ticket",
+                message: "You can only rate your own ticket"
             });
         }
 
@@ -80,7 +30,7 @@ export const createTicketRating = async (req, res) => {
         if (ticket.status !== "Resolved") {
             return res.status(400).json({
                 success: false,
-                message: "You can only rate resolved tickets",
+                message: "You can only rate resolved tickets"
             });
         }
 
@@ -90,31 +40,27 @@ export const createTicketRating = async (req, res) => {
         if (existing) {
             return res.status(400).json({
                 success: false,
-                message: "This ticket has already been rated",
+                message: "This ticket has already been rated"
             });
         }
 
-        const doc = {
+        const newRating = await TicketServiceRating.create({
             userId,
             ticketId,
-            rating: mainRating,
-        };
-        if (rq !== undefined) doc.responseQuality = rq;
-        if (rs !== undefined) doc.resolutionSpeed = rs;
-        if (hf !== undefined) doc.helpfulness = hf;
-        if (feedbackText) doc.feedback = feedbackText;
-
-        const newRating = await TicketServiceRating.create(doc);
+            rating,
+            comment
+        });
 
         res.status(201).json({
             success: true,
             message: "Ticket service rating submitted successfully",
-            data: newRating,
+            data: newRating
         });
+
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: error.message,
+            message: error.message
         });
     }
 };

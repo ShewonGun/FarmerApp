@@ -3,14 +3,14 @@ import mongoose from "mongoose";
 // Location & Farming Information fields for User
 export const locationFarmingFields = {
     country: { type: String },
-    district: { type: String },
-    address: { type: String },
+    regionOrDistrict: { type: String },
+    village: { type: String },
+    farmSize: { type: Number }, // numeric value
     farmSizeUnit: {
         type: String,
         enum: ["hectares", "acres"],
         default: "hectares"
     },
-    farmSize: { type: Number }, // numeric value
     mainCrops: [{ type: String }],
     secondaryCrops: [{ type: String }],
     yearsOfFarmingExperience: { type: Number },

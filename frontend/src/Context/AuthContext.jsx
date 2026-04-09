@@ -1,94 +1,31 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext();
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-
-/** Safe in-app path only (e.g. /support-ticket) — blocks open redirects */
-function safeRedirectPath(next) {
-  if (!next || typeof next !== 'string') return null;
-  const trimmed = next.trim();
-  if (!trimmed.startsWith('/') || trimmed.startsWith('//') || trimmed.includes('..')) return null;
-  return trimmed;
-}
-
-/** Keeps id/picture shape consistent across login, localStorage, and GET /user/:id */
-function normalizeUser(raw, fallback = {}) {
-  if (!raw) return null;
-  const id = raw.id ?? raw._id ?? fallback.id ?? fallback._id;
-  const idStr =
-    id != null && typeof id === 'object' && typeof id.toString === 'function'
-      ? id.toString()
-      : String(id ?? '');
-  let picture = '';
-  if (typeof raw.picture === 'string') picture = raw.picture.trim();
-  else if (typeof fallback.picture === 'string') picture = fallback.picture.trim();
-  return {
-    id: idStr,
-    name: raw.name ?? fallback.name ?? '',
-    email: raw.email ?? fallback.email ?? '',
-    role: raw.role ?? fallback.role ?? 'farmer',
-    picture
-  };
-}
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Restore session from localStorage, then refresh profile from API (picture, etc.)
+  // Check if user is already logged in on mount
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     const storedToken = localStorage.getItem('token');
-
+    
     if (storedUser && storedToken) {
       try {
-        const parsed = JSON.parse(storedUser);
-        const normalized = normalizeUser(parsed, {});
-        if (normalized) setUser(normalized);
+        setUser(JSON.parse(storedUser));
       } catch (error) {
         localStorage.removeItem('user');
         localStorage.removeItem('token');
       }
     }
     setLoading(false);
-
-    if (!storedToken || !storedUser) return undefined;
-
-    let localUser;
-    try {
-      localUser = normalizeUser(JSON.parse(storedUser), {});
-    } catch {
-      return undefined;
-    }
-    const id = localUser?.id;
-    if (!id) return undefined;
-
-    let cancelled = false;
-    (async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/user/${id}`, {
-          headers: { Authorization: `Bearer ${storedToken}` }
-        });
-        const data = await response.json();
-        if (cancelled || !response.ok || !data.success || !data.user) return;
-        const merged = normalizeUser(data.user, localUser);
-        if (merged) {
-          setUser(merged);
-          localStorage.setItem('user', JSON.stringify(merged));
-        }
-      } catch {
-        // offline / server down — keep cached user
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
   }, []);
 
-  const login = async (credentials, redirectAfter) => {
+  const login = async (credentials) => {
     try {
       const response = await fetch(`${API_BASE_URL}/login`, {
         method: 'POST',
@@ -105,20 +42,23 @@ export const AuthProvider = ({ children }) => {
       }
       
       if (data.success) {
-        const userData = normalizeUser(data.user, {});
-        if (!userData?.id) {
-          throw new Error('Invalid user data from server');
-        }
-
+        const userData = {
+          id: data.user.id,
+          name: data.user.name,
+          email: data.user.email,
+          role: data.user.role,
+          picture: data.user.picture || '',
+        };
+        
         setUser(userData);
         localStorage.setItem('user', JSON.stringify(userData));
         localStorage.setItem('token', data.token);
         
-        const next = safeRedirectPath(redirectAfter);
+        // Redirect based on role
         if (data.user.role === 'admin') {
           navigate('/admin');
         } else {
-          navigate(next || '/landing');
+          navigate('/landing');
         }
         
         return data;
@@ -130,7 +70,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const signup = async (userData, redirectAfter) => {
+  const signup = async (userData) => {
     try {
       const response = await fetch(`${API_BASE_URL}/signup`, {
         method: 'POST',
@@ -147,20 +87,23 @@ export const AuthProvider = ({ children }) => {
       }
       
       if (data.success) {
-        const newUser = normalizeUser(data.user, {});
-        if (!newUser?.id) {
-          throw new Error('Invalid user data from server');
-        }
-
+        const newUser = {
+          id: data.user.id,
+          name: data.user.name,
+          email: data.user.email,
+          role: data.user.role,
+          picture: data.user.picture || '',
+        };
+        
         setUser(newUser);
         localStorage.setItem('user', JSON.stringify(newUser));
         localStorage.setItem('token', data.token);
         
-        const next = safeRedirectPath(redirectAfter);
+        // Redirect based on role
         if (data.user.role === 'admin') {
           navigate('/admin');
         } else {
-          navigate(next || '/landing');
+          navigate('/landing');
         }
         
         return data;
@@ -179,16 +122,12 @@ export const AuthProvider = ({ children }) => {
     navigate('/');
   };
 
-  const updateUser = useCallback((updatedUser) => {
-    setUser((prev) => {
-      const next = normalizeUser(updatedUser, prev || {});
-      if (!next) return prev;
-      localStorage.setItem('user', JSON.stringify(next));
-      return next;
-    });
-  }, []);
+  const updateUser = (updatedUser) => {
+    setUser(updatedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+  };
 
-  const loginWithGoogle = async (credential, redirectAfter) => {
+  const loginWithGoogle = async (credential) => {
     const response = await fetch(`${API_BASE_URL}/google-auth`, {
       method: 'POST',
       headers: {
@@ -204,20 +143,22 @@ export const AuthProvider = ({ children }) => {
     }
 
     if (data.success) {
-      const userData = normalizeUser(data.user, {});
-      if (!userData?.id) {
-        throw new Error('Invalid user data from server');
-      }
+      const userData = {
+        id: data.user.id,
+        name: data.user.name,
+        email: data.user.email,
+        role: data.user.role,
+        picture: data.user.picture || '',
+      };
 
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
       localStorage.setItem('token', data.token);
 
-      const next = safeRedirectPath(redirectAfter);
       if (data.user.role === 'admin') {
         navigate('/admin');
       } else {
-        navigate(next || '/landing');
+        navigate('/landing');
       }
 
       return data;

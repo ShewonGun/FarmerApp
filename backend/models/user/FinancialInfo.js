@@ -3,17 +3,8 @@ import mongoose from "mongoose";
 // Financial & Loan-Relevant Information fields for User
 export const financialInfoFields = {
     estimatedIncome: { type: Number }, 
-    numberOfDependents: { type: Number, default: 2, immutable: true, min: 2, max: 2 },
-    dependentNames: {
-        type: [{ type: String, trim: true }],
-        validate: {
-            validator: function (names) {
-                const validNames = (names || []).map((name) => String(name || "").trim()).filter(Boolean);
-                return validNames.length >= 2;
-            },
-            message: "Please provide at least two guarantor names separated by a comma."
-        }
-    },
+    numberOfDependents: { type: Number },
+    dependentNames: [{ type: String }],
     existingDebtAmount: { type: Number, default: 0 },
     bankName: { type: String },
     cardNumber: { type: String },

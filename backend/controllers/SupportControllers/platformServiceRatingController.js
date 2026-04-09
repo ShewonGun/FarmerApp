@@ -99,46 +99,6 @@ export const getPlatformRatingByUser = async (req, res) => {
 
 
 
-// GET Public testimonials (landing page — ratings with feedback text, no auth)
-export const getPublicPlatformRatings = async (req, res) => {
-    try {
-        const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 12, 1), 50);
-
-        const ratings = await PlatformServiceRating.find({
-            feedback: { $exists: true, $nin: [null, ""] },
-        })
-            .populate("userId", "name picture role")
-            .sort({ createdAt: -1 })
-            .limit(limit)
-            .lean();
-
-        const data = ratings.map((r) => ({
-            _id: r._id,
-            overallRating: r.overallRating,
-            feedback: r.feedback,
-            createdAt: r.createdAt,
-            user: r.userId
-                ? {
-                      name: r.userId.name,
-                      picture: r.userId.picture || null,
-                      role: r.userId.role,
-                  }
-                : { name: "Member", picture: null, role: null },
-        }));
-
-        res.status(200).json({
-            success: true,
-            count: data.length,
-            data,
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message,
-        });
-    }
-};
-
 // GET All Platform Ratings (Admin Only)
 export const getAllPlatformRatings = async (req, res) => {
     try {

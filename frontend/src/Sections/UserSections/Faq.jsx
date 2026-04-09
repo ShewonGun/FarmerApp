@@ -29,7 +29,7 @@ const faqs = [
   {
     question: 'How do I contact support?',
     answer:
-      'Use the support banner on this page to open a ticket, or sign in and go to Support ticket from your profile menu. We typically respond within 1–2 business days.',
+      'You can use the Contact section on this page to send us a message. We typically respond within 1–2 business days.',
   },
 ];
 
@@ -69,10 +69,10 @@ const FaqItem = ({ question, answer }) => {
   );
 };
 
-const Faq = ({ compact = false }) => {
+const Faq = () => {
   return (
-    <section className={`w-full bg-slate-50 dark:bg-slate-900 ${compact ? "py-0" : "py-20"}`}>
-      <div className={`mx-auto ${compact ? "max-w-full px-0" : "max-w-2xl px-6"}`}>
+    <section className="w-full py-20 bg-slate-50 dark:bg-slate-900">
+      <div className="max-w-2xl mx-auto px-6">
         {/* Header */}
         <div className="text-center mb-10">
           <span className="text-xs font-medium tracking-widest uppercase text-emerald-600 dark:text-emerald-400 font-['Sora']">

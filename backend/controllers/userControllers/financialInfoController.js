@@ -8,22 +8,7 @@ const sanitizeFinancialBody = (body) => {
     delete copy.preferredPaymentMethod;
     delete copy.hasExistingLoans;
     delete copy.bankAccountNumber;
-    // This is fixed by product rule and cannot be changed by clients.
-    copy.numberOfDependents = 2;
     return copy;
-};
-
-const normalizeGuarantorNames = (dependentNames) => {
-    if (Array.isArray(dependentNames)) {
-        return dependentNames.map((name) => String(name || "").trim()).filter(Boolean);
-    }
-    if (typeof dependentNames === "string") {
-        return dependentNames
-            .split(",")
-            .map((name) => name.trim())
-            .filter(Boolean);
-    }
-    return [];
 };
 
 
@@ -41,17 +26,8 @@ export const createFinancialInfo = async (req, res) => {
             });
         }
 
-        const guarantorNames = normalizeGuarantorNames(req.body?.dependentNames);
-        if (guarantorNames.length < 2) {
-            return res.status(400).json({
-                success: false,
-                message: "Please provide at least two guarantor names separated by a comma."
-            });
-        }
-
         const financialInfo = await UserFinance.create({
             ...sanitizeFinancialBody(req.body),
-            dependentNames: guarantorNames,
             userId
         });
 
@@ -128,21 +104,10 @@ export const getAllFinancialInfos = async (req, res) => {
 export const updateFinancialInfo = async (req, res) => {
     try {
         const userId = req.user._id;
-        const guarantorNames = normalizeGuarantorNames(req.body?.dependentNames);
-
-        if (guarantorNames.length < 2) {
-            return res.status(400).json({
-                success: false,
-                message: "Please provide at least two guarantor names separated by a comma."
-            });
-        }
 
         const updatedFinancialInfo = await UserFinance.findOneAndUpdate(
             { userId },
-            {
-                ...sanitizeFinancialBody(req.body),
-                dependentNames: guarantorNames
-            },
+            sanitizeFinancialBody(req.body),
             { new: true, runValidators: true }
         );
 

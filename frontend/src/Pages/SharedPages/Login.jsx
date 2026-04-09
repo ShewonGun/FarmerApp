@@ -1,16 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MdEmail, MdLock, MdVisibility, MdVisibilityOff } from 'react-icons/md';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../../Context/AuthContext';
 import AuthSplitLayout from '../../Components/SharedComponents/AuthSplitLayout';
-
-function safeNextPath(next) {
-  if (!next || typeof next !== 'string') return null;
-  const t = next.trim();
-  if (!t.startsWith('/') || t.startsWith('//') || t.includes('..')) return null;
-  return t;
-}
 
 const Login = () => {
   const [form, setForm] = useState({
@@ -23,7 +16,6 @@ const Login = () => {
   const emailRef = useRef(null);
   const { login, loginWithGoogle, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     emailRef.current?.focus();
@@ -32,16 +24,13 @@ const Login = () => {
   useEffect(() => {
     if (isAuthenticated) {
       const user = JSON.parse(localStorage.getItem('user'));
-      const next = safeNextPath(searchParams.get('next'));
       if (user?.role === 'admin') {
-        navigate('/admin', { replace: true });
-      } else if (next) {
-        navigate(next, { replace: true });
+        navigate('/admin');
       } else {
-        navigate('/landing', { replace: true });
+        navigate('/landing');
       }
     }
-  }, [isAuthenticated, navigate, searchParams]);
+  }, [isAuthenticated, navigate]);
 
   const validate = () => {
     const errs = {};
@@ -73,7 +62,7 @@ const Login = () => {
     }
     setLoading(true);
     try {
-      await login(form, searchParams.get('next'));
+      await login(form);
     } catch (error) {
       setErrors({ submit: error.message || 'Login failed. Please try again.' });
     } finally {
@@ -205,7 +194,7 @@ const Login = () => {
                     try {
                       setLoading(true);
                       setErrors({});
-                      await loginWithGoogle(credentialResponse.credential, searchParams.get('next'));
+                      await loginWithGoogle(credentialResponse.credential);
                     } catch (error) {
                       setErrors({ submit: error.message || 'Google sign-in failed. Please try again.' });
                     } finally {
