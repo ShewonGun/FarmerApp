@@ -6,10 +6,17 @@ import { mockRequest, mockResponse } from "../setup.js";
 
 // ─── Mock external modules ────────────────────────────────────────────────────
 jest.mock("../../models/user/User.js");
+jest.mock("../../models/user/VerificationTrust.js", () => ({
+  __esModule: true,
+  default: {
+    find: jest.fn(),
+  },
+}));
 jest.mock("bcryptjs");
 jest.mock("jsonwebtoken");
 
 import User from "../../models/user/User.js";
+import UserTrust from "../../models/user/VerificationTrust.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
@@ -191,8 +198,10 @@ describe("viewAccount", () => {
       success: true,
       user: {
         _id: "user123",
+        id: "user123",
         name: "John",
         email: "john@test.com",
+        picture: "",
         hasPassword: true
       }
     });
@@ -246,10 +255,29 @@ describe("deactivateAccount", () => {
 describe("getAllUsers", () => {
   test("should return 200 with list of users", async () => {
     const mockUsers = [
-      { _id: "1", name: "Alice", email: "alice@test.com" },
-      { _id: "2", name: "Bob", email: "bob@test.com" },
+      { _id: "1", name: "Alice", email: "alice@test.com", role: "admin" },
+      { _id: "2", name: "Bob", email: "bob@test.com", role: "farmer" },
     ];
-    User.find.mockReturnValue({ select: jest.fn().mockReturnValue({ sort: jest.fn().mockResolvedValue(mockUsers) }) });
+    User.find.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        sort: jest.fn().mockReturnValue({
+          lean: jest.fn().mockResolvedValue(mockUsers),
+        }),
+      }),
+    });
+    UserTrust.find.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        lean: jest.fn().mockResolvedValue([
+          {
+            userId: "2",
+            verificationStatus: "Verified",
+            governmentNicNumber: "NIC123",
+            nicImage1Url: "",
+            nicImage2Url: "",
+          },
+        ]),
+      }),
+    });
 
     const req = mockRequest();
     const res = mockResponse();

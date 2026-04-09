@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MdEmail, MdLock, MdVisibility, MdVisibilityOff } from 'react-icons/md';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../../Context/AuthContext';
 import AuthSplitLayout from '../../Components/SharedComponents/AuthSplitLayout';
@@ -14,23 +14,22 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const emailRef = useRef(null);
-  const { login, loginWithGoogle, isAuthenticated } = useAuth();
+  const { login, loginWithGoogle, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     emailRef.current?.focus();
   }, []);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      const user = JSON.parse(localStorage.getItem('user'));
-      if (user?.role === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate('/landing');
-      }
+    if (!isAuthenticated) return;
+    if (user?.role === 'admin') {
+      navigate('/admin', { replace: true });
+    } else {
+      navigate('/landing', { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, user]);
 
   const validate = () => {
     const errs = {};
@@ -62,7 +61,7 @@ const Login = () => {
     }
     setLoading(true);
     try {
-      await login(form);
+      await login(form, searchParams.get('next'));
     } catch (error) {
       setErrors({ submit: error.message || 'Login failed. Please try again.' });
     } finally {
@@ -194,7 +193,7 @@ const Login = () => {
                     try {
                       setLoading(true);
                       setErrors({});
-                      await loginWithGoogle(credentialResponse.credential);
+                      await loginWithGoogle(credentialResponse.credential, searchParams.get('next'));
                     } catch (error) {
                       setErrors({ submit: error.message || 'Google sign-in failed. Please try again.' });
                     } finally {

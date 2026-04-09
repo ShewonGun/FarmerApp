@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from "react";
-import { NavLink, Link, useNavigate } from "react-router-dom";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 import {
   MdKeyboardArrowDown,
@@ -8,17 +8,29 @@ import {
   MdBook,
   MdMenu,
   MdVerifiedUser,
+  MdSupportAgent,
+  MdStar,
+  MdNotifications,
 } from "react-icons/md";
 import ThemeToggle from "../AdminComponents/ThemeToggle";
 import { useAuth } from "../../Context/AuthContext";
 import { sidebarState } from "../../utils/sidebarState";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
+const ticketIdStr = (id) => (id != null ? String(id) : "");
 
 const UserNavbar = () => {
   const [showUser, setShowUser] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [navAvatarError, setNavAvatarError] = useState(false);
+  const [isVerifiedUser, setIsVerifiedUser] = useState(false);
+  const [resolvedNotifications, setResolvedNotifications] = useState([]);
   const { user, logout } = useAuth();
   const userRef = useRef(null);
+  const notifRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleProtectedNav = (e) => {
     if (!user) {
@@ -33,10 +45,154 @@ const UserNavbar = () => {
   useEffect(() => {
     function handleClick(e) {
       if (userRef.current && !userRef.current.contains(e.target)) setShowUser(false);
+      if (notifRef.current && !notifRef.current.contains(e.target)) setShowNotifications(false);
     }
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
+
+  useEffect(() => {
+    setNavAvatarError(false);
+  }, [user?.picture]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadVerificationStatus = async () => {
+      if (!user || user.role !== "farmer") {
+        setIsVerifiedUser(false);
+        return;
+      }
+
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setIsVerifiedUser(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/verification-trust/my`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!response.ok) {
+          if (!cancelled) setIsVerifiedUser(false);
+          return;
+        }
+
+        const data = await response.json();
+        if (!cancelled) {
+          setIsVerifiedUser(data?.data?.verificationStatus === "Verified");
+        }
+      } catch {
+        if (!cancelled) setIsVerifiedUser(false);
+      }
+    };
+
+    loadVerificationStatus();
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  const loadNotifications = useCallback(async () => {
+    if (!user || user.role !== "farmer") {
+      setResolvedNotifications([]);
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setResolvedNotifications([]);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/support-tickets/my`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) return;
+
+      const data = await response.json();
+      const tickets = Array.isArray(data?.data) ? data.data : [];
+      const resolved = tickets
+        .filter(
+          (t) =>
+            (t.status || "").toLowerCase() === "resolved" &&
+            t.readNotification !== true
+        )
+        .sort(
+          (a, b) =>
+            new Date(b.resolvedAt || b.updatedAt || b.createdAt) -
+            new Date(a.resolvedAt || a.updatedAt || a.createdAt)
+        );
+
+      setResolvedNotifications(resolved);
+    } catch {
+      // No-op
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (user?.role !== "farmer") {
+      setResolvedNotifications([]);
+      return;
+    }
+    loadNotifications();
+  }, [user, location.pathname, loadNotifications]);
+
+  useEffect(() => {
+    if (user?.role === "farmer" && showNotifications) {
+      loadNotifications();
+    }
+  }, [showNotifications, user, loadNotifications]);
+
+  const unreadNotificationCount = resolvedNotifications.length;
+
+  const markSingleNotificationAsRead = async (ticketId) => {
+    const id = ticketIdStr(ticketId);
+    const token = localStorage.getItem("token");
+    if (!token || !user || user.role !== "farmer" || !id) return false;
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/support-tickets/my/${encodeURIComponent(id)}/notification/read`,
+        {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (!response.ok) return false;
+      setResolvedNotifications((prev) => prev.filter((t) => ticketIdStr(t._id) !== id));
+      await loadNotifications();
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const handleNotificationClick = async (ticket) => {
+    if (!ticket?._id) return;
+    const id = ticketIdStr(ticket._id);
+    setResolvedNotifications((prev) => prev.filter((t) => ticketIdStr(t._id) !== id));
+    const ok = await markSingleNotificationAsRead(id);
+    if (!ok) {
+      toast.error("Could not mark notification as read. Try again.");
+      await loadNotifications();
+      return;
+    }
+    setShowNotifications(false);
+    navigate("/support-ticket/my-tickets", { state: { openTicketId: id } });
+  };
+
+  const toggleNotifications = () => {
+    setShowNotifications((prev) => !prev);
+  };
+
+  const handleKycReminderClick = () => {
+    setShowNotifications(false);
+    navigate("/data-verification");
+  };
 
   const handleMenuNavigate = (path) => {
     setShowUser(false);
@@ -120,6 +276,75 @@ const UserNavbar = () => {
       {/* Right side - Theme toggle + Auth/User */}
       <div className="flex items-center gap-2 md:gap-4">
         <ThemeToggle />
+        {user?.role === "farmer" && (
+          <div ref={notifRef} className="relative">
+            <button
+              type="button"
+              onClick={toggleNotifications}
+              className="relative inline-flex items-center justify-center w-9 h-9 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              aria-label="Notifications"
+            >
+              <MdNotifications className="text-xl" />
+              {unreadNotificationCount > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-semibold leading-[18px] text-center font-['Sora']">
+                  {unreadNotificationCount > 99 ? "99+" : unreadNotificationCount}
+                </span>
+              )}
+            </button>
+
+            {showNotifications && (
+              <div className="absolute right-0 mt-2 w-80 max-h-96 overflow-auto rounded-xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-white/40 dark:border-slate-700 shadow-xl ring-1 ring-black/5 dark:ring-white/10 z-50">
+                <div className="px-4 py-3 border-b border-slate-200/60 dark:border-slate-700">
+                  <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 font-['Sora']">Notifications</p>
+                </div>
+
+                {!isVerifiedUser && (
+                  <div className="border-b border-slate-200/60 dark:border-slate-700">
+                    <button
+                      type="button"
+                      onClick={handleKycReminderClick}
+                      className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/70 transition-colors"
+                    >
+                      <p className="text-xs font-semibold font-['Sora'] text-slate-900 dark:text-white">
+                        Complete Identity Verification
+                      </p>
+                      <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400 font-['Sora'] line-clamp-2">
+                        Finish your KYC to unlock the full platform experience and build trust with lenders.
+                      </p>
+                    </button>
+                  </div>
+                )}
+
+                {resolvedNotifications.length === 0 ? (
+                  <p className="px-4 py-4 text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
+                    No ticket notifications yet.
+                  </p>
+                ) : (
+                  <ul className="py-1">
+                    {resolvedNotifications.map((ticket) => {
+                      return (
+                        <li key={ticket._id}>
+                          <button
+                            type="button"
+                            onClick={() => handleNotificationClick(ticket)}
+                            className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/70 transition-colors"
+                          >
+                            <p className="text-xs font-semibold font-['Sora'] truncate text-slate-900 dark:text-white">
+                              Ticket resolved: {ticket.subject || "Support ticket"}
+                            </p>
+                            <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400 font-['Sora'] line-clamp-2">
+                              {ticket.adminReply?.trim() || "Your ticket has been resolved by admin."}
+                            </p>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="hidden md:block w-px h-6 bg-slate-200/90 dark:bg-slate-700" />
 
@@ -146,11 +371,13 @@ const UserNavbar = () => {
             onClick={() => setShowUser(!showUser)}
             className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 transition-all duration-150 hover:bg-slate-50 dark:hover:bg-slate-800 bg-transparent border-none cursor-pointer"
           >
-            {user?.picture ? (
+            {user?.picture && !navAvatarError ? (
               <img
                 src={user.picture}
                 alt=""
+                referrerPolicy="no-referrer"
                 className="w-8 h-8 rounded-full object-cover shrink-0 border border-white/30 dark:border-slate-600"
+                onError={() => setNavAvatarError(true)}
               />
             ) : (
               <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 bg-linear-to-br from-emerald-500 to-emerald-400 text-white font-['Sora']">
@@ -158,9 +385,20 @@ const UserNavbar = () => {
               </div>
             )}
             <div className="hidden lg:block text-left">
-              <p className="text-xs font-semibold leading-tight text-slate-700 dark:text-slate-300 font-['Sora']">
-                {user?.name || 'User'}
-              </p>
+              <div className="flex items-center gap-1">
+                <p className="text-xs font-semibold leading-tight text-slate-700 dark:text-slate-300 font-['Sora']">
+                  {user?.name || 'User'}
+                </p>
+                {isVerifiedUser && (
+                  <span
+                    className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#00A6FF] text-white shadow-[0_0_0_2px_rgba(255,255,255,0.75)] dark:shadow-[0_0_0_2px_rgba(15,23,42,0.9)]"
+                    title="Verified user"
+                    aria-label="Verified user"
+                  >
+                    <MdVerifiedUser className="text-[11px]" />
+                  </span>
+                )}
+              </div>
               <p className="text-xs leading-tight text-slate-500 dark:text-slate-400 font-['Sora']">
                 Farmer
               </p>
@@ -220,6 +458,28 @@ const UserNavbar = () => {
               >
                 <MdBook className="text-base text-slate-500 dark:text-slate-400" />
                 My Courses
+              </button>
+
+              <div className="border-t border-slate-200/60 dark:border-slate-700 my-1" />
+
+              <button
+                type="button"
+                onClick={() => handleMenuNavigate("/support-ticket")}
+                className="w-full flex items-center gap-3 px-4 py-2.5 transition-all duration-150 hover:bg-slate-50/50 dark:hover:bg-slate-700/50 bg-transparent border-none cursor-pointer text-slate-600 dark:text-slate-300 text-[13px] font-['Sora'] text-left"
+              >
+                <MdSupportAgent className="text-base text-slate-500 dark:text-slate-400" />
+                Support ticket
+              </button>
+
+              <div className="border-t border-slate-200/60 dark:border-slate-700 my-1" />
+
+              <button
+                type="button"
+                onClick={() => handleMenuNavigate("/platform-rating")}
+                className="w-full flex items-center gap-3 px-4 py-2.5 transition-all duration-150 hover:bg-slate-50/50 dark:hover:bg-slate-700/50 bg-transparent border-none cursor-pointer text-slate-600 dark:text-slate-300 text-[13px] font-['Sora'] text-left"
+              >
+                <MdStar className="text-base text-slate-500 dark:text-slate-400" />
+                Rate Us
               </button>
 
               <div className="border-t border-slate-200/60 dark:border-slate-700 my-1" />

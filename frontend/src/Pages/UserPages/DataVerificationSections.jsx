@@ -224,6 +224,7 @@ async function uploadKycImage(file) {
 function NicImageDropzone({ label, imageUrl, disabled, uploading, onFileSelected, onInvalidFile }) {
   const inputRef = useRef(null);
   const [dragOver, setDragOver] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
 
   const handleFiles = (fileList) => {
     const file = fileList?.[0];
@@ -236,7 +237,7 @@ function NicImageDropzone({ label, imageUrl, disabled, uploading, onFileSelected
   };
 
   return (
-    <div className="md:col-span-2">
+    <div>
       <div className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 font-['Sora']">
         {label}
       </div>
@@ -276,6 +277,8 @@ function NicImageDropzone({ label, imageUrl, disabled, uploading, onFileSelected
             ? "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-900/20"
             : "border-slate-200 dark:border-slate-600 bg-slate-50/50 dark:bg-slate-800/40"
         } ${disabled || uploading ? "opacity-60 pointer-events-none" : "cursor-pointer"}`}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
         onClick={() => {
           if (!disabled && !uploading) inputRef.current?.click();
         }}
@@ -296,10 +299,11 @@ function NicImageDropzone({ label, imageUrl, disabled, uploading, onFileSelected
             <img
               src={imageUrl}
               alt=""
-              className="mx-auto sm:mx-0 max-h-36 rounded-md object-contain border border-slate-200 dark:border-slate-600"
+              className={`mx-auto sm:mx-0 max-h-36 rounded-md object-contain border border-slate-200 dark:border-slate-600 transition-[filter] duration-200 ${
+                isHovering ? "blur-0" : "blur-sm"
+              }`}
             />
             <div className="flex-1 text-left text-sm text-slate-600 dark:text-slate-400 font-['Sora']">
-              <p className="break-all text-xs">{imageUrl}</p>
               {uploading && (
                 <p className="mt-2 text-xs text-emerald-600 dark:text-emerald-400 font-['Sora']">Uploading…</p>
               )}
@@ -583,7 +587,7 @@ export function PaymentInfoSection() {
   const initialForm = useMemo(
     () => ({
       estimatedIncome: "",
-      numberOfDependents: "",
+      numberOfDependents: "2",
       dependentNames: "",
       existingDebtAmount: "",
       bankName: "",
@@ -600,7 +604,7 @@ export function PaymentInfoSection() {
     initialForm,
     fromResponse: (data) => ({
       estimatedIncome: data.estimatedIncome ?? "",
-      numberOfDependents: data.numberOfDependents ?? "",
+      numberOfDependents: "2",
       dependentNames: toCsv(data.dependentNames),
       existingDebtAmount:
         data.existingDebtAmount != null && data.existingDebtAmount !== ""
@@ -614,7 +618,7 @@ export function PaymentInfoSection() {
     }),
     toRequestBody: (values) => ({
       estimatedIncome: values.estimatedIncome === "" ? undefined : Number(values.estimatedIncome),
-      numberOfDependents: values.numberOfDependents === "" ? undefined : Number(values.numberOfDependents),
+      numberOfDependents: 2,
       dependentNames: splitCsv(values.dependentNames),
       existingDebtAmount: (() => {
         const n = Number(values.existingDebtAmount);
@@ -628,16 +632,23 @@ export function PaymentInfoSection() {
     }),
   });
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    await submit();
-  };
-
   const cardBrand = useMemo(() => detectCardBrand(form.cardNumber), [form.cardNumber]);
   const formattedVirtualNumber = useMemo(() => formatCardNumberGroups(form.cardNumber), [form.cardNumber]);
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [otpCode, setOtpCode] = useState("");
   const [otpError, setOtpError] = useState("");
+  const [guarantorError, setGuarantorError] = useState("");
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const namesInput = (form.dependentNames || "").trim();
+    if (!namesInput.includes(",")) {
+      setGuarantorError("Please enter at least two guarantor names separated by a comma.");
+      return;
+    }
+    setGuarantorError("");
+    await submit();
+  };
 
   const handlePayNow = () => {
     setOtpCode("");
@@ -672,19 +683,26 @@ export function PaymentInfoSection() {
         placeholder="0"
       />
       <Input
-        label="Number of Dependents"
+        label="Number of Guarantors"
         type="number"
-        value={form.numberOfDependents}
-        onChange={(event) => setForm((prev) => ({ ...prev, numberOfDependents: event.target.value }))}
-        placeholder="0"
+        value="2"
+        readOnly
+        disabled
+        placeholder="2"
       />
       <div className="md:col-span-2">
         <Input
-          label="Dependent Names (comma separated)"
+          label="Guarantor Names (comma separated)"
           value={form.dependentNames}
-          onChange={(event) => setForm((prev) => ({ ...prev, dependentNames: event.target.value }))}
-          placeholder="Name 1, Name 2"
+          onChange={(event) => {
+            setGuarantorError("");
+            setForm((prev) => ({ ...prev, dependentNames: event.target.value }));
+          }}
+          placeholder="Guarantor 1, Guarantor 2"
         />
+        {guarantorError && (
+          <p className="mt-2 text-xs text-red-500 dark:text-red-400 font-['Sora']">{guarantorError}</p>
+        )}
       </div>
 
       <div className="md:col-span-2">
@@ -804,7 +822,7 @@ export function PaymentInfoSection() {
                   placeholder="0"
                   aria-label="Existing debt amount"
                 />
-                <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">USD</span>
+                <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">LKR</span>
               </div>
               <button
                 type="button"
@@ -874,10 +892,10 @@ export function LocationValidationSection() {
   const initialForm = useMemo(
     () => ({
       country: "",
-      regionOrDistrict: "",
-      village: "",
-      farmSize: "",
+      district: "",
+      address: "",
       farmSizeUnit: "hectares",
+      farmSize: "",
       mainCrops: "",
       secondaryCrops: "",
       yearsOfFarmingExperience: "",
@@ -891,10 +909,10 @@ export function LocationValidationSection() {
     initialForm,
     fromResponse: (data) => ({
       country: data.country || "",
-      regionOrDistrict: data.regionOrDistrict || "",
-      village: data.village || "",
-      farmSize: data.farmSize ?? "",
+      district: data.district || data.regionOrDistrict || "",
+      address: data.address || data.village || "",
       farmSizeUnit: data.farmSizeUnit || "hectares",
+      farmSize: data.farmSize ?? "",
       mainCrops: toCsv(data.mainCrops),
       secondaryCrops: toCsv(data.secondaryCrops),
       yearsOfFarmingExperience: data.yearsOfFarmingExperience ?? "",
@@ -902,10 +920,13 @@ export function LocationValidationSection() {
     }),
     toRequestBody: (values) => ({
       country: values.country.trim(),
-      regionOrDistrict: values.regionOrDistrict.trim(),
-      village: values.village.trim(),
-      farmSize: values.farmSize === "" ? undefined : Number(values.farmSize),
+      district: values.district.trim(),
+      address: values.address.trim(),
+      // Backward compatibility for a running backend process that still expects old keys.
+      regionOrDistrict: values.district.trim(),
+      village: values.address.trim(),
       farmSizeUnit: values.farmSizeUnit,
+      farmSize: values.farmSize === "" ? undefined : Number(values.farmSize),
       mainCrops: splitCsv(values.mainCrops),
       secondaryCrops: splitCsv(values.secondaryCrops),
       yearsOfFarmingExperience:
@@ -935,20 +956,14 @@ export function LocationValidationSection() {
         onChange={(event) => setForm((prev) => ({ ...prev, country: event.target.value }))}
       />
       <Input
-        label="Region or District"
-        value={form.regionOrDistrict}
-        onChange={(event) => setForm((prev) => ({ ...prev, regionOrDistrict: event.target.value }))}
+        label="District"
+        value={form.district}
+        onChange={(event) => setForm((prev) => ({ ...prev, district: event.target.value }))}
       />
       <Input
-        label="Village"
-        value={form.village}
-        onChange={(event) => setForm((prev) => ({ ...prev, village: event.target.value }))}
-      />
-      <Input
-        label="Farm Size"
-        type="number"
-        value={form.farmSize}
-        onChange={(event) => setForm((prev) => ({ ...prev, farmSize: event.target.value }))}
+        label="Address"
+        value={form.address}
+        onChange={(event) => setForm((prev) => ({ ...prev, address: event.target.value }))}
       />
       <Select
         label="Farm Size Unit"
@@ -958,6 +973,12 @@ export function LocationValidationSection() {
         <option value="hectares">Hectares</option>
         <option value="acres">Acres</option>
       </Select>
+      <Input
+        label="Farm Size"
+        type="number"
+        value={form.farmSize}
+        onChange={(event) => setForm((prev) => ({ ...prev, farmSize: event.target.value }))}
+      />
       <Select
         label="Land Ownership Type"
         value={form.landOwnershipType}

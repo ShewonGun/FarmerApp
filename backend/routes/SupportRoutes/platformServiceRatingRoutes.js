@@ -4,17 +4,22 @@ import {
     getMyPlatformRating,
     getPlatformRatingByUser,
     getAllPlatformRatings,
-    deleteMyPlatformRating
+    deleteMyPlatformRating,
+    getPublicPlatformRatings,
 } from "../../controllers/SupportControllers/platformServiceRatingController.js";
 
 import {
     authenticate,
     farmerOnly,
-    adminOnly
+    adminOnly,
+    requireMongoIdParam,
 } from "../../middlewares/protect.js";
 
 const router = express.Router();
 
+// Public testimonials (no auth — must stay before "/:userId")
+router.get("/testimonials", getPublicPlatformRatings);
+router.get("/public", getPublicPlatformRatings);
 
 //Farmer submits rating
 router.post("/", authenticate, farmerOnly, createPlatformRating);
@@ -29,8 +34,14 @@ router.delete("/my", authenticate, farmerOnly, deleteMyPlatformRating);
 //Admin gets all ratings
 router.get("/", authenticate, adminOnly, getAllPlatformRatings);
 
-//Admin gets rating by user ID
-router.get("/:userId", authenticate, adminOnly, getPlatformRatingByUser);
+// Admin gets rating by user ID (reject non-ObjectId segments so "public" etc. never hit authenticate)
+router.get(
+    "/:userId",
+    requireMongoIdParam("userId"),
+    authenticate,
+    adminOnly,
+    getPlatformRatingByUser
+);
 
 
 export default router;

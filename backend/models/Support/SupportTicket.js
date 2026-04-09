@@ -33,7 +33,12 @@ export const supportTicketFields = {
 
     repliedAt: { type: Date },
 
-    resolvedAt: { type: Date }
+    resolvedAt: { type: Date },
+
+    readNotification: {
+        type: Boolean,
+        default: false
+    }
 };
 
 // Separate collection for support tickets

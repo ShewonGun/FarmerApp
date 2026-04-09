@@ -1,4 +1,5 @@
 import User from "../../models/user/User.js";
+import UserTrust from "../../models/user/VerificationTrust.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
@@ -70,11 +71,11 @@ export const signup = async (req, res) => {
             success: true,
             message: "User registered successfully",
             user: {
-                id: user._id,
+                id: user._id.toString(),
                 name: user.name,
                 email: user.email,
                 role: user.role,
-                picture: user.picture || ""
+                picture: typeof user.picture === "string" ? user.picture.trim() : (user.picture || "")
             },
             token
         });
@@ -140,11 +141,11 @@ export const login = async (req, res) => {
             success: true,
             message: "Login successful",
             user: {
-                id: user._id,
+                id: user._id.toString(),
                 name: user.name,
                 email: user.email,
                 role: user.role,
-                picture: user.picture || ""
+                picture: typeof user.picture === "string" ? user.picture.trim() : (user.picture || "")
             },
             token
         });
@@ -241,11 +242,11 @@ export const googleAuth = async (req, res) => {
             success: true,
             message: "Login successful",
             user: {
-                id: user._id,
+                id: user._id.toString(),
                 name: user.name,
                 email: user.email,
                 role: user.role,
-                picture: user.picture || ""
+                picture: typeof user.picture === "string" ? user.picture.trim() : (user.picture || "")
             },
             token
         });
@@ -277,6 +278,8 @@ export const viewAccount = async (req, res) => {
             success: true,
             user: {
                 ...user,
+                id: user._id?.toString?.() ?? String(user._id),
+                picture: typeof user.picture === "string" ? user.picture.trim() : (user.picture || ""),
                 hasPassword
             }
         });
@@ -340,13 +343,66 @@ export const updateAccount = async (req, res) => {
             success: true,
             message: "Account updated successfully",
             user: {
-                id: user._id,
+                id: user._id.toString(),
                 name: user.name,
                 email: user.email,
                 role: user.role,
                 isActive: user.isActive,
                 createdAt: user.createdAt,
-                picture: user.picture || ""
+                picture: typeof user.picture === "string" ? user.picture.trim() : (user.picture || "")
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// Update Profile Picture
+export const updateProfilePicture = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const { picture } = req.body;
+
+        if (typeof picture !== "string" || !picture.trim()) {
+            return res.status(400).json({
+                success: false,
+                message: "Profile image URL is required"
+            });
+        }
+
+        const trimmedPicture = picture.trim();
+        const allowedProtocols = ["http://", "https://"];
+        const isValidUrl = allowedProtocols.some((protocol) => trimmedPicture.startsWith(protocol));
+
+        if (!isValidUrl) {
+            return res.status(400).json({
+                success: false,
+                message: "Profile image URL must be a valid http/https URL"
+            });
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        user.picture = trimmedPicture;
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Profile image updated successfully",
+            user: {
+                id: user._id.toString(),
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                isActive: user.isActive,
+                createdAt: user.createdAt,
+                picture: typeof user.picture === "string" ? user.picture.trim() : (user.picture || "")
             }
         });
     } catch (error) {
@@ -554,12 +610,41 @@ export const createAdmin = async (req, res) => {
 // Get All Users (Admin only)
 export const getAllUsers = async (req, res) => {
     try {
-        const users = await User.find().select("-password").sort({ createdAt: -1 });
-        
+        const users = await User.find().select("-password").sort({ createdAt: -1 }).lean();
+
+        const farmerIds = users.filter((u) => u.role === "farmer").map((u) => u._id);
+        let trustByUserId = new Map();
+        if (farmerIds.length > 0) {
+            const trusts = await UserTrust.find({ userId: { $in: farmerIds } })
+                .select(
+                    "userId verificationStatus governmentNicNumber nicImage1Url nicImage2Url"
+                )
+                .lean();
+            trustByUserId = new Map(trusts.map((t) => [String(t.userId), t]));
+        }
+
+        const farmerHasVerificationDetails = (trust) => {
+            if (!trust) return false;
+            const nic = (trust.governmentNicNumber || "").trim();
+            const img1 = (trust.nicImage1Url || "").trim();
+            const img2 = (trust.nicImage2Url || "").trim();
+            return nic.length > 0 || img1.length > 0 || img2.length > 0;
+        };
+
+        const usersWithKyc = users.map((u) => {
+            if (u.role !== "farmer") return u;
+            const trust = trustByUserId.get(String(u._id));
+            return {
+                ...u,
+                verificationStatus: trust?.verificationStatus ?? null,
+                hasVerificationDetails: farmerHasVerificationDetails(trust),
+            };
+        });
+
         res.status(200).json({
             success: true,
-            count: users.length,
-            users
+            count: usersWithKyc.length,
+            users: usersWithKyc,
         });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
