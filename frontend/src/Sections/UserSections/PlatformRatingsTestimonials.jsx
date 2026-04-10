@@ -59,7 +59,7 @@ function TestimonialCard({ item }) {
     item.user?.role === "farmer" ? "Farmer" : item.user?.role === "admin" ? "Admin" : "Member";
 
   return (
-    <article className="flex h-full min-h-[220px] flex-col rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-5 shadow-md shadow-slate-900/5">
+    <article className="flex h-full min-h-55 flex-col rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-5 shadow-md shadow-slate-900/5">
       <div className="flex items-start justify-between gap-3">
         <StarRow value={item.overallRating} />
         <time className="text-xs text-slate-400 dark:text-slate-500 font-['Sora'] whitespace-nowrap">

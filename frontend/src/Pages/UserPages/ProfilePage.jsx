@@ -355,7 +355,7 @@ const ProfilePage = () => {
   return (
     <section className="w-full max-w-2xl mx-auto py-6 md:py-10 px-2">
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/60 shadow-sm overflow-hidden">
-        <div className="px-4 md:px-6 py-5 border-b border-slate-200 dark:border-slate-700/60 bg-gradient-to-r from-emerald-500 to-teal-600">
+        <div className="px-4 md:px-6 py-5 border-b border-slate-200 dark:border-slate-700/60 bg-linear-to-r from-emerald-500 to-teal-600">
           <h1 className="text-white text-xl md:text-2xl font-bold font-['Sora']">My Profile</h1>
         </div>
 
@@ -388,7 +388,7 @@ const ProfilePage = () => {
                   onError={() => setAvatarBroken(true)}
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-white font-['Sora'] bg-gradient-to-br from-emerald-500 to-emerald-400">
+                <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-white font-['Sora'] bg-linear-to-br from-emerald-500 to-emerald-400">
                   {(form.name || user?.name || '?').charAt(0).toUpperCase()}
                 </div>
               )}
@@ -471,7 +471,7 @@ const ProfilePage = () => {
               <button
                 type="submit"
                 disabled={saving}
-                className="inline-flex items-center justify-center min-w-36 px-5 py-2.5 rounded-md text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed font-['Sora']"
+                className="inline-flex items-center justify-center min-w-36 px-5 py-2.5 rounded-md text-sm font-semibold text-white bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed font-['Sora']"
               >
                 {saving ? "Saving..." : "Save Changes"}
               </button>
@@ -552,7 +552,7 @@ const ProfilePage = () => {
                 <button
                   type="submit"
                   disabled={changingPassword}
-                  className="inline-flex items-center justify-center min-w-36 px-4 py-2.5 rounded-md text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 transition-colors duration-150 font-['Sora'] disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="inline-flex items-center justify-center min-w-36 px-4 py-2.5 rounded-md text-sm font-semibold text-white bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 transition-colors duration-150 font-['Sora'] disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {changingPassword ? "Updating..." : "Update Password"}
                 </button>
