@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { MdClose, MdBook, MdQuiz, MdVisibility, MdVisibilityOff, MdExpandMore, MdCheckCircle, MdRadioButtonUnchecked } from 'react-icons/md';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 // Helper to get auth headers
 const getAuthHeaders = () => {

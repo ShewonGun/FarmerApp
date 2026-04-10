@@ -16,7 +16,7 @@ import ThemeToggle from "../AdminComponents/ThemeToggle";
 import { useAuth } from "../../Context/AuthContext";
 import { sidebarState } from "../../utils/sidebarState";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
 
 const ticketIdStr = (id) => (id != null ? String(id) : "");
 

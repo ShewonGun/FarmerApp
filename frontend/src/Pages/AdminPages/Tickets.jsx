@@ -12,7 +12,7 @@ import {
 } from 'react-icons/md';
 import { showError, showSuccess } from '../../utils/toast';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 const ITEMS_PER_PAGE = 8;
 
 const getAuthHeaders = () => {
@@ -532,7 +532,7 @@ const Tickets = () => {
       </div>
 
       {ticketModal.isOpen && ticketModal.ticket && (
-        <div className="fixed inset-0 z-70 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
           <button
             type="button"
             aria-label="Close ticket popup"

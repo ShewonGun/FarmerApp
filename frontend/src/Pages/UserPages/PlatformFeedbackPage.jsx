@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "../../Context/AuthContext";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
 
 const parseApiResponse = async (response) => {
   const contentType = response.headers.get("content-type") || "";
@@ -233,11 +233,11 @@ const PlatformFeedbackPage = () => {
 
   return (
     <section className="w-full min-h-[calc(100vh-5rem)] flex flex-col items-center justify-start py-6 md:py-10 px-3 sm:px-4 lg:px-6">
-      <div className="grid w-full max-w-400 grid-cols-1 items-start gap-8 lg:grid-cols-[1fr_minmax(0,42rem)_1fr] lg:gap-x-6 xl:gap-x-10">
+      <div className="grid w-full max-w-[1600px] grid-cols-1 items-start gap-8 lg:grid-cols-[1fr_minmax(0,42rem)_1fr] lg:gap-x-6 xl:gap-x-10">
         <div className="hidden min-h-0 lg:block" aria-hidden="true" />
         <div className="col-span-1 w-full max-w-2xl justify-self-center self-start lg:col-start-2 lg:w-full lg:max-w-none">
           <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/60 shadow-sm overflow-hidden">
-            <div className="px-4 md:px-6 py-5 border-b border-slate-200 dark:border-slate-700/60 bg-linear-to-r from-emerald-500 to-teal-600">
+            <div className="px-4 md:px-6 py-5 border-b border-slate-200 dark:border-slate-700/60 bg-gradient-to-r from-emerald-500 to-teal-600">
               <h1 className="text-white text-xl md:text-2xl font-bold font-['Sora']">
                 {showList ? "Ticket feedback" : "Rate this ticket"}
               </h1>
@@ -391,7 +391,7 @@ const PlatformFeedbackPage = () => {
                       onChange={(e) => setField("feedback", e.target.value)}
                       rows={5}
                       placeholder="Add any extra comments…"
-                      className={`${inputClass} resize-y min-h-32`}
+                      className={`${inputClass} resize-y min-h-[8rem]`}
                     />
                   </div>
 
@@ -399,7 +399,7 @@ const PlatformFeedbackPage = () => {
                     <button
                       type="submit"
                       disabled={submitting || !canSubmitRating}
-                      className="inline-flex items-center justify-center min-w-36 px-5 py-2.5 rounded-md text-sm font-semibold text-white bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed font-['Sora']"
+                      className="inline-flex items-center justify-center min-w-36 px-5 py-2.5 rounded-md text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed font-['Sora']"
                     >
                       {submitting ? "Submitting…" : "Submit rating"}
                     </button>
@@ -414,7 +414,7 @@ const PlatformFeedbackPage = () => {
         <aside className="col-span-1 flex w-full max-w-2xl flex-col gap-3 justify-self-center self-start sm:max-w-sm lg:col-start-3 lg:mt-0 lg:w-52 lg:max-w-none lg:justify-self-end">
           <Link
             to="/support-ticket"
-            className="w-full text-center px-4 py-2.5 rounded-md text-sm font-semibold text-white bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 transition-colors font-['Sora']"
+            className="w-full text-center px-4 py-2.5 rounded-md text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 transition-colors font-['Sora']"
           >
             New ticket
           </Link>

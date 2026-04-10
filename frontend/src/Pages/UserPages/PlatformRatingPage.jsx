@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../../Context/AuthContext";
 
-const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:5000/api").replace(/\/$/, "");
+const API_BASE = (import.meta.env.VITE_API_URL || "/api").replace(/\/$/, "");
 
 const parseApiResponse = async (response) => {
   const contentType = response.headers.get("content-type") || "";
@@ -83,7 +83,7 @@ function InteractiveStarRating({
       </div>
 
         <div
-        className="flex flex-col items-end gap-2 sm:min-w-65"
+        className="flex flex-col items-end gap-2 sm:min-w-[260px]"
         role="group"
         aria-labelledby={`${id}-label`}
         aria-label={`Rate ${shortLabel}, 1 to 5 stars. Current selection ${value > 0 ? `${value} of 5` : "none"}.`}
@@ -121,7 +121,7 @@ function InteractiveStarRating({
             })}
           </div>
           <span
-            className="text-xs font-medium tabular-nums text-emerald-600 dark:text-emerald-400 min-w-22 text-right font-['Sora'] transition-colors duration-200 ease-in-out"
+            className="text-xs font-medium tabular-nums text-emerald-600 dark:text-emerald-400 min-w-[5.5rem] text-right font-['Sora'] transition-colors duration-200 ease-in-out"
             aria-live="polite"
           >
             {meaning}
@@ -298,7 +298,7 @@ const PlatformRatingPage = () => {
     <section className="min-h-[calc(100vh-5rem)] w-full flex flex-col items-center justify-center px-4 py-10 sm:py-12">
       <div className="w-full max-w-3xl">
         <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-md dark:shadow-lg dark:shadow-black/30 overflow-hidden">
-          <div className="px-5 md:px-8 pt-6 pb-4 border-b border-emerald-700/20 dark:border-slate-700/60 bg-linear-to-r from-emerald-600/95 via-emerald-600 to-teal-700/90">
+          <div className="px-5 md:px-8 pt-6 pb-4 border-b border-emerald-700/20 dark:border-slate-700/60 bg-gradient-to-r from-emerald-600/95 via-emerald-600 to-teal-700/90">
             <h1 className="text-white text-xl md:text-2xl font-bold font-['Sora'] tracking-tight">
               Rate the platform
             </h1>
@@ -421,7 +421,7 @@ const PlatformRatingPage = () => {
                     maxLength={FEEDBACK_MAX}
                     rows={7}
                     placeholder="Share what you liked or what we can improve..."
-                    className={`${inputClass} resize-y min-h-44`}
+                    className={`${inputClass} resize-y min-h-[11rem]`}
                     aria-describedby="feedback-counter"
                   />
                   <p id="feedback-counter" className="mt-2 text-right text-xs text-slate-500 font-['Sora'] tabular-nums">
@@ -433,7 +433,7 @@ const PlatformRatingPage = () => {
                   type="submit"
                   disabled={submitting || !allRequiredSelected}
                   className="mt-6 w-full inline-flex items-center justify-center px-5 py-3.5 rounded-xl text-sm font-semibold text-white font-['Sora']
-                    bg-linear-to-r from-emerald-600 to-teal-600
+                    bg-gradient-to-r from-emerald-600 to-teal-600
                     shadow-[0_4px_14px_-4px_rgba(16,185,129,0.55)]
                     transition-all duration-200 ease-in-out
                     hover:from-emerald-500 hover:to-teal-500 hover:shadow-[0_8px_28px_-6px_rgba(16,185,129,0.65)] hover:scale-[1.01]

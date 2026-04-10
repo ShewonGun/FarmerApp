@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import UserCourseCard from "../../Components/UserComponents/UserCourseCard";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
+
 export default function CoursesPage() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,7 +18,7 @@ export default function CoursesPage() {
       setLoading(true);
       setError(null);
       
-      const response = await fetch("http://localhost:5000/api/courses/with-details");
+      const response = await fetch(`${API_BASE_URL}/courses/with-details`);
       const data = await response.json();
 
       if (data.success) {
