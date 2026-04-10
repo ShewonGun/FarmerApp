@@ -9,7 +9,7 @@ import UserSidebar from "./Components/UserComponents/UserSidebar"
 import Dashboard from "./Pages/AdminPages/Dashboard"
 import Course from "./Pages/AdminPages/Course"
 import Users from "./Pages/AdminPages/Users"
-import Requests from "./Pages/AdminPages/Requests"
+import Tickets from "./Pages/AdminPages/Tickets"
 import RepayPlans from "./Pages/AdminPages/RepayPlans"
 import Login from "./Pages/SharedPages/Login"
 import Signup from "./Pages/SharedPages/Signup"
@@ -24,6 +24,10 @@ import UserLoanPlans from "./Pages/UserPages/UserLoanPlans"
 import WeatherPage from "./Pages/UserPages/WeatherPage"
 import ProfilePage from "./Pages/UserPages/ProfilePage"
 import DataVerificationPage from "./Pages/UserPages/DataVerificationPage"
+import SupportTicketPage from "./Pages/UserPages/SupportTicketPage"
+import MySupportTicketsPage from "./Pages/UserPages/MySupportTicketsPage"
+import PlatformFeedbackPage from "./Pages/UserPages/PlatformFeedbackPage"
+import PlatformRatingPage from "./Pages/UserPages/PlatformRatingPage"
 import {
   AccountVerificationSection,
   PaymentInfoSection,
@@ -34,6 +38,7 @@ import {
 // Renders landing page for everyone, but bumps admins to their dashboard
 const RootRoute = () => {
   const { user, isAuthenticated, loading } = useAuth();
+  const location = useLocation();
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
@@ -41,6 +46,7 @@ const RootRoute = () => {
       </div>
     );
   }
+  if (location.state?.fromAdminLogout) return <LandingPage />;
   if (isAuthenticated && user?.role === 'admin') return <Navigate to="/admin" replace />;
   return <LandingPage />;
 };
@@ -58,7 +64,7 @@ const App = () => {
   const isAuthPage = location.pathname === '/login' || location.pathname === '/signup'
   
   // Check if current route is a user/farmer page
-  const isUserPage = location.pathname === '/' || location.pathname.startsWith('/landing') || location.pathname.startsWith('/courses') || location.pathname.startsWith('/my-courses') || location.pathname.startsWith('/loan') || location.pathname.startsWith('/weather') || location.pathname.startsWith('/profile') || location.pathname.startsWith('/data-verification') || location.pathname.match(/^\/course\/[^/]+$/)
+  const isUserPage = location.pathname === '/' || location.pathname.startsWith('/landing') || location.pathname.startsWith('/courses') || location.pathname.startsWith('/my-courses') || location.pathname.startsWith('/loan') || location.pathname.startsWith('/weather') || location.pathname.startsWith('/profile') || location.pathname.startsWith('/data-verification') || location.pathname.startsWith('/support-ticket') || location.pathname.startsWith('/platform-rating') || location.pathname.match(/^\/course\/[^/]+$/)
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
@@ -118,12 +124,45 @@ const App = () => {
           <Route path="/loan" element={<ProtectedRoute><LoanPage /></ProtectedRoute>} />
           <Route path="/loan-plans" element={<ProtectedRoute><UserLoanPlans /></ProtectedRoute>} />
           <Route path="/weather" element={<WeatherPage />} />
+          <Route
+            path="/support-ticket/my-tickets"
+            element={
+              <ProtectedRoute>
+                <MySupportTicketsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/support-ticket/feedback"
+            element={
+              <ProtectedRoute>
+                <PlatformFeedbackPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/support-ticket"
+            element={
+              <ProtectedRoute>
+                <SupportTicketPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/platform-rating"
+            element={
+              <ProtectedRoute>
+                <PlatformRatingPage />
+              </ProtectedRoute>
+            }
+          />
           
           {/* Protected Admin Routes */}
           <Route path="/admin" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/admin/courses" element={<ProtectedRoute><Course /></ProtectedRoute>} />
           <Route path="/admin/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
-          <Route path="/admin/requests" element={<ProtectedRoute><Requests /></ProtectedRoute>} />
+          <Route path="/admin/tickets" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
+          <Route path="/admin/requests" element={<Navigate to="/admin/tickets" replace />} />
           <Route path="/admin/repayments" element={<ProtectedRoute><RepayPlans /></ProtectedRoute>} />
         </Routes>
       </main>

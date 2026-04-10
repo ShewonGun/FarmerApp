@@ -49,6 +49,43 @@ export const getMyTickets = async (req, res) => {
     }
 };
 
+//Mark one ticket notification as read (Farmer)
+export const markMyTicketNotificationRead = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const { ticketId } = req.params;
+
+        const ticket = await SupportTicket.findOne({ _id: ticketId, userId });
+        if (!ticket) {
+            return res.status(404).json({
+                success: false,
+                message: "Ticket not found"
+            });
+        }
+
+        if ((ticket.status || "").toLowerCase() !== "resolved") {
+            return res.status(400).json({
+                success: false,
+                message: "Only resolved ticket notifications can be marked as read"
+            });
+        }
+
+        ticket.readNotification = true;
+        await ticket.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Ticket notification marked as read",
+            data: ticket
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
 
 
 //Update ticket (only owner & if Open)
@@ -192,6 +229,7 @@ export const replyToTicket = async (req, res) => {
         ticket.repliedAt = new Date();
         ticket.status = "Resolved";
         ticket.resolvedAt = new Date();
+        ticket.readNotification = false;
 
         await ticket.save();
 
@@ -230,6 +268,7 @@ export const updateTicketStatus = async (req, res) => {
 
         if (status === "Resolved") {
             ticket.resolvedAt = new Date();
+            ticket.readNotification = false;
         }
 
         await ticket.save();

@@ -43,7 +43,7 @@ const getStatusTone = (status = '') => {
     return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300';
   }
 
-  if (normalized === 'open' || normalized === 'pending') {
+  if (normalized === 'open' || normalized === 'pending' || normalized === 'in progress') {
     return 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-300';
   }
 
@@ -101,9 +101,12 @@ const Dashboard = () => {
 
     const openTickets = tickets.filter((ticket) => {
       const status = (ticket.status || '').toLowerCase();
-      return status === 'open' || status === 'pending';
+      return status === 'open' || status === 'in progress';
     }).length;
-    const resolvedTickets = tickets.filter((ticket) => (ticket.status || '').toLowerCase() === 'resolved').length;
+    const resolvedTickets = tickets.filter((ticket) => {
+      const status = (ticket.status || '').toLowerCase();
+      return status === 'resolved' || status === 'closed';
+    }).length;
 
     return {
       totalUsers: users.length,
@@ -143,11 +146,11 @@ const Dashboard = () => {
       action: () => navigate('/admin/repayments'),
     },
     {
-      label: 'Open Requests',
+      label: 'Open Tickets',
       value: stats.openTickets,
       subtext: `${stats.totalTickets} total support tickets`,
       icon: MdSupportAgent,
-      action: () => navigate('/admin/requests'),
+      action: () => navigate('/admin/tickets'),
     },
   ];
 
@@ -218,10 +221,10 @@ const Dashboard = () => {
                 Support Activity
               </h2>
               <button
-                onClick={() => navigate('/admin/requests')}
+                onClick={() => navigate('/admin/tickets')}
                 className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:underline font-['Sora']"
               >
-                Go to Requests
+                Go to Tickets
               </button>
             </div>
 
@@ -235,7 +238,7 @@ const Dashboard = () => {
               {!loading && stats.recentTickets.length === 0 && (
                 <div className="rounded-md border border-dashed border-slate-300 dark:border-slate-600 p-3 text-center">
                   <p className="text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
-                    No support requests yet.
+                    No support tickets yet.
                   </p>
                 </div>
               )}
@@ -284,7 +287,7 @@ const Dashboard = () => {
 
               <div className="rounded-md border border-slate-200 dark:border-slate-700 p-2.5 bg-slate-50/80 dark:bg-slate-900/40">
                 <div className="flex items-center justify-between">
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 font-['Sora']">Resolved requests</p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 font-['Sora']">Resolved tickets</p>
                   <MdCheckCircle className="text-sm text-emerald-500" />
                 </div>
                 <p className="mt-1 text-base md:text-lg font-bold text-slate-900 dark:text-slate-100 font-['Sora']">

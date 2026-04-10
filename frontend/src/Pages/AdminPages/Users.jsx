@@ -10,6 +10,8 @@ import {
   MdSearch,
   MdFilterList,
   MdAdd,
+  MdClose,
+  MdVerifiedUser,
 } from 'react-icons/md';
 import ConfirmBox from '../../Components/SharedComponents/ConfirmBox';
 import AddAdminModal from '../../Components/AdminComponents/AddAdminModal';
@@ -55,6 +57,14 @@ const Users = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isAddAdminOpen, setIsAddAdminOpen] = useState(false);
   const [isCreatingAdmin, setIsCreatingAdmin] = useState(false);
+  const [verifyModal, setVerifyModal] = useState({
+    isOpen: false,
+    loading: false,
+    submitting: false,
+    user: null,
+    record: null,
+    error: '',
+  });
 
   const fetchUsers = async ({ isRefresh = false } = {}) => {
     try {
@@ -209,6 +219,85 @@ const Users = () => {
     }
   };
 
+  const getVerificationStatusLabel = (status) => {
+    if (!status || status === 'Pending') return 'Pending';
+    return status;
+  };
+
+  const isFarmerKycVerified = (user) =>
+    user?.role === 'farmer' && user?.verificationStatus === 'Verified';
+
+  const showFarmerVerifyButton = (user) =>
+    user?.role === 'farmer' &&
+    !isFarmerKycVerified(user) &&
+    user?.hasVerificationDetails === true;
+
+  const openVerifyModal = async (user) => {
+    setVerifyModal({
+      isOpen: true,
+      loading: true,
+      submitting: false,
+      user,
+      record: null,
+      error: '',
+    });
+
+    try {
+      const response = await axios.get(`${API_BASE_URL}/verification-trust/${user._id}`, {
+        headers: getAuthHeaders(),
+      });
+
+      setVerifyModal((prev) => ({
+        ...prev,
+        loading: false,
+        record: response?.data?.data || null,
+      }));
+    } catch (error) {
+      setVerifyModal((prev) => ({
+        ...prev,
+        loading: false,
+        error: error?.response?.data?.message || 'Failed to load verification details',
+      }));
+    }
+  };
+
+  const closeVerifyModal = () => {
+    setVerifyModal({
+      isOpen: false,
+      loading: false,
+      submitting: false,
+      user: null,
+      record: null,
+      error: '',
+    });
+  };
+
+  const handleVerifyUser = async () => {
+    if (!verifyModal?.user?._id) return;
+    try {
+      setVerifyModal((prev) => ({ ...prev, submitting: true, error: '' }));
+      const response = await axios.put(
+        `${API_BASE_URL}/verification-trust/${verifyModal.user._id}`,
+        { verificationStatus: 'Verified' },
+        { headers: getAuthHeaders() }
+      );
+
+      setVerifyModal((prev) => ({
+        ...prev,
+        submitting: false,
+        record: response?.data?.data || prev.record,
+      }));
+      showSuccess('User verification status updated to Verified');
+      fetchUsers({ isRefresh: true });
+    } catch (error) {
+      setVerifyModal((prev) => ({
+        ...prev,
+        submitting: false,
+        error: error?.response?.data?.message || 'Failed to verify user',
+      }));
+    }
+  };
+
   const statCards = [
     {
       label: 'Total Users',
@@ -350,6 +439,8 @@ const Users = () => {
                 paginatedUsers.map((user) => {
                   const isActive = user.isActive !== false;
                   const isAdmin = user.role === 'admin';
+                  const farmerVerified = isFarmerKycVerified(user);
+                  const verifyBtn = showFarmerVerifyButton(user);
 
                   return (
                     <div
@@ -387,6 +478,31 @@ const Users = () => {
                         <span className="text-[11px] text-slate-500 dark:text-slate-400 font-['Sora']">
                           Joined {formatDate(user.createdAt)}
                         </span>
+
+                        {!isAdmin && (
+                          <span className="text-[10px] text-slate-500 dark:text-slate-400 font-['Sora']">
+                            KYC:{' '}
+                            {farmerVerified ? (
+                              <span
+                                className="inline-flex align-middle items-center justify-center w-4 h-4 rounded-full bg-[#00A6FF] text-white ml-0.5"
+                                title="Verified"
+                                aria-label="Verified KYC"
+                              >
+                                <MdVerifiedUser className="text-[11px]" />
+                              </span>
+                            ) : verifyBtn ? (
+                              <button
+                                type="button"
+                                onClick={() => openVerifyModal(user)}
+                                className="ml-1 inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-semibold font-['Sora'] transition-colors"
+                              >
+                                Verify
+                              </button>
+                            ) : (
+                              <span className="text-slate-400 dark:text-slate-500 ml-0.5">—</span>
+                            )}
+                          </span>
+                        )}
                       </div>
 
                       <div className="mt-2.5 flex justify-end">
@@ -421,10 +537,11 @@ const Users = () => {
               <div className="h-full overflow-auto">
                 <table className="w-full table-fixed border-collapse">
                   <colgroup>
-                    <col className="w-[40%]" />
-                    <col className="w-[15%]" />
-                    <col className="w-[15%]" />
-                    <col className="w-[15%]" />
+                    <col className="w-[34%]" />
+                    <col className="w-[13%]" />
+                    <col className="w-[13%]" />
+                    <col className="w-[13%]" />
+                    <col className="w-[12%]" />
                     <col className="w-[15%]" />
                   </colgroup>
                   <thead className="sticky top-0 z-10 bg-white/95 dark:bg-slate-800/95 backdrop-blur border-b border-slate-200 dark:border-slate-700">
@@ -433,6 +550,7 @@ const Users = () => {
                       <th className="text-center px-3 py-2 text-[10px] font-semibold tracking-[0.08em] text-slate-500 dark:text-slate-400 font-['Sora'] uppercase">Role</th>
                       <th className="text-center px-3 py-2 text-[10px] font-semibold tracking-[0.08em] text-slate-500 dark:text-slate-400 font-['Sora'] uppercase">Status</th>
                       <th className="text-center px-3 py-2 text-[10px] font-semibold tracking-[0.08em] text-slate-500 dark:text-slate-400 font-['Sora'] uppercase">Joined</th>
+                      <th className="text-center px-3 py-2 text-[10px] font-semibold tracking-[0.08em] text-slate-500 dark:text-slate-400 font-['Sora'] uppercase">Verify</th>
                       <th className="text-center px-3 py-2 text-[10px] font-semibold tracking-[0.08em] text-slate-500 dark:text-slate-400 font-['Sora'] uppercase">Action</th>
                     </tr>
                   </thead>
@@ -440,7 +558,7 @@ const Users = () => {
                   <tbody>
                     {loading && (
                       <tr>
-                        <td colSpan={5} className="py-12 text-center">
+                        <td colSpan={6} className="py-12 text-center">
                           <div className="inline-flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
                             <span className="w-3.5 h-3.5 rounded-md border-2 border-emerald-500 border-t-transparent animate-spin" />
                             Loading users...
@@ -451,7 +569,7 @@ const Users = () => {
 
                     {!loading && paginatedUsers.length === 0 && (
                       <tr>
-                        <td colSpan={5} className="py-12 text-center text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
+                        <td colSpan={6} className="py-12 text-center text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
                           No users match your filters.
                         </td>
                       </tr>
@@ -461,6 +579,8 @@ const Users = () => {
                       paginatedUsers.map((user) => {
                         const isActive = user.isActive !== false;
                         const isAdmin = user.role === 'admin';
+                        const farmerVerified = isFarmerKycVerified(user);
+                        const verifyBtn = showFarmerVerifyButton(user);
 
                         return (
                           <tr
@@ -502,6 +622,32 @@ const Users = () => {
 
                             <td className="px-3 py-2.5 text-center text-[11px] text-slate-600 dark:text-slate-300 font-['Sora'] whitespace-nowrap">
                               {formatDate(user.createdAt)}
+                            </td>
+
+                            <td className="px-3 py-2.5 text-center">
+                              {!isAdmin ? (
+                                farmerVerified ? (
+                                  <span
+                                    className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#00A6FF] text-white mx-auto shadow-[0_0_0_2px_rgba(255,255,255,0.75)] dark:shadow-[0_0_0_2px_rgba(15,23,42,0.9)]"
+                                    title="Verified KYC"
+                                    aria-label="Verified KYC"
+                                  >
+                                    <MdVerifiedUser className="text-[13px]" />
+                                  </span>
+                                ) : verifyBtn ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => openVerifyModal(user)}
+                                    className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-semibold font-['Sora'] transition-colors"
+                                  >
+                                    Verify
+                                  </button>
+                                ) : (
+                                  <span className="text-[12px] text-slate-400 dark:text-slate-500 font-['Sora']">-</span>
+                                )
+                              ) : (
+                                <span className="text-[12px] text-slate-400 dark:text-slate-500 font-['Sora']">-</span>
+                              )}
                             </td>
 
                             <td className="px-3 py-2.5 text-center">
@@ -581,6 +727,137 @@ const Users = () => {
         onSubmit={handleCreateAdmin}
         isSubmitting={isCreatingAdmin}
       />
+
+      {verifyModal.isOpen && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+          <button
+            type="button"
+            aria-label="Close verification popup"
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            onClick={closeVerifyModal}
+          />
+
+          <div className="relative w-full max-w-4xl max-h-[90vh] overflow-auto rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xl p-4 md:p-5">
+            <div className="flex items-start justify-between gap-4 mb-3">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 font-['Sora']">
+                  Identity Verification
+                </h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400 font-['Sora']">
+                  {verifyModal.user?.name || 'Farmer'} ({verifyModal.user?.email || 'No email'})
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeVerifyModal}
+                className="inline-flex items-center justify-center w-8 h-8 rounded-md text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                <MdClose />
+              </button>
+            </div>
+
+            {verifyModal.loading ? (
+              <div className="py-12 text-center">
+                <div className="inline-flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
+                  <span className="w-3.5 h-3.5 rounded-md border-2 border-emerald-500 border-t-transparent animate-spin" />
+                  Loading verification details...
+                </div>
+              </div>
+            ) : verifyModal.error ? (
+              <div className="px-3 py-2.5 rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 text-sm text-red-600 dark:text-red-400 font-['Sora']">
+                {verifyModal.error}
+              </div>
+            ) : (
+              <>
+                <p className="text-sm text-slate-500 dark:text-slate-400 font-['Sora'] mb-4">
+                  Manage this user&apos;s KYC details from VerificationTrust.
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 font-['Sora']">
+                      Government NIC Number
+                    </label>
+                    <div className="w-full px-3 py-2.5 rounded-md text-sm font-['Sora'] bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200">
+                      {verifyModal.record?.governmentNicNumber || 'N/A'}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 font-['Sora']">
+                      Verification Status
+                    </label>
+                    <div className="w-full px-3 py-2.5 rounded-md text-sm font-['Sora'] bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200">
+                      {getVerificationStatusLabel(verifyModal.record?.verificationStatus)}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 font-['Sora']">
+                      NIC Front Image
+                    </div>
+                    <div className="rounded-lg border-2 border-dashed border-slate-200 dark:border-slate-600 bg-slate-50/50 dark:bg-slate-800/40 px-4 py-4 min-h-44 flex items-center justify-center">
+                      {verifyModal.record?.nicImage1Url ? (
+                        <img
+                          src={verifyModal.record.nicImage1Url}
+                          alt="NIC front"
+                          className="max-h-40 rounded-md object-contain border border-slate-200 dark:border-slate-600"
+                        />
+                      ) : (
+                        <span className="text-xs text-slate-500 dark:text-slate-400 font-['Sora']">No image uploaded</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 font-['Sora']">
+                      NIC Back Image
+                    </div>
+                    <div className="rounded-lg border-2 border-dashed border-slate-200 dark:border-slate-600 bg-slate-50/50 dark:bg-slate-800/40 px-4 py-4 min-h-44 flex items-center justify-center">
+                      {verifyModal.record?.nicImage2Url ? (
+                        <img
+                          src={verifyModal.record.nicImage2Url}
+                          alt="NIC back"
+                          className="max-h-40 rounded-md object-contain border border-slate-200 dark:border-slate-600"
+                        />
+                      ) : (
+                        <span className="text-xs text-slate-500 dark:text-slate-400 font-['Sora']">No image uploaded</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex flex-col gap-1.5 text-sm text-slate-700 dark:text-slate-300 font-['Sora']">
+                  <span>{verifyModal.record?.agreedToTerms ? 'I agree to terms' : 'Terms not accepted'}</span>
+                  <span>{verifyModal.record?.consentToDataPolicy ? 'I consent to data policy' : 'Data policy not accepted'}</span>
+                </div>
+
+                <div className="mt-5 flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={closeVerifyModal}
+                    className="px-3 py-2 rounded-md text-sm font-medium font-['Sora'] text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  >
+                    Close
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleVerifyUser}
+                    disabled={verifyModal.submitting || verifyModal.record?.verificationStatus === 'Verified'}
+                    className="px-4 py-2 rounded-md text-sm font-medium font-['Sora'] bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed text-white transition-colors"
+                  >
+                    {verifyModal.record?.verificationStatus === 'Verified'
+                      ? 'Already Verified'
+                      : verifyModal.submitting
+                        ? 'Verifying...'
+                        : 'Verify User'}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

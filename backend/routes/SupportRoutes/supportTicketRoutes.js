@@ -2,6 +2,7 @@ import express from "express";
 import {
     createSupportTicket,
     getMyTickets,
+    markMyTicketNotificationRead,
     getAllTickets,
     updateSupportTicket,
     deleteSupportTicket,
@@ -23,6 +24,7 @@ router.post("/", authenticate, farmerOnly, createSupportTicket);
 
 // Get MY tickets
 router.get("/my", authenticate, farmerOnly, getMyTickets);
+router.put("/my/:ticketId/notification/read", authenticate, farmerOnly, markMyTicketNotificationRead);
 
 // Update ticket (only if Open & owner)
 router.put("/:ticketId", authenticate, farmerOnly, updateSupportTicket);
