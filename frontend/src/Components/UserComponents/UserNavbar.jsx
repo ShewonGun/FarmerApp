@@ -286,7 +286,7 @@ const UserNavbar = () => {
             >
               <MdNotifications className="text-xl" />
               {unreadNotificationCount > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-semibold leading-[18px] text-center font-['Sora']">
+                <span className="absolute -top-1 -right-1 min-w-4.5 h-4.5 px-1 rounded-full bg-red-500 text-white text-[10px] font-semibold leading-4.5 text-center font-['Sora']">
                   {unreadNotificationCount > 99 ? "99+" : unreadNotificationCount}
                 </span>
               )}

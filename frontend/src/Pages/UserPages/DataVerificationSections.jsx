@@ -49,7 +49,7 @@ function CardBrandMark({ brand, className = "" }) {
   if (brand === "visa") {
     return (
       <span
-        className={`inline-flex h-5 min-w-[2.75rem] items-center justify-center rounded bg-[#1A1F71] px-2 text-[9px] font-black tracking-[0.18em] text-white ${className}`}
+        className={`inline-flex h-5 min-w-11 items-center justify-center rounded bg-[#1A1F71] px-2 text-[9px] font-black tracking-[0.18em] text-white ${className}`}
         aria-hidden
       >
         VISA
@@ -118,7 +118,7 @@ function SectionCard({ title, subtitle, loading, error, success, saving, onSubmi
 
   if (loading) {
     return (
-      <div className="min-h-[10rem] flex items-center justify-center">
+      <div className="min-h-40 flex items-center justify-center">
         <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-emerald-500 border-t-transparent" />
       </div>
     );
@@ -724,7 +724,7 @@ export function PaymentInfoSection() {
                   onChange={(event) => setForm((prev) => ({ ...prev, cardNumber: event.target.value }))}
                   placeholder="2412 7512 3412 3456"
                   autoComplete="cc-number"
-                  className="w-full pl-3 pr-[3.25rem] py-2.5 rounded-lg text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-600 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20 outline-none"
+                  className="w-full pl-3 pr-13 py-2.5 rounded-lg text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-600 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20 outline-none"
                 />
                 {cardBrand ? (
                   <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
@@ -785,7 +785,7 @@ export function PaymentInfoSection() {
           </div>
 
           <aside className="rounded-2xl border border-slate-200/90 dark:border-slate-600/70 bg-slate-100/95 dark:bg-slate-800/95 p-5 md:p-6 flex flex-col gap-4">
-            <div className="relative min-h-[13rem] rounded-2xl border border-slate-200 dark:border-slate-600 bg-gradient-to-br from-white to-slate-100 dark:from-slate-700 dark:to-slate-900 p-5 shadow-sm">
+            <div className="relative min-h-52 rounded-2xl border border-slate-200 dark:border-slate-600 bg-linear-to-br from-white to-slate-100 dark:from-slate-700 dark:to-slate-900 p-5 shadow-sm">
               <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">Virtual card</p>
               <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between gap-3">
                 <div className="min-w-0 flex-1 space-y-2">
@@ -836,7 +836,7 @@ export function PaymentInfoSection() {
         </div>
       </div>
       {showOtpModal && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-70 flex items-center justify-center p-4">
           <button
             type="button"
             aria-label="Close OTP popup"

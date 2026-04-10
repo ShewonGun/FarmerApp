@@ -116,11 +116,11 @@ const MySupportTicketsPage = () => {
 
   return (
     <section className="w-full min-h-[calc(100vh-5rem)] flex flex-col items-center justify-start py-6 md:py-10 px-3 sm:px-4 lg:px-6">
-      <div className="grid w-full max-w-[1600px] grid-cols-1 items-start gap-8 lg:grid-cols-[1fr_minmax(0,42rem)_1fr] lg:gap-x-6 xl:gap-x-10">
+      <div className="grid w-full max-w-400 grid-cols-1 items-start gap-8 lg:grid-cols-[1fr_minmax(0,42rem)_1fr] lg:gap-x-6 xl:gap-x-10">
         <div className="hidden min-h-0 lg:block" aria-hidden="true" />
         <div className="col-span-1 w-full max-w-2xl justify-self-center lg:col-start-2 lg:w-full lg:max-w-none">
           <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/60 shadow-sm overflow-hidden">
-            <div className="px-4 md:px-6 py-5 border-b border-slate-200 dark:border-slate-700/60 bg-gradient-to-r from-emerald-500 to-teal-600">
+            <div className="px-4 md:px-6 py-5 border-b border-slate-200 dark:border-slate-700/60 bg-linear-to-r from-emerald-500 to-teal-600">
               <h1 className="text-white text-xl md:text-2xl font-bold font-['Sora']">My Tickets</h1>
             </div>
             <div className="p-4 md:p-6">
@@ -172,7 +172,7 @@ const MySupportTicketsPage = () => {
         <aside className="col-span-1 flex w-full max-w-2xl flex-col gap-3 justify-self-center sm:max-w-sm lg:col-start-3 lg:mt-0 lg:w-52 lg:max-w-none lg:justify-self-end lg:self-start">
           <Link
             to="/support-ticket"
-            className="w-full text-center px-4 py-2.5 rounded-md text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 transition-colors font-['Sora']"
+            className="w-full text-center px-4 py-2.5 rounded-md text-sm font-semibold text-white bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 transition-colors font-['Sora']"
           >
             New ticket
           </Link>
@@ -186,7 +186,7 @@ const MySupportTicketsPage = () => {
       </div>
 
       {selectedTicket && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-70 flex items-center justify-center p-4">
           <button
             type="button"
             aria-label="Close ticket details"
