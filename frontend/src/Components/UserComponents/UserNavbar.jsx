@@ -7,6 +7,7 @@ import {
   MdLogout,
   MdBook,
   MdMenu,
+  MdPayments,
   MdVerifiedUser,
   MdSupportAgent,
   MdStar,
@@ -222,7 +223,6 @@ const UserNavbar = () => {
       <nav className="hidden md:flex items-center gap-1 flex-1 justify-center">
         <NavLink
           to="/loan"
-          onClick={handleProtectedNav}
           className={({ isActive }) =>
             `px-4 py-2 rounded-lg text-sm font-medium font-['Sora'] transition-all duration-150 ${
               isActive
@@ -232,6 +232,32 @@ const UserNavbar = () => {
           }
         >
           Loans
+        </NavLink>
+        <NavLink
+          to="/my-loans"
+          onClick={handleProtectedNav}
+          className={({ isActive }) =>
+            `px-4 py-2 rounded-lg text-sm font-medium font-['Sora'] transition-all duration-150 ${
+              isActive
+                ? ' text-emerald-600 dark:text-emerald-400'
+                : 'text-slate-600 dark:text-slate-400'
+            }`
+          }
+        >
+          My Loans
+        </NavLink>
+        <NavLink
+          to="/loan-repayments"
+          onClick={handleProtectedNav}
+          className={({ isActive }) =>
+            `px-4 py-2 rounded-lg text-sm font-medium font-['Sora'] transition-all duration-150 ${
+              isActive
+                ? ' text-emerald-600 dark:text-emerald-400'
+                : 'text-slate-600 dark:text-slate-400'
+            }`
+          }
+        >
+          Repayments
         </NavLink>
         <NavLink
           to="/courses"
@@ -436,6 +462,17 @@ const UserNavbar = () => {
               >
                 <MdPerson className="text-base text-slate-500 dark:text-slate-400" />
                 My Profile
+              </button>
+
+              <div className="border-t border-slate-200/60 dark:border-slate-700 my-1" />
+
+              <button
+                type="button"
+                onClick={() => handleMenuNavigate("/loan-repayments")}
+                className="w-full flex items-center gap-3 px-4 py-2.5 transition-all duration-150 hover:bg-slate-50/50 dark:hover:bg-slate-700/50 bg-transparent border-none cursor-pointer text-slate-600 dark:text-slate-300 text-[13px] font-['Sora'] text-left"
+              >
+                <MdPayments className="text-base text-slate-500 dark:text-slate-400" />
+                Loan Repayments
               </button>
 
               <div className="border-t border-slate-200/60 dark:border-slate-700 my-1" />
