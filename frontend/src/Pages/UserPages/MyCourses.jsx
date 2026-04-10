@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { showSuccess, showError, showLoading } from "../../utils/toast";
 import { HiBookOpen, HiClipboardCheck, HiCheckCircle, HiClock, HiAcademicCap } from "react-icons/hi";
 import toast from "react-hot-toast";
+import { apiUrl } from "../../utils/api";
 
 export default function MyCourses() {
   const { user } = useAuth();
@@ -26,7 +27,7 @@ export default function MyCourses() {
 
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:5000/api/enrollments/${user.id}`,
+        apiUrl(`/enrollments/${user.id}`),
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -57,7 +58,7 @@ export default function MyCourses() {
       const token = localStorage.getItem("token");
       
       const getResponse = await fetch(
-        `http://localhost:5000/api/certificates/${user.id}/course/${courseId}`,
+        apiUrl(`/certificates/${user.id}/course/${courseId}`),
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -76,7 +77,7 @@ export default function MyCourses() {
 
       if (!certificateData) {
         const generateResponse = await fetch(
-          `http://localhost:5000/api/certificates/${user.id}/course/${courseId}`,
+          apiUrl(`/certificates/${user.id}/course/${courseId}`),
           {
             method: "POST",
             headers: {

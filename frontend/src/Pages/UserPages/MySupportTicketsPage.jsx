@@ -2,8 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { MdClose } from "react-icons/md";
 import { useAuth } from "../../Context/AuthContext";
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+import { API_BASE_URL } from "../../utils/api";
 
 const ticketIdStr = (id) => (id != null ? String(id) : "");
 

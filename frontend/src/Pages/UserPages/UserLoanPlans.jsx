@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import UserLoanPlanCard from "../../Components/UserComponents/UserLoanPlanCard";
 import { HiCreditCard, HiInformationCircle } from "react-icons/hi";
+import { apiUrl } from "../../utils/api";
 
 export default function LoanPage() {
   const [plans, setPlans] = useState([]);
@@ -16,7 +17,7 @@ export default function LoanPage() {
       setLoading(true);
       setError(null);
 
-      const response = await fetch("http://localhost:5000/api/plans/active", {
+      const response = await fetch(apiUrl("/plans/active"), {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

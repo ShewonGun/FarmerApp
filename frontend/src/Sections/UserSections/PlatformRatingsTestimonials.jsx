@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { API_BASE_URL } from "../../utils/api";
 
-const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:5000/api").replace(/\/$/, "");
+const API_BASE = API_BASE_URL;
 
 function formatReviewDate(iso) {
   if (!iso) return "";

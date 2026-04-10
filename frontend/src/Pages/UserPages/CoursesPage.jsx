@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import UserCourseCard from "../../Components/UserComponents/UserCourseCard";
+import { apiUrl } from "../../utils/api";
 
 export default function CoursesPage() {
   const [courses, setCourses] = useState([]);
@@ -16,7 +17,7 @@ export default function CoursesPage() {
       setLoading(true);
       setError(null);
       
-      const response = await fetch("http://localhost:5000/api/courses/with-details");
+      const response = await fetch(apiUrl("/courses/with-details"));
       const data = await response.json();
 
       if (data.success) {

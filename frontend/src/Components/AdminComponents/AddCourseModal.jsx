@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MdClose, MdCloudUpload } from 'react-icons/md';
 import axios from 'axios';
-
-const API_BASE_URL = 'http://localhost:5000/api';
+import { API_BASE_URL } from '../../utils/api';
 
 const initialForm = {
   title: '',

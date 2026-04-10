@@ -5,6 +5,7 @@ import {
   HiLightBulb,
   HiRefresh,
 } from "react-icons/hi";
+import { apiUrl } from "../../utils/api";
 
 export default function QuizResultsModal({
   quizResults,
@@ -32,7 +33,7 @@ export default function QuizResultsModal({
     
     try {
       const response = await fetch(
-        `http://localhost:5000/api/ai/${attemptId}/explanations`,
+        apiUrl(`/ai/${attemptId}/explanations`),
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,

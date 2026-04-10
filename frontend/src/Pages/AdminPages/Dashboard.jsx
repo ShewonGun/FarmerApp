@@ -14,8 +14,7 @@ import {
 } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import { showError } from '../../utils/toast';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+import { API_BASE_URL } from '../../utils/api';
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('token');

@@ -5,8 +5,7 @@ import AddCourseModal from '../../Components/AdminComponents/AddCourseModal';
 import ConfirmBox from '../../Components/SharedComponents/ConfirmBox';
 import axios from 'axios';
 import { showSuccess, showError } from '../../utils/toast';
-
-const API_BASE_URL = 'http://localhost:5000/api';
+import { API_BASE_URL } from '../../utils/api';
 
 // Helper to get auth headers
 const getAuthHeaders = () => {

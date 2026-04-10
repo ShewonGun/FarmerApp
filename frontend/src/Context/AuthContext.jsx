@@ -1,8 +1,8 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../utils/api';
 
 const AuthContext = createContext();
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 /** Safe in-app path only (e.g. /support-ticket) — blocks open redirects */
 function safeRedirectPath(next) {

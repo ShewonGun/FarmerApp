@@ -14,6 +14,7 @@ import UserQuizModal from "../../Components/UserComponents/UserQuizModal.jsx";
 import QuizResultsModal from "../../Components/UserComponents/QuizResultsModal.jsx";
 import CourseContent from "../../Components/UserComponents/CourseContent.jsx";
 import { useAuth } from "../../Context/AuthContext";
+import { apiUrl } from "../../utils/api";
 
 export default function CoursePageUser() {
   const { courseId } = useParams();
@@ -57,7 +58,7 @@ export default function CoursePageUser() {
   const fetchCourseDetails = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5000/api/courses/${courseId}`, {
+      const response = await fetch(apiUrl(`/courses/${courseId}`), {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`
         }
@@ -79,7 +80,7 @@ export default function CoursePageUser() {
 
   const fetchLessons = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/lessons/course/${courseId}`, {
+      const response = await fetch(apiUrl(`/lessons/course/${courseId}`), {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`
         }
@@ -102,7 +103,7 @@ export default function CoursePageUser() {
 
   const fetchQuizForLesson = async (lessonId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/quizzes/lessons/${lessonId}`, {
+      const response = await fetch(apiUrl(`/quizzes/lessons/${lessonId}`), {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`
         }
@@ -122,7 +123,7 @@ export default function CoursePageUser() {
     
     try {
       const response = await fetch(
-        `http://localhost:5000/api/enrollments/${user.id}/course/${courseId}/check-enrollment`,
+        apiUrl(`/enrollments/${user.id}/course/${courseId}/check-enrollment`),
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -143,7 +144,7 @@ export default function CoursePageUser() {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/certificates/${user.id}/course/${courseId}`,
+        apiUrl(`/certificates/${user.id}/course/${courseId}`),
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -169,7 +170,7 @@ export default function CoursePageUser() {
     try {
       setEnrolling(true);
       const response = await fetch(
-        `http://localhost:5000/api/enrollments/${user.id}/course/${courseId}/enroll`,
+        apiUrl(`/enrollments/${user.id}/course/${courseId}/enroll`),
         {
           method: "POST",
           headers: {
@@ -277,7 +278,7 @@ export default function CoursePageUser() {
 
       // Submit to backend
       const response = await fetch(
-        `http://localhost:5000/api/progress/${user.id}/quiz/${activeQuiz._id}/attempt`,
+        apiUrl(`/progress/${user.id}/quiz/${activeQuiz._id}/attempt`),
         {
           method: "POST",
           headers: {
@@ -375,7 +376,7 @@ export default function CoursePageUser() {
     setCompletingLesson(lessonId);
     try {
       const response = await fetch(
-        `http://localhost:5000/api/enrollments/${user.id}/course/${courseId}/lesson/${lessonId}/complete`,
+        apiUrl(`/enrollments/${user.id}/course/${courseId}/lesson/${lessonId}/complete`),
         {
           method: "PUT",
           headers: {
@@ -417,7 +418,7 @@ export default function CoursePageUser() {
     setGeneratingCertificate(true);
     try {
       const response = await fetch(
-        `http://localhost:5000/api/certificates/${user.id}/course/${courseId}`,
+        apiUrl(`/certificates/${user.id}/course/${courseId}`),
         {
           method: "POST",
           headers: {
@@ -449,7 +450,7 @@ export default function CoursePageUser() {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/certificates/${user.id}/course/${courseId}`,
+        apiUrl(`/certificates/${user.id}/course/${courseId}`),
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`
