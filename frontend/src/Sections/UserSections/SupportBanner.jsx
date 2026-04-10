@@ -27,9 +27,9 @@ const SupportBanner = ({ compact = false }) => {
         className={`mx-auto ${compact ? "max-w-full px-0 flex-1 flex flex-col min-h-0 w-full" : "max-w-5xl px-6"}`}
       >
         <div
-          className={`bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl text-white shadow-lg shadow-emerald-900/20 ${
+          className={`bg-linear-to-br from-emerald-500 to-emerald-700 rounded-2xl text-white shadow-lg shadow-emerald-900/20 ${
             compact
-              ? "flex-1 h-full min-h-[300px] w-full px-8 py-10 flex flex-col justify-between items-start gap-6"
+              ? "flex-1 h-full min-h-75 w-full px-8 py-10 flex flex-col justify-between items-start gap-6"
               : "px-8 py-12 md:py-14 md:px-16 flex flex-col md:flex-row items-center justify-between gap-8"
           }`}
         >

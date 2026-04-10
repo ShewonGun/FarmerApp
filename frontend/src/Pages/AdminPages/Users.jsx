@@ -17,7 +17,7 @@ import ConfirmBox from '../../Components/SharedComponents/ConfirmBox';
 import AddAdminModal from '../../Components/AdminComponents/AddAdminModal';
 import { showError, showSuccess } from '../../utils/toast';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 const ITEMS_PER_PAGE = 8;
 
 const getAuthHeaders = () => {

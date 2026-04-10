@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../Context/AuthContext";
 import { MdPhotoCamera } from "react-icons/md";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
 
 const formatDate = (dateValue) => {
   if (!dateValue) return "-";

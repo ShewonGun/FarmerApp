@@ -6,6 +6,8 @@ import {
   HiRefresh,
 } from "react-icons/hi";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
+
 export default function QuizResultsModal({
   quizResults,
   attemptId,
@@ -32,7 +34,7 @@ export default function QuizResultsModal({
     
     try {
       const response = await fetch(
-        `http://localhost:5000/api/ai/${attemptId}/explanations`,
+        `${API_BASE_URL}/ai/${attemptId}/explanations`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
