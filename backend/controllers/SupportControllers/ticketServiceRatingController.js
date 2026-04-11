@@ -1,4 +1,4 @@
-import TicketServiceRating from "../../models/support/TicketServiceRating.js";
+import TicketServiceRating from "../../models/Support/TicketServiceRating.js";
 import SupportTicket from "../../models/Support/SupportTicket.js";
 
 /** @returns {undefined | null | number} undefined = omitted, null = invalid */
