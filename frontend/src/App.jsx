@@ -9,6 +9,7 @@ import UserSidebar from "./Components/UserComponents/UserSidebar"
 import Dashboard from "./Pages/AdminPages/Dashboard"
 import Course from "./Pages/AdminPages/Course"
 import Users from "./Pages/AdminPages/Users"
+import Requests from "./Pages/AdminPages/Requests"
 import Tickets from "./Pages/AdminPages/Tickets"
 import RepayPlans from "./Pages/AdminPages/RepayPlans"
 import LoanRepayments from "./Pages/AdminPages/LoanRepayments"
@@ -182,7 +183,7 @@ const App = () => {
           <Route path="/admin/courses" element={<ProtectedRoute><Course /></ProtectedRoute>} />
           <Route path="/admin/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
           <Route path="/admin/tickets" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
-          <Route path="/admin/requests" element={<Navigate to="/admin/tickets" replace />} />
+          <Route path="/admin/requests" element={<ProtectedRoute><Requests /></ProtectedRoute>} />
           <Route path="/admin/repayments" element={<ProtectedRoute><RepayPlans /></ProtectedRoute>} />
           <Route path="/admin/loan-repayments" element={<ProtectedRoute><LoanRepayments /></ProtectedRoute>} />
           <Route path="/admin/profile" element={<ProtectedRoute><AdminProfile /></ProtectedRoute>} />
