@@ -208,6 +208,65 @@ export const createLoan = async (req, res) => {
   }
 };
 
+export const getMyLoans = async (req, res) => {
+  try {
+    const farmerId = req.user?._id;
+
+    if (!farmerId) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    const loans = await Loan.find({ farmerId })
+      .populate("category", "name code description requiredDocuments")
+      .populate("plan", "planName paymentFrequency duration interestRate interestType")
+      .sort({ createdAt: -1 });
+
+    const loanResponses = loans.map((loan) => {
+      const loanObject = loan.toObject ? loan.toObject() : loan;
+      return {
+        ...buildLoanResponse(loanObject),
+        categoryName: loanObject.category?.name || loanObject.categoryName || "Loan Category",
+        planName: loanObject.planName || loanObject.plan?.planName || "Repayment Plan",
+      };
+    });
+
+    return res.status(200).json({
+      success: true,
+      loans: loanResponses,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const getAllLoansForAdmin = async (req, res) => {
+  try {
+    const loans = await Loan.find()
+      .populate("farmerId", "name email role")
+      .populate("category", "name code description")
+      .populate("plan", "planName paymentFrequency duration interestRate interestType")
+      .sort({ createdAt: -1 });
+
+    const loanResponses = loans.map((loan) => {
+      const loanObject = loan.toObject ? loan.toObject() : loan;
+      return {
+        ...buildLoanResponse(loanObject),
+        categoryName: loanObject.category?.name || loanObject.categoryName || "Loan Category",
+        planName: loanObject.planName || loanObject.plan?.planName || "Repayment Plan",
+        farmerName: loanObject.farmerId?.name || loanObject.farmerName || "Unknown Farmer",
+        farmerEmail: loanObject.farmerId?.email || loanObject.farmerEmail || "",
+      };
+    });
+
+    return res.status(200).json({
+      success: true,
+      loans: loanResponses,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 export const approveLoan = async (req, res) => {
   try {
     if (!isValidObjectId(req.params.id)) {
@@ -234,6 +293,38 @@ export const approveLoan = async (req, res) => {
     await loan.save();
 
     return res.json({ message: "Loan Approved", loan: buildLoanResponse(loan.toObject ? loan.toObject() : loan) });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const rejectLoan = async (req, res) => {
+  try {
+    if (!isValidObjectId(req.params.id)) {
+      return res.status(400).json({ message: "Invalid loan ID" });
+    }
+
+    const loan = await Loan.findById(req.params.id);
+
+    if (!loan) {
+      return res.status(404).json({ message: "Loan not found" });
+    }
+
+    if (loan.status === "Active" || loan.status === "Completed") {
+      return res.status(400).json({ message: "Active or completed loans cannot be rejected" });
+    }
+
+    loan.status = "Rejected";
+    loan.nextDueDate = null;
+    loan.arrearsAmount = 0;
+    loan.installmentPaidAmount = 0;
+
+    await loan.save();
+
+    return res.status(200).json({
+      message: "Loan Rejected",
+      loan: buildLoanResponse(loan.toObject ? loan.toObject() : loan),
+    });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
