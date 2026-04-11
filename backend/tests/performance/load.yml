@@ -1,0 +1,30 @@
+config:
+  target: "{{ $processEnvironment.PERF_TARGET }}"
+  phases:
+    - duration: 60
+      arrivalRate: 5
+      name: Warm-up
+    - duration: 180
+      arrivalRate: 20
+      name: Sustained load
+  processor: "./artillery.processor.cjs"
+
+scenarios:
+  - name: Public read traffic mix
+    flow:
+      - get:
+          url: "/api/courses?page=1&limit=10"
+      - get:
+          url: "/api/loan-categories"
+      - get:
+          url: "/api/platform-ratings/public"
+      - function: "setRandomCity"
+      - get:
+          url: "/api/weather?city={{ city }}"
+
+  - name: Health check traffic
+    flow:
+      - get:
+          url: "/"
+      - get:
+          url: "/api/weather/cities"

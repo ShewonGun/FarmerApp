@@ -1,0 +1,29 @@
+config:
+  target: "{{ $processEnvironment.PERF_TARGET }}"
+  phases:
+    - duration: 60
+      arrivalRate: 10
+      name: Warm-up
+    - duration: 120
+      arrivalRate: 30
+      rampTo: 60
+      name: Ramp-up stress
+    - duration: 120
+      arrivalRate: 60
+      name: Peak stress hold
+  processor: "./artillery.processor.cjs"
+
+scenarios:
+  - name: Stress public endpoints
+    flow:
+      - get:
+          url: "/api/courses?page=1&limit=10"
+      - get:
+          url: "/api/loan-categories"
+      - get:
+          url: "/api/platform-ratings/public"
+      - function: "setRandomCity"
+      - get:
+          url: "/api/weather?city={{ city }}"
+      - get:
+          url: "/api/weather/forecast?city={{ city }}"

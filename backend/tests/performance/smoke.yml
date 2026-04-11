@@ -1,0 +1,27 @@
+config:
+  target: "{{ $processEnvironment.PERF_TARGET }}"
+  phases:
+    - duration: 30
+      arrivalRate: 2
+      name: Smoke baseline
+  processor: "./artillery.processor.cjs"
+
+scenarios:
+  - name: Basic API availability
+    flow:
+      - get:
+          url: "/"
+      - get:
+          url: "/api/weather/cities"
+      - get:
+          url: "/api/courses?page=1&limit=10"
+      - get:
+          url: "/api/loan-categories"
+      - get:
+          url: "/api/platform-ratings/public"
+
+  - name: Weather endpoint variance
+    flow:
+      - function: "setRandomCity"
+      - get:
+          url: "/api/weather?city={{ city }}"
