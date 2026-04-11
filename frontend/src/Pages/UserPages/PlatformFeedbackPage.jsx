@@ -20,15 +20,15 @@ const statusStyle = (status) => {
 
 /** Star 1 smallest → star 5 largest (Tailwind classes) */
 const STAR_SIZE_CLASSES = [
-  "text-[0.7rem]",
-  "text-[0.88rem]",
-  "text-[1.06rem]",
-  "text-[1.22rem]",
-  "text-[1.38rem]",
+  "text-[0.68rem]",
+  "text-[0.8rem]",
+  "text-[0.96rem]",
+  "text-[1.1rem]",
+  "text-[1.24rem]",
 ];
 
 const labelClass =
-  "block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2 font-['Sora']";
+  "block text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.16em] mb-1.5 font-['Sora']";
 
 const StarRatingRow = ({ label, value, onChange, disabled }) => (
   <div className={disabled ? "opacity-55" : ""}>
@@ -155,7 +155,7 @@ const PlatformFeedbackPage = () => {
   }, [selectedTicket]);
 
   const inputClass =
-    "w-full px-3 py-2.5 rounded-md text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20 outline-none";
+    "w-full px-3 py-2 rounded-md text-xs font-['Sora'] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20 outline-none";
 
   const handleSelectTicket = (t) => {
     setError("");
@@ -232,37 +232,36 @@ const PlatformFeedbackPage = () => {
   const showAlreadyRated = selectedTicket && !ratingInfo.loading && ratingInfo.data != null;
 
   return (
-    <section className="w-full min-h-[calc(100vh-5rem)] flex flex-col items-center justify-start py-6 md:py-10 px-3 sm:px-4 lg:px-6">
-      <div className="grid w-full max-w-[1600px] grid-cols-1 items-start gap-8 lg:grid-cols-[1fr_minmax(0,42rem)_1fr] lg:gap-x-6 xl:gap-x-10">
-        <div className="hidden min-h-0 lg:block" aria-hidden="true" />
-        <div className="col-span-1 w-full max-w-2xl justify-self-center self-start lg:col-start-2 lg:w-full lg:max-w-none">
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/60 shadow-sm overflow-hidden">
-            <div className="px-4 md:px-6 py-5 border-b border-slate-200 dark:border-slate-700/60 bg-gradient-to-r from-emerald-500 to-teal-600">
-              <h1 className="text-white text-xl md:text-2xl font-bold font-['Sora']">
+    <section className="w-full min-h-[calc(100vh-5rem)] flex flex-col items-center justify-start py-6 px-3 sm:px-4 lg:px-6">
+      <div className="grid w-full max-w-5xl grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_12rem] lg:gap-3">
+        <div className="w-full self-start">
+          <div className="bg-white dark:bg-slate-900 rounded-md border border-slate-200 dark:border-slate-700/60 overflow-hidden">
+            <div className="px-4 py-4 border-b border-slate-200 dark:border-slate-700/60">
+              <h1 className="text-slate-900 dark:text-slate-100 text-lg font-semibold font-['Sora']">
                 {showList ? "Ticket feedback" : "Rate this ticket"}
               </h1>
             </div>
-            <div className="p-4 md:p-6">
+            <div className="p-4 md:p-5">
               {showList && (
                 <>
-                  <p className="mb-6 text-sm text-slate-600 dark:text-slate-300 font-['Sora'] pb-2 border-b border-slate-200/80 dark:border-slate-700/60">
+                  <p className="mb-4 text-xs text-slate-600 dark:text-slate-300 font-['Sora'] pb-2 border-b border-slate-200/80 dark:border-slate-700/60">
                     Open any ticket to see the feedback form. You can submit your rating once the ticket is marked resolved. Comments are optional.
                   </p>
                   {listLoading && (
-                    <div className="flex justify-center py-12">
-                      <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-emerald-500 border-t-transparent" />
+                    <div className="flex justify-center py-10">
+                      <div className="inline-block animate-spin rounded-full h-9 w-9 border-4 border-emerald-500 border-t-transparent" />
                     </div>
                   )}
                   {!listLoading && listError && (
-                    <p className="text-sm text-red-600 dark:text-red-400 font-['Sora']">{listError}</p>
+                    <p className="text-xs text-red-600 dark:text-red-400 font-['Sora']">{listError}</p>
                   )}
                   {!listLoading && !listError && tickets.length === 0 && (
-                    <p className="text-sm text-slate-500 dark:text-slate-400 font-['Sora']">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
                       You don&apos;t have any support tickets yet.
                     </p>
                   )}
                   {!listLoading && !listError && tickets.length > 0 && (
-                    <ul className="space-y-3">
+                    <ul className="space-y-2">
                       {tickets.map((t) => {
                         const resolved = t.status === "Resolved";
                         return (
@@ -270,20 +269,20 @@ const PlatformFeedbackPage = () => {
                             <button
                               type="button"
                               onClick={() => handleSelectTicket(t)}
-                              className="w-full text-left rounded-lg border border-slate-200 dark:border-slate-700 p-4 bg-slate-50/80 dark:bg-slate-800/40 transition-colors font-['Sora'] cursor-pointer hover:border-emerald-400/60 hover:bg-emerald-50/30 dark:hover:bg-emerald-900/10"
+                              className="w-full text-left rounded-md border border-slate-200 dark:border-slate-700 p-3 bg-slate-50/80 dark:bg-slate-800/40 transition-colors font-['Sora'] cursor-pointer hover:border-emerald-400/60 hover:bg-emerald-50/30 dark:hover:bg-emerald-900/10"
                             >
                               <div className="flex flex-wrap items-start justify-between gap-2">
-                                <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{t.subject}</p>
-                                <span className={`text-xs font-medium ${statusStyle(t.status)}`}>{t.status}</span>
+                                <p className="text-xs font-semibold text-slate-800 dark:text-slate-100">{t.subject}</p>
+                                <span className={`text-[11px] font-medium ${statusStyle(t.status)}`}>{t.status}</span>
                               </div>
-                              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                              <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
                                 {t.category} · {t.priority} priority
                               </p>
                               {t.description && (
-                                <p className="mt-2 text-sm text-slate-600 dark:text-slate-300 line-clamp-2">{t.description}</p>
+                                <p className="mt-1.5 text-xs text-slate-600 dark:text-slate-300 line-clamp-2">{t.description}</p>
                               )}
                               {!resolved && (
-                                <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+                                <p className="mt-1.5 text-[11px] text-amber-600 dark:text-amber-400">
                                   Open to view the form — submit when this ticket is resolved.
                                 </p>
                               )}
@@ -298,37 +297,37 @@ const PlatformFeedbackPage = () => {
 
               {!showList && selectedTicket && (
                 <>
-                  <div className="mb-6 flex flex-wrap items-center gap-3 pb-2 border-b border-slate-200/80 dark:border-slate-700/60">
+                  <div className="mb-4 flex flex-wrap items-center gap-3 pb-2 border-b border-slate-200/80 dark:border-slate-700/60">
                     <button
                       type="button"
                       onClick={handleBackToList}
-                      className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:underline font-['Sora']"
+                      className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline font-['Sora']"
                     >
                       ← All tickets
                     </button>
                   </div>
-                  <p className="mb-4 text-sm font-semibold text-slate-800 dark:text-slate-100 font-['Sora']">
+                  <p className="mb-3 text-xs font-semibold text-slate-800 dark:text-slate-100 font-['Sora']">
                     {selectedTicket.subject}
                   </p>
                 </>
               )}
 
               {selectedTicket && ratingInfo.loading && (
-                <div className="flex justify-center py-12">
-                  <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-emerald-500 border-t-transparent" />
+                <div className="flex justify-center py-10">
+                  <div className="inline-block animate-spin rounded-full h-9 w-9 border-4 border-emerald-500 border-t-transparent" />
                 </div>
               )}
 
               {error && (
-                <div className="mb-4 px-3 py-2.5 rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 text-sm text-red-600 dark:text-red-400 font-['Sora']">
+                <div className="mb-3 px-3 py-2 rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 text-xs text-red-600 dark:text-red-400 font-['Sora']">
                   {error}
                 </div>
               )}
 
               {showAlreadyRated && (
-                <div className="space-y-3 text-sm text-slate-600 dark:text-slate-300 font-['Sora']">
+                <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300 font-['Sora']">
                   {success && (
-                    <p className="px-3 py-2.5 rounded-md bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/50 text-emerald-700 dark:text-emerald-300 font-medium">
+                    <p className="px-3 py-2 rounded-md bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/50 text-emerald-700 dark:text-emerald-300 font-medium">
                       Thank you — your rating was saved.
                     </p>
                   )}
@@ -337,14 +336,14 @@ const PlatformFeedbackPage = () => {
                       You have already submitted feedback for this ticket.
                     </p>
                   )}
-                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
                     <li>Rating: {ratingInfo.data?.rating}</li>
                     <li>Response quality: {ratingInfo.data?.responseQuality ?? "—"}</li>
                     <li>Resolution speed: {ratingInfo.data?.resolutionSpeed ?? "—"}</li>
                     <li>Helpfulness: {ratingInfo.data?.helpfulness ?? "—"}</li>
                   </ul>
                   {ratingInfo.data?.feedback && (
-                    <p className="text-sm border-t border-slate-200 dark:border-slate-700 pt-3 mt-2">
+                    <p className="text-xs border-t border-slate-200 dark:border-slate-700 pt-2 mt-1.5">
                       {ratingInfo.data.feedback}
                     </p>
                   )}
@@ -352,9 +351,9 @@ const PlatformFeedbackPage = () => {
               )}
 
               {showForm && (
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-5">
                   {!canSubmitRating && (
-                    <div className="px-3 py-2.5 rounded-md bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 text-sm text-amber-800 dark:text-amber-200 font-['Sora']">
+                    <div className="px-3 py-2 rounded-md bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 text-xs text-amber-800 dark:text-amber-200 font-['Sora']">
                       This ticket isn&apos;t resolved yet. You can fill in your ratings below;{" "}
                       <strong>Submit</strong> is enabled once support marks the ticket{" "}
                       <strong>Resolved</strong>.
@@ -389,17 +388,17 @@ const PlatformFeedbackPage = () => {
                       id="ticket-feedback-text"
                       value={form.feedback}
                       onChange={(e) => setField("feedback", e.target.value)}
-                      rows={5}
+                      rows={4}
                       placeholder="Add any extra comments…"
-                      className={`${inputClass} resize-y min-h-[8rem]`}
+                      className={`${inputClass} resize-y min-h-28`}
                     />
                   </div>
 
-                  <div className="flex flex-col sm:flex-row sm:justify-end gap-2 pt-2">
+                  <div className="flex flex-col sm:flex-row sm:justify-end gap-2 pt-1">
                     <button
                       type="submit"
                       disabled={submitting || !canSubmitRating}
-                      className="inline-flex items-center justify-center min-w-36 px-5 py-2.5 rounded-md text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed font-['Sora']"
+                      className="inline-flex items-center justify-center min-w-32 px-4 py-2 rounded-md text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed font-['Sora']"
                     >
                       {submitting ? "Submitting…" : "Submit rating"}
                     </button>
@@ -411,16 +410,16 @@ const PlatformFeedbackPage = () => {
           </div>
         </div>
 
-        <aside className="col-span-1 flex w-full max-w-2xl flex-col gap-3 justify-self-center self-start sm:max-w-sm lg:col-start-3 lg:mt-0 lg:w-52 lg:max-w-none lg:justify-self-end">
+        <aside className="col-span-1 flex w-full max-w-2xl flex-col gap-2 justify-self-center self-start sm:max-w-sm lg:w-48 lg:max-w-none">
           <Link
             to="/support-ticket"
-            className="w-full text-center px-4 py-2.5 rounded-md text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 transition-colors font-['Sora']"
+            className="w-full text-center px-3 py-2 rounded-md text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors font-['Sora']"
           >
             New ticket
           </Link>
           <Link
             to="/support-ticket/my-tickets"
-            className="w-full text-center px-4 py-2.5 rounded-md text-sm font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors font-['Sora']"
+            className="w-full text-center px-3 py-2 rounded-md text-xs font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors font-['Sora']"
           >
             My Tickets
           </Link>

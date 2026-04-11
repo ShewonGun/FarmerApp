@@ -248,15 +248,15 @@ const LoanRepayments = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 dark:bg-slate-900 md:p-5 lg:p-6">
-      <div className="mx-auto max-w-7xl space-y-4">
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 md:p-5">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+    <div className="min-h-screen bg-slate-50 p-3 dark:bg-slate-900 md:p-4 lg:p-5">
+      <div className="mx-auto max-w-7xl space-y-3">
+        <section className="rounded-md border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-800 md:p-4">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h1 className="font-['Sora'] text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-100 md:text-xl">
+              <h1 className="font-['Sora'] text-base font-semibold tracking-tight text-slate-900 dark:text-slate-100 md:text-lg">
                 Loan Repayments
               </h1>
-              <p className="mt-1 font-['Sora'] text-xs text-slate-500 dark:text-slate-400">
+              <p className="mt-1 font-['Sora'] text-[11px] text-slate-500 dark:text-slate-400">
                 Record repayments for approved loans, confirm current balances, and review the full repayment trail before the farmer leaves the desk.
               </p>
             </div>
@@ -265,30 +265,30 @@ const LoanRepayments = () => {
               type="button"
               onClick={() => fetchLoans()}
               disabled={loadingLoans}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 font-['Sora'] text-xs font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60 dark:bg-emerald-600 dark:hover:bg-emerald-500"
+              className="inline-flex items-center justify-center gap-1.5 rounded-md bg-slate-900 px-3.5 py-2 font-['Sora'] text-[11px] font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60 dark:bg-emerald-600 dark:hover:bg-emerald-500"
             >
-              <MdRefresh className={loadingLoans ? "animate-spin text-base" : "text-base"} />
+              <MdRefresh className={loadingLoans ? "animate-spin text-sm" : "text-sm"} />
               Refresh Loans
             </button>
           </div>
         </section>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 md:p-5">
+        <section className="rounded-md border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-800 md:p-4">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
             <label className="relative">
-              <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-lg text-slate-400" />
+              <MdSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 text-base text-slate-400" />
               <input
                 value={filters.search}
                 onChange={(event) => setFilters((current) => ({ ...current, search: event.target.value }))}
                 placeholder="Search farmer, category or plan"
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-10 py-2.5 font-['Sora'] text-sm text-slate-900 outline-none focus:border-emerald-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                className="w-full rounded-md border border-slate-200 bg-slate-50 px-9 py-2 font-['Sora'] text-xs text-slate-900 outline-none focus:border-emerald-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
               />
             </label>
 
             <select
               value={filters.category}
               onChange={(event) => setFilters((current) => ({ ...current, category: event.target.value }))}
-              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 font-['Sora'] text-sm text-slate-900 outline-none focus:border-emerald-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+              className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-['Sora'] text-xs text-slate-900 outline-none focus:border-emerald-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
             >
               <option value="all">All Categories</option>
               {categories.map((category) => (
@@ -301,7 +301,7 @@ const LoanRepayments = () => {
             <select
               value={filters.plan}
               onChange={(event) => setFilters((current) => ({ ...current, plan: event.target.value }))}
-              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 font-['Sora'] text-sm text-slate-900 outline-none focus:border-emerald-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+              className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-['Sora'] text-xs text-slate-900 outline-none focus:border-emerald-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
             >
               <option value="all">All Plans</option>
               {plans.map((plan) => (
@@ -314,7 +314,7 @@ const LoanRepayments = () => {
             <select
               value={filters.status}
               onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value }))}
-              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 font-['Sora'] text-sm text-slate-900 outline-none focus:border-emerald-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+              className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-['Sora'] text-xs text-slate-900 outline-none focus:border-emerald-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
             >
               <option value="active">Active Loans</option>
               <option value="completed">Completed Loans</option>
@@ -323,13 +323,13 @@ const LoanRepayments = () => {
           </div>
         </section>
 
-        <section className="grid grid-cols-1 gap-4 xl:grid-cols-[1.05fr_0.95fr]">
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
-            <div className="border-b border-slate-200 px-4 py-4 dark:border-slate-700">
-              <h2 className="font-['Sora'] text-sm font-semibold text-slate-900 dark:text-slate-100 md:text-base">
+        <section className="grid grid-cols-1 gap-3 xl:grid-cols-[1.05fr_0.95fr]">
+          <div className="overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
+            <div className="border-b border-slate-200 px-3 py-3 dark:border-slate-700">
+              <h2 className="font-['Sora'] text-xs font-semibold text-slate-900 dark:text-slate-100 md:text-sm">
                 Eligible Loan Accounts
               </h2>
-              <p className="mt-1 font-['Sora'] text-xs text-slate-500 dark:text-slate-400">
+              <p className="mt-1 font-['Sora'] text-[11px] text-slate-500 dark:text-slate-400">
                 {activeLoans.length} loans match your current filters.
               </p>
             </div>
@@ -351,30 +351,30 @@ const LoanRepayments = () => {
                     key={loan._id}
                     type="button"
                     onClick={() => setSelectedLoanId(loan._id)}
-                    className={`w-full px-4 py-4 text-left transition hover:bg-slate-50 dark:hover:bg-slate-900/30 ${
+                    className={`w-full px-3 py-3 text-left transition hover:bg-slate-50 dark:hover:bg-slate-900/30 ${
                       selectedLoanId === loan._id ? "bg-emerald-50/70 dark:bg-emerald-900/10" : ""
                     }`}
                   >
-                    <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="font-['Sora'] text-sm font-semibold text-slate-900 dark:text-slate-100">
+                        <p className="font-['Sora'] text-xs font-semibold text-slate-900 dark:text-slate-100 md:text-sm">
                           {loan.farmerName || "Unknown Farmer"}
                         </p>
-                        <p className="mt-1 font-['Sora'] text-xs text-slate-500 dark:text-slate-400">
+                        <p className="mt-1 font-['Sora'] text-[11px] text-slate-500 dark:text-slate-400">
                           {loan.categoryName} | {loan.planName}
                         </p>
-                        <p className="mt-2 font-['Sora'] text-xs text-slate-600 dark:text-slate-300">
+                        <p className="mt-1.5 font-['Sora'] text-[11px] text-slate-600 dark:text-slate-300">
                           Remaining {formatCurrency(loan.remainingBalance)}
                         </p>
                       </div>
                       <div className="text-right">
-                        <span className={`inline-flex rounded-full border px-3 py-1 font-['Sora'] text-xs font-semibold ${getStatusTone(loan.status)}`}>
+                        <span className={`inline-flex rounded-md border px-2.5 py-1 font-['Sora'] text-[11px] font-semibold ${getStatusTone(loan.status)}`}>
                           {loan.status}
                         </span>
-                        <p className="mt-2 font-['Sora'] text-sm font-semibold text-slate-900 dark:text-slate-100">
+                        <p className="mt-1.5 font-['Sora'] text-xs font-semibold text-slate-900 dark:text-slate-100 md:text-sm">
                           {formatCurrency(loan.installmentAmount || loan.monthlyInstallment)}
                         </p>
-                        <p className="mt-1 font-['Sora'] text-[11px] text-slate-500 dark:text-slate-400">
+                        <p className="mt-1 font-['Sora'] text-[10px] text-slate-500 dark:text-slate-400">
                           Due {formatDate(loan.nextDueDate)}
                         </p>
                       </div>
@@ -385,9 +385,9 @@ const LoanRepayments = () => {
             )}
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 md:p-5">
+          <div className="rounded-md border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-800 md:p-4">
             {!selectedLoan ? (
-              <div className="flex min-h-[320px] items-center justify-center text-center">
+              <div className="flex min-h-80 items-center justify-center text-center">
                 <div>
                   <p className="font-['Sora'] text-sm font-semibold text-slate-900 dark:text-slate-100">
                     Select a loan account
@@ -398,73 +398,73 @@ const LoanRepayments = () => {
                 </div>
               </div>
             ) : (
-              <div className="space-y-5">
-                <div className="flex items-start justify-between gap-3">
+              <div className="space-y-4">
+                <div className="flex items-start justify-between gap-2.5">
                   <div>
                     <p className="font-['Sora'] text-[11px] uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
                       Repayment Desk
                     </p>
-                    <h2 className="mt-2 font-['Sora'] text-xl font-semibold text-slate-900 dark:text-slate-100">
+                    <h2 className="mt-1.5 font-['Sora'] text-lg font-semibold text-slate-900 dark:text-slate-100">
                       {selectedLoan.farmerName}
                     </h2>
-                    <p className="mt-1 font-['Sora'] text-sm text-slate-500 dark:text-slate-400">
+                    <p className="mt-1 font-['Sora'] text-xs text-slate-500 dark:text-slate-400">
                       {selectedLoan.categoryName} | {selectedLoan.planName}
                     </p>
                   </div>
 
-                  <span className={`inline-flex rounded-full border px-3 py-1 font-['Sora'] text-xs font-semibold ${getStatusTone(selectedLoan.status)}`}>
+                  <span className={`inline-flex rounded-md border px-2.5 py-1 font-['Sora'] text-[11px] font-semibold ${getStatusTone(selectedLoan.status)}`}>
                     {selectedLoan.status}
                   </span>
                 </div>
 
                 <div className="grid gap-3 md:grid-cols-2">
-                  <div className="rounded-2xl bg-slate-50/90 p-4 dark:bg-slate-900/60">
+                  <div className="rounded-md bg-slate-50/90 p-3 dark:bg-slate-900/60">
                     <p className="font-['Sora'] text-[11px] uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Remaining Balance</p>
-                    <p className="mt-2 font-['Sora'] text-sm font-semibold text-slate-900 dark:text-slate-100">
+                    <p className="mt-1.5 font-['Sora'] text-xs font-semibold text-slate-900 dark:text-slate-100 md:text-sm">
                       {formatCurrency(selectedLoan.remainingBalance)}
                     </p>
                   </div>
-                  <div className="rounded-2xl bg-slate-50/90 p-4 dark:bg-slate-900/60">
+                  <div className="rounded-md bg-slate-50/90 p-3 dark:bg-slate-900/60">
                     <p className="font-['Sora'] text-[11px] uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Installment Amount</p>
-                    <p className="mt-2 font-['Sora'] text-sm font-semibold text-slate-900 dark:text-slate-100">
+                    <p className="mt-1.5 font-['Sora'] text-xs font-semibold text-slate-900 dark:text-slate-100 md:text-sm">
                       {formatCurrency(selectedLoan.installmentAmount || selectedLoan.monthlyInstallment)}
                     </p>
                   </div>
-                  <div className="rounded-2xl bg-slate-50/90 p-4 dark:bg-slate-900/60">
+                  <div className="rounded-md bg-slate-50/90 p-3 dark:bg-slate-900/60">
                     <p className="font-['Sora'] text-[11px] uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Total Paid</p>
-                    <p className="mt-2 font-['Sora'] text-sm font-semibold text-slate-900 dark:text-slate-100">
+                    <p className="mt-1.5 font-['Sora'] text-xs font-semibold text-slate-900 dark:text-slate-100 md:text-sm">
                       {formatCurrency(selectedLoan.totalPaid)}
                     </p>
                   </div>
-                  <div className="rounded-2xl bg-slate-50/90 p-4 dark:bg-slate-900/60">
+                  <div className="rounded-md bg-slate-50/90 p-3 dark:bg-slate-900/60">
                     <p className="font-['Sora'] text-[11px] uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Next Due Date</p>
-                    <p className="mt-2 font-['Sora'] text-sm font-semibold text-slate-900 dark:text-slate-100">
+                    <p className="mt-1.5 font-['Sora'] text-xs font-semibold text-slate-900 dark:text-slate-100 md:text-sm">
                       {formatDate(selectedLoan.nextDueDate)}
                     </p>
                   </div>
-                  <div className="rounded-2xl bg-slate-50/90 p-4 dark:bg-slate-900/60">
+                  <div className="rounded-md bg-slate-50/90 p-3 dark:bg-slate-900/60">
                     <p className="font-['Sora'] text-[11px] uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Overdue Month</p>
-                    <p className="mt-2 font-['Sora'] text-sm font-semibold text-slate-900 dark:text-slate-100">
+                    <p className="mt-1.5 font-['Sora'] text-xs font-semibold text-slate-900 dark:text-slate-100 md:text-sm">
                       {selectedLoan.arrearsAmount > 0 ? formatMonthLabel(selectedLoan.nextDueDate) : "No overdue month"}
                     </p>
                   </div>
                 </div>
 
                 {selectedLoan.arrearsAmount > 0 && (
-                  <div className="rounded-2xl border border-amber-200 bg-amber-50/80 px-4 py-3 dark:border-amber-900/40 dark:bg-amber-900/10">
+                  <div className="rounded-md border border-amber-200 bg-amber-50/80 px-3.5 py-2.5 dark:border-amber-900/40 dark:bg-amber-900/10">
                     <div className="flex items-center gap-2 text-amber-700 dark:text-amber-300">
                       <MdWarningAmber className="text-base" />
                       <p className="font-['Sora'] text-xs font-semibold uppercase tracking-[0.2em]">
                         Arrears Alert
                       </p>
                     </div>
-                    <p className="mt-2 font-['Sora'] text-sm text-slate-700 dark:text-slate-200">
+                    <p className="mt-1.5 font-['Sora'] text-xs text-slate-700 dark:text-slate-200">
                       Current overdue amount: {formatCurrency(selectedLoan.arrearsAmount)}
                     </p>
-                    <p className="mt-1 font-['Sora'] text-sm font-semibold text-rose-600 dark:text-rose-300">
+                    <p className="mt-1 font-['Sora'] text-xs font-semibold text-rose-600 dark:text-rose-300">
                       Overdue month: {formatMonthLabel(selectedLoan.nextDueDate)}
                     </p>
-                    <p className="mt-1 font-['Sora'] text-sm font-semibold text-rose-600 dark:text-rose-300">
+                    <p className="mt-1 font-['Sora'] text-xs font-semibold text-rose-600 dark:text-rose-300">
                       Penalty fee: {formatCurrency(calculatePenaltyFee(selectedLoan.arrearsAmount, selectedLoan.latePenalty))}
                     </p>
                     <p className="mt-1 font-['Sora'] text-xs text-slate-600 dark:text-slate-300">
@@ -474,7 +474,7 @@ const LoanRepayments = () => {
                 )}
 
                 {selectedLoan.status.toLowerCase() !== "active" ? (
-                  <div className="rounded-2xl border border-dashed border-slate-300 px-4 py-5 text-center dark:border-slate-700">
+                  <div className="rounded-md border border-dashed border-slate-300 px-3.5 py-4 text-center dark:border-slate-700">
                     <p className="font-['Sora'] text-sm font-semibold text-slate-900 dark:text-slate-100">
                       This loan is not open for repayments
                     </p>
@@ -483,17 +483,17 @@ const LoanRepayments = () => {
                     </p>
                   </div>
                 ) : (
-                  <form onSubmit={handleRepaymentSubmit} className="space-y-4 rounded-2xl border border-slate-200 p-4 dark:border-slate-700">
+                  <form onSubmit={handleRepaymentSubmit} className="space-y-3 rounded-md border border-slate-200 p-3.5 dark:border-slate-700">
                     <div className="flex items-center gap-2">
-                      <MdOutlinePayments className="text-lg text-emerald-600 dark:text-emerald-400" />
-                      <h3 className="font-['Sora'] text-sm font-semibold text-slate-900 dark:text-slate-100">
+                      <MdOutlinePayments className="text-base text-emerald-600 dark:text-emerald-400" />
+                      <h3 className="font-['Sora'] text-xs font-semibold text-slate-900 dark:text-slate-100 md:text-sm">
                         Record Repayment
                       </h3>
                     </div>
 
                     <div className="grid gap-3 md:grid-cols-2">
                       <label className="space-y-2">
-                        <span className="font-['Sora'] text-xs font-medium text-slate-600 dark:text-slate-300">
+                        <span className="font-['Sora'] text-[11px] font-medium text-slate-600 dark:text-slate-300">
                           Repayment Amount
                         </span>
                         <input
@@ -503,21 +503,21 @@ const LoanRepayments = () => {
                           value={repaymentForm.amount}
                           onChange={(event) => setRepaymentForm((current) => ({ ...current, amount: event.target.value }))}
                           placeholder="Enter collected amount"
-                          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 font-['Sora'] text-sm text-slate-900 outline-none focus:border-emerald-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                          className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 font-['Sora'] text-xs text-slate-900 outline-none focus:border-emerald-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                         />
                       </label>
 
                       <label className="space-y-2">
-                        <span className="font-['Sora'] text-xs font-medium text-slate-600 dark:text-slate-300">
+                        <span className="font-['Sora'] text-[11px] font-medium text-slate-600 dark:text-slate-300">
                           Paid Date
                         </span>
                         <div className="relative">
-                          <MdCalendarToday className="absolute left-3 top-1/2 -translate-y-1/2 text-base text-slate-400" />
+                          <MdCalendarToday className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400" />
                           <input
                             type="date"
                             value={repaymentForm.paidDate}
                             onChange={(event) => setRepaymentForm((current) => ({ ...current, paidDate: event.target.value }))}
-                            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-10 py-2.5 font-['Sora'] text-sm text-slate-900 outline-none focus:border-emerald-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                            className="w-full rounded-md border border-slate-200 bg-slate-50 px-9 py-2 font-['Sora'] text-xs text-slate-900 outline-none focus:border-emerald-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                           />
                         </div>
                       </label>
@@ -526,9 +526,9 @@ const LoanRepayments = () => {
                     <button
                       type="submit"
                       disabled={savingRepayment}
-                      className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2.5 font-['Sora'] text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-60"
+                      className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-3.5 py-2 font-['Sora'] text-xs font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-60"
                     >
-                      <MdOutlinePayments className="text-base" />
+                      <MdOutlinePayments className="text-sm" />
                       {savingRepayment ? "Saving Repayment..." : "Update Loan Repayment"}
                     </button>
                   </form>
@@ -536,14 +536,14 @@ const LoanRepayments = () => {
 
                 <div>
                   <div className="flex items-center justify-between gap-3">
-                    <h3 className="font-['Sora'] text-sm font-semibold text-slate-900 dark:text-slate-100">
+                    <h3 className="font-['Sora'] text-xs font-semibold text-slate-900 dark:text-slate-100 md:text-sm">
                       Repayment History
                     </h3>
                     <button
                       type="button"
                       onClick={() => fetchRepayments(selectedLoan._id)}
                       disabled={loadingRepayments}
-                      className="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-3 py-2 font-['Sora'] text-xs font-semibold text-slate-700 transition hover:border-emerald-300 hover:text-emerald-600 disabled:opacity-60 dark:border-slate-700 dark:text-slate-200 dark:hover:border-emerald-700 dark:hover:text-emerald-300"
+                      className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 px-2.5 py-1.5 font-['Sora'] text-[11px] font-semibold text-slate-700 transition hover:border-emerald-300 hover:text-emerald-600 disabled:opacity-60 dark:border-slate-700 dark:text-slate-200 dark:hover:border-emerald-700 dark:hover:text-emerald-300"
                     >
                       <MdRefresh className={loadingRepayments ? "animate-spin text-sm" : "text-sm"} />
                       Refresh History
@@ -555,17 +555,17 @@ const LoanRepayments = () => {
                       <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent" />
                     </div>
                   ) : repayments.length === 0 ? (
-                    <div className="mt-4 rounded-2xl border border-dashed border-slate-300 px-4 py-6 text-center dark:border-slate-700">
+                    <div className="mt-4 rounded-md border border-dashed border-slate-300 px-4 py-6 text-center dark:border-slate-700">
                       <p className="font-['Sora'] text-xs text-slate-500 dark:text-slate-400">
                         No repayments recorded yet for this loan.
                       </p>
                     </div>
                   ) : (
-                    <div className="mt-4 space-y-3">
+                    <div className="mt-3 space-y-2.5">
                       {repayments.map((repayment) => (
                         <div
                           key={repayment._id}
-                          className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 dark:border-slate-700 dark:bg-slate-900/50"
+                          className="rounded-md border border-slate-200 bg-slate-50/80 p-3 dark:border-slate-700 dark:bg-slate-900/50"
                         >
                           <div className="flex items-start justify-between gap-3">
                             <div>
@@ -576,7 +576,7 @@ const LoanRepayments = () => {
                                 Paid on {formatDate(repayment.paidDate)}
                               </p>
                             </div>
-                            <span className={`inline-flex rounded-full border px-3 py-1 font-['Sora'] text-xs font-semibold ${
+                            <span className={`inline-flex rounded-md border px-3 py-1 font-['Sora'] text-xs font-semibold ${
                               repayment.wasOverdue
                                 ? "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/40 dark:bg-amber-900/20 dark:text-amber-300"
                                 : "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-900/20 dark:text-emerald-300"

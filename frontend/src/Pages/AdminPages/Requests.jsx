@@ -1,18 +1,79 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import {
+  MdAccessTime,
+  MdAttachMoney,
+  MdCalendarMonth,
   MdCheckCircle,
-  MdClose,
   MdFilterList,
-  MdOutlineCalendarToday,
-  MdOutlinePayments,
+  MdInfoOutline,
+  MdPayments,
   MdRefresh,
   MdSearch,
+  MdTrendingUp,
   MdWarningAmber,
 } from "react-icons/md";
-import { showError, showSuccess } from "../../utils/toast";
+import { showError } from "../../utils/toast";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const LOAN_ENDPOINT_CANDIDATES = ["/loans", "/admin/loans", "/loans/admin"];
+
+const demoLoans = [
+  {
+    _id: "demo-loan-1",
+    farmerName: "Nimal Perera",
+    farmerEmail: "nimal@example.com",
+    categoryName: "Crop Loan",
+    planName: "6 Month Standard",
+    amount: 20000,
+    totalPayable: 21200,
+    installmentAmount: 3533.33,
+    totalPaid: 7066.66,
+    remainingBalance: 14133.34,
+    arrearsAmount: 0,
+    paymentFrequency: "monthly",
+    status: "Active",
+    nextDueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+    approvedAt: new Date(Date.now() - 28 * 24 * 60 * 60 * 1000).toISOString(),
+    createdAt: new Date(Date.now() - 31 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    _id: "demo-loan-2",
+    farmerName: "Sanduni Fernando",
+    farmerEmail: "sanduni@example.com",
+    categoryName: "Equipment Loan",
+    planName: "12 Month Flexible",
+    amount: 60000,
+    totalPayable: 64800,
+    installmentAmount: 5400,
+    totalPaid: 10800,
+    remainingBalance: 54000,
+    arrearsAmount: 3200,
+    paymentFrequency: "monthly",
+    status: "Active",
+    nextDueDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    approvedAt: new Date(Date.now() - 75 * 24 * 60 * 60 * 1000).toISOString(),
+    createdAt: new Date(Date.now() - 80 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    _id: "demo-loan-3",
+    farmerName: "Ashan Kumara",
+    farmerEmail: "ashan@example.com",
+    categoryName: "Livestock Loan",
+    planName: "Weekly Micro Plan",
+    amount: 12000,
+    totalPayable: 12600,
+    installmentAmount: 1050,
+    totalPaid: 12600,
+    remainingBalance: 0,
+    arrearsAmount: 0,
+    paymentFrequency: "weekly",
+    status: "Completed",
+    nextDueDate: null,
+    approvedAt: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000).toISOString(),
+    createdAt: new Date(Date.now() - 130 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+];
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem("token");
@@ -20,6 +81,13 @@ const getAuthHeaders = () => {
     "Content-Type": "application/json",
     ...(token && { Authorization: `Bearer ${token}` }),
   };
+};
+
+const parseResponseList = (data) => {
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.loans)) return data.loans;
+  if (Array.isArray(data?.data)) return data.data;
+  return [];
 };
 
 const formatCurrency = (value) =>
@@ -41,46 +109,143 @@ const formatDate = (dateValue) => {
   });
 };
 
-const getStatusTone = (status = "") => {
-  const normalized = status.toLowerCase();
+const daysUntil = (dateValue) => {
+  if (!dateValue) return null;
+  const date = new Date(dateValue);
+  if (Number.isNaN(date.getTime())) return null;
 
-  if (normalized === "active") {
-    return "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-900/20 dark:text-sky-300 dark:border-sky-900/40";
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  date.setHours(0, 0, 0, 0);
+
+  return Math.round((date.getTime() - today.getTime()) / (24 * 60 * 60 * 1000));
+};
+
+const deriveLoanBucket = (loan) => {
+  const status = (loan.status || "").toLowerCase();
+  const dueInDays = daysUntil(loan.nextDueDate);
+  const arrearsAmount = Number(loan.arrearsAmount || 0);
+
+  if (status === "completed") return "completed";
+  if (status === "active" && (arrearsAmount > 0 || (dueInDays !== null && dueInDays < 0))) return "overdue";
+  if (status === "active" && dueInDays !== null && dueInDays >= 0 && dueInDays <= 7) return "dueSoon";
+  return "active";
+};
+
+const getStatusTone = (bucket) => {
+  switch (bucket) {
+    case "overdue":
+      return "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-900/40";
+    case "dueSoon":
+      return "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-900/40";
+    case "completed":
+      return "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-900/40";
+    default:
+      return "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700";
   }
+};
 
-  if (normalized === "completed") {
-    return "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-900/40";
-  }
+const normalizeLoan = (loan) => {
+  const installmentAmount = Number(loan.installmentAmount || loan.monthlyInstallment || 0);
+  const categoryName =
+    loan.categoryName ||
+    loan.category?.name ||
+    loan.categoryLabel ||
+    (typeof loan.category === "string" ? loan.category : "Uncategorized");
+  const planName =
+    loan.planName ||
+    loan.plan?.planName ||
+    loan.planLabel ||
+    (typeof loan.plan === "string" ? loan.plan : "No plan");
+  const farmerName =
+    loan.farmerName ||
+    loan.farmerId?.name ||
+    loan.farmer?.name ||
+    loan.borrowerName ||
+    "Unknown farmer";
+  const farmerEmail =
+    loan.farmerEmail ||
+    loan.farmerId?.email ||
+    loan.farmer?.email ||
+    "";
 
-  if (normalized === "rejected") {
-    return "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/20 dark:text-rose-300 dark:border-rose-900/40";
-  }
-
-  return "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-900/40";
+  return {
+    ...loan,
+    installmentAmount,
+    categoryName,
+    planName,
+    farmerName,
+    farmerEmail,
+    arrearsAmount: Number(loan.arrearsAmount || 0),
+    remainingBalance: Number(loan.remainingBalance || 0),
+    totalPayable: Number(loan.totalPayable || 0),
+    totalPaid: Number(loan.totalPaid || 0),
+    statusBucket: deriveLoanBucket({ ...loan, installmentAmount }),
+  };
 };
 
 const Requests = () => {
   const [loans, setLoans] = useState([]);
-  const [repaymentsByLoan, setRepaymentsByLoan] = useState({});
+  const [categories, setCategories] = useState([]);
+  const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeLoanId, setActiveLoanId] = useState("");
+  const [usingDemoData, setUsingDemoData] = useState(false);
   const [filters, setFilters] = useState({
     search: "",
     category: "all",
     plan: "all",
     status: "all",
+    arrears: "all",
+    date: "all",
   });
 
   const fetchLoans = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_BASE_URL}/loans/admin`, {
-        headers: getAuthHeaders(),
-      });
-      setLoans(response.data.loans || []);
+      setUsingDemoData(false);
+
+      const [categoriesRes, plansRes] = await Promise.allSettled([
+        axios.get(`${API_BASE_URL}/loan-categories`, { headers: getAuthHeaders() }),
+        axios.get(`${API_BASE_URL}/plans`, { headers: getAuthHeaders() }),
+      ]);
+
+      if (categoriesRes.status === "fulfilled") {
+        setCategories(categoriesRes.value.data || []);
+      }
+
+      if (plansRes.status === "fulfilled") {
+        setPlans(plansRes.value.data?.plans || []);
+      }
+
+      let loanList = [];
+      let fetched = false;
+
+      for (const endpoint of LOAN_ENDPOINT_CANDIDATES) {
+        try {
+          const response = await axios.get(`${API_BASE_URL}${endpoint}`, {
+            headers: getAuthHeaders(),
+          });
+          loanList = parseResponseList(response.data);
+          fetched = true;
+          break;
+        } catch (error) {
+          if (error?.response?.status && error.response.status !== 404) {
+            throw error;
+          }
+        }
+      }
+
+      if (!fetched) {
+        setUsingDemoData(true);
+        loanList = demoLoans;
+      }
+
+      setLoans(loanList.map(normalizeLoan));
     } catch (error) {
-      console.error("Error loading admin loans:", error);
-      showError("Failed to load loan applications");
+      console.error("Error fetching loan management data:", error);
+      setUsingDemoData(true);
+      setLoans(demoLoans.map(normalizeLoan));
+      showError("Loan API is not fully available yet. Showing preview data.");
     } finally {
       setLoading(false);
     }
@@ -90,71 +255,97 @@ const Requests = () => {
     fetchLoans();
   }, []);
 
-  const fetchRepayments = async (loanId) => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/loans/repay/${loanId}`, {
-        headers: getAuthHeaders(),
-      });
-      setRepaymentsByLoan((current) => ({
-        ...current,
-        [loanId]: response.data || [],
-      }));
-    } catch (error) {
-      console.error("Error loading repayments:", error);
-      showError("Failed to load repayments for this loan");
-    }
-  };
-
-  const handleApprove = async (loanId) => {
-    try {
-      await axios.put(`${API_BASE_URL}/loans/approve/${loanId}`, {}, {
-        headers: getAuthHeaders(),
-      });
-      showSuccess("Loan approved successfully");
-      await fetchLoans();
-      setActiveLoanId(loanId);
-      await fetchRepayments(loanId);
-    } catch (error) {
-      console.error("Error approving loan:", error);
-      showError(error?.response?.data?.message || "Failed to approve loan");
-    }
-  };
-
-  const handleReject = async (loanId) => {
-    try {
-      await axios.put(`${API_BASE_URL}/loans/reject/${loanId}`, {}, {
-        headers: getAuthHeaders(),
-      });
-      showSuccess("Loan rejected successfully");
-      await fetchLoans();
-    } catch (error) {
-      console.error("Error rejecting loan:", error);
-      showError(error?.response?.data?.message || "Failed to reject loan");
-    }
-  };
-
   const filteredLoans = useMemo(() => {
     return loans.filter((loan) => {
       const normalizedSearch = filters.search.trim().toLowerCase();
+      const dueDate = loan.nextDueDate ? new Date(loan.nextDueDate) : null;
+      const now = new Date();
+      const dateMatch =
+        filters.date === "all" ||
+        (filters.date === "today" && dueDate && dueDate.toDateString() === now.toDateString()) ||
+        (filters.date === "thisWeek" && dueDate && daysUntil(dueDate) !== null && daysUntil(dueDate) <= 7 && daysUntil(dueDate) >= 0) ||
+        (filters.date === "past" && dueDate && daysUntil(dueDate) !== null && daysUntil(dueDate) < 0);
+
       const searchMatch =
         !normalizedSearch ||
-        (loan.farmerName || "").toLowerCase().includes(normalizedSearch) ||
-        (loan.farmerEmail || "").toLowerCase().includes(normalizedSearch) ||
-        (loan.categoryName || "").toLowerCase().includes(normalizedSearch) ||
-        (loan.planName || "").toLowerCase().includes(normalizedSearch);
+        loan.farmerName.toLowerCase().includes(normalizedSearch) ||
+        loan.farmerEmail.toLowerCase().includes(normalizedSearch) ||
+        loan.categoryName.toLowerCase().includes(normalizedSearch) ||
+        loan.planName.toLowerCase().includes(normalizedSearch);
 
       const categoryMatch = filters.category === "all" || loan.categoryName === filters.category;
       const planMatch = filters.plan === "all" || loan.planName === filters.plan;
-      const statusMatch = filters.status === "all" || (loan.status || "").toLowerCase() === filters.status;
+      const statusMatch = filters.status === "all" || loan.statusBucket === filters.status;
+      const arrearsMatch =
+        filters.arrears === "all" ||
+        (filters.arrears === "withArrears" && loan.arrearsAmount > 0) ||
+        (filters.arrears === "clear" && loan.arrearsAmount <= 0);
 
-      return searchMatch && categoryMatch && planMatch && statusMatch;
+      return searchMatch && categoryMatch && planMatch && statusMatch && arrearsMatch && dateMatch;
     });
   }, [filters, loans]);
 
-  const categories = [...new Set(loans.map((loan) => loan.categoryName).filter(Boolean))];
-  const plans = [...new Set(loans.map((loan) => loan.planName).filter(Boolean))];
-  const selectedLoan = loans.find((loan) => loan._id === activeLoanId) || null;
-  const selectedRepayments = activeLoanId ? repaymentsByLoan[activeLoanId] || [] : [];
+  const groupedCounts = useMemo(() => {
+    const counts = {
+      active: 0,
+      dueSoon: 0,
+      overdue: 0,
+      completed: 0,
+    };
+
+    loans.forEach((loan) => {
+      counts[loan.statusBucket] += 1;
+    });
+
+    return counts;
+  }, [loans]);
+
+  const totalArrears = useMemo(
+    () => loans.reduce((sum, loan) => sum + Number(loan.arrearsAmount || 0), 0),
+    [loans]
+  );
+
+  const filterOptions = {
+    categories:
+      categories.length > 0
+        ? categories.map((category) => category.name)
+        : [...new Set(loans.map((loan) => loan.categoryName))],
+    plans:
+      plans.length > 0
+        ? plans.map((plan) => plan.planName)
+        : [...new Set(loans.map((loan) => loan.planName))],
+  };
+
+  const summaryCards = [
+    {
+      label: "All Active Loans",
+      value: groupedCounts.active + groupedCounts.dueSoon + groupedCounts.overdue,
+      helper: `${formatCurrency(totalArrears)} total arrears tracked`,
+      icon: MdAttachMoney,
+      tone: "from-emerald-500 to-teal-500",
+    },
+    {
+      label: "Due Soon",
+      value: groupedCounts.dueSoon,
+      helper: "Installments due within 7 days",
+      icon: MdAccessTime,
+      tone: "from-amber-500 to-orange-500",
+    },
+    {
+      label: "Overdue",
+      value: groupedCounts.overdue,
+      helper: "Arrears or missed due dates",
+      icon: MdWarningAmber,
+      tone: "from-rose-500 to-red-500",
+    },
+    {
+      label: "Completed",
+      value: groupedCounts.completed,
+      helper: "Fully settled loans",
+      icon: MdCheckCircle,
+      tone: "from-sky-500 to-cyan-500",
+    },
+  ];
 
   return (
     <div className="p-4 md:p-5 lg:p-6 bg-slate-50 dark:bg-slate-900 min-h-screen">
@@ -163,10 +354,10 @@ const Requests = () => {
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <h1 className="text-lg md:text-xl font-semibold text-slate-900 dark:text-slate-100 font-['Sora'] tracking-tight">
-                Loan Applications Review
+                Active Loans Management
               </h1>
               <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
-                Review all applied loans, search by category and plan, approve or reject applications, and inspect repayments once a loan becomes active.
+                View all active loans and details, track due soon and overdue accounts, and filter by category, plan, status, arrears, and date.
               </p>
             </div>
 
@@ -176,21 +367,62 @@ const Requests = () => {
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-emerald-600 dark:hover:bg-emerald-500 px-4 py-2.5 text-xs font-semibold text-white transition-colors disabled:opacity-60 font-['Sora']"
             >
               <MdRefresh className={loading ? "animate-spin text-base" : "text-base"} />
-              Refresh Applications
+              Refresh Loans
             </button>
           </div>
+
+          {usingDemoData && (
+            <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-900/40 dark:bg-amber-900/10 px-4 py-3">
+              <div className="flex items-start gap-3">
+                <MdInfoOutline className="mt-0.5 text-lg text-amber-600 dark:text-amber-300 shrink-0" />
+                <p className="text-xs leading-6 text-amber-800 dark:text-amber-200 font-['Sora']">
+                  Preview mode is active because the backend does not yet expose a full admin loan-list endpoint. The page layout, filters, and statuses are ready, and it will switch to real data as soon as that endpoint exists.
+                </p>
+              </div>
+            </div>
+          )}
+        </section>
+
+        <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          {summaryCards.map((card) => {
+            const Icon = card.icon;
+
+            return (
+              <div
+                key={card.label}
+                className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-4"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400 font-['Sora']">
+                      {card.label}
+                    </p>
+                    <p className="mt-3 text-2xl font-bold text-slate-900 dark:text-slate-100 font-['Sora']">
+                      {loading ? "..." : card.value}
+                    </p>
+                    <p className="mt-2 text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
+                      {card.helper}
+                    </p>
+                  </div>
+                  <div className={`rounded-2xl bg-linear-to-r ${card.tone} p-3 text-white shadow-sm`}>
+                    <Icon className="text-xl" />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </section>
 
         <section className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-4 md:p-5">
           <div className="flex items-center gap-2">
             <MdFilterList className="text-lg text-emerald-600 dark:text-emerald-400" />
             <h2 className="text-sm md:text-base font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
-              Search & Filters
+              Filters
             </h2>
           </div>
 
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
-            <label className="relative">
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-3">
+            <label className="relative xl:col-span-2">
               <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg" />
               <input
                 value={filters.search}
@@ -206,7 +438,7 @@ const Requests = () => {
               className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-emerald-400 font-['Sora']"
             >
               <option value="all">All Categories</option>
-              {categories.map((category) => (
+              {filterOptions.categories.map((category) => (
                 <option key={category} value={category}>
                   {category}
                 </option>
@@ -219,7 +451,7 @@ const Requests = () => {
               className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-emerald-400 font-['Sora']"
             >
               <option value="all">All Plans</option>
-              {plans.map((plan) => (
+              {filterOptions.plans.map((plan) => (
                 <option key={plan} value={plan}>
                   {plan}
                 </option>
@@ -232,23 +464,46 @@ const Requests = () => {
               className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-emerald-400 font-['Sora']"
             >
               <option value="all">All Statuses</option>
-              <option value="pending">Pending</option>
               <option value="active">Active</option>
-              <option value="rejected">Rejected</option>
+              <option value="dueSoon">Due Soon</option>
+              <option value="overdue">Overdue</option>
               <option value="completed">Completed</option>
             </select>
+
+            <div className="grid grid-cols-2 gap-3 xl:col-span-2">
+              <select
+                value={filters.arrears}
+                onChange={(event) => setFilters((current) => ({ ...current, arrears: event.target.value }))}
+                className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-emerald-400 font-['Sora']"
+              >
+                <option value="all">All Arrears</option>
+                <option value="withArrears">With Arrears</option>
+                <option value="clear">Arrears Cleared</option>
+              </select>
+
+              <select
+                value={filters.date}
+                onChange={(event) => setFilters((current) => ({ ...current, date: event.target.value }))}
+                className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-emerald-400 font-['Sora']"
+              >
+                <option value="all">All Dates</option>
+                <option value="today">Due Today</option>
+                <option value="thisWeek">This Week</option>
+                <option value="past">Past Due</option>
+              </select>
+            </div>
           </div>
         </section>
 
-        <section className="grid grid-cols-1 xl:grid-cols-[1.1fr_0.9fr] gap-4">
+        <section className="grid grid-cols-1 xl:grid-cols-[1.2fr_0.8fr] gap-4">
           <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm overflow-hidden">
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 px-4 py-4">
               <div>
                 <h2 className="text-sm md:text-base font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
-                  Applied Loans
+                  Loan Portfolio
                 </h2>
                 <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
-                  {filteredLoans.length} applications match your current filters.
+                  {filteredLoans.length} loan records match the current filters.
                 </p>
               </div>
             </div>
@@ -259,222 +514,167 @@ const Requests = () => {
               </div>
             ) : filteredLoans.length === 0 ? (
               <div className="px-4 py-16 text-center">
-                <p className="text-sm text-slate-600 dark:text-slate-300 font-['Sora']">
-                  No loan applications found.
+                <MdInfoOutline className="mx-auto text-4xl text-slate-300 dark:text-slate-600" />
+                <p className="mt-4 text-sm text-slate-600 dark:text-slate-300 font-['Sora']">
+                  No loans match the current filters.
                 </p>
               </div>
             ) : (
-              <div className="divide-y divide-slate-200 dark:divide-slate-700">
-                {filteredLoans.map((loan) => (
-                  <button
-                    key={loan._id}
-                    type="button"
-                    onClick={async () => {
-                      setActiveLoanId(loan._id);
-                      if ((loan.status || "").toLowerCase() === "active" || (loan.status || "").toLowerCase() === "completed") {
-                        await fetchRepayments(loan._id);
-                      }
-                    }}
-                    className={`w-full text-left px-4 py-4 transition hover:bg-slate-50 dark:hover:bg-slate-900/30 ${
-                      activeLoanId === loan._id ? "bg-emerald-50/70 dark:bg-emerald-900/10" : ""
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="min-w-0">
-                        <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
-                          {loan.farmerName || "Unknown Farmer"}
-                        </p>
-                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
-                          {loan.farmerEmail || "No email"}
-                        </p>
-                        <p className="mt-2 text-xs text-slate-600 dark:text-slate-300 font-['Sora']">
-                          {loan.categoryName} | {loan.planName}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold font-['Sora'] ${getStatusTone(loan.status)}`}>
-                          {loan.status}
-                        </span>
-                        <p className="mt-2 text-sm font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
-                          {formatCurrency(loan.amount)}
-                        </p>
-                      </div>
-                    </div>
-                  </button>
-                ))}
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+                  <thead className="bg-slate-50 dark:bg-slate-900/60">
+                    <tr>
+                      {["Farmer", "Category / Plan", "Status", "Due Date", "Arrears", "Balance"].map((label) => (
+                        <th
+                          key={label}
+                          className="px-4 py-3 text-left text-[11px] uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400 font-['Sora']"
+                        >
+                          {label}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                    {filteredLoans.map((loan) => (
+                      <tr key={loan._id} className="hover:bg-slate-50/70 dark:hover:bg-slate-900/30">
+                        <td className="px-4 py-4 align-top">
+                          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
+                            {loan.farmerName}
+                          </p>
+                          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
+                            {loan.farmerEmail || "No email"}
+                          </p>
+                        </td>
+                        <td className="px-4 py-4 align-top">
+                          <p className="text-sm text-slate-900 dark:text-slate-100 font-['Sora']">{loan.categoryName}</p>
+                          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 font-['Sora']">{loan.planName}</p>
+                        </td>
+                        <td className="px-4 py-4 align-top">
+                          <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold font-['Sora'] ${getStatusTone(loan.statusBucket)}`}>
+                            {loan.statusBucket === "dueSoon"
+                              ? "Due Soon"
+                              : loan.statusBucket.charAt(0).toUpperCase() + loan.statusBucket.slice(1)}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4 align-top">
+                          <p className="text-sm text-slate-900 dark:text-slate-100 font-['Sora']">{formatDate(loan.nextDueDate)}</p>
+                          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
+                            {loan.nextDueDate ? `${daysUntil(loan.nextDueDate)} days` : "Closed"}
+                          </p>
+                        </td>
+                        <td className="px-4 py-4 align-top">
+                          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
+                            {formatCurrency(loan.arrearsAmount)}
+                          </p>
+                        </td>
+                        <td className="px-4 py-4 align-top">
+                          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
+                            {formatCurrency(loan.remainingBalance)}
+                          </p>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>
 
-          <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-4 md:p-5">
-            {!selectedLoan ? (
-              <div className="flex min-h-[280px] items-center justify-center text-center">
-                <div>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
-                    Select a loan application
-                  </p>
-                  <p className="mt-2 text-xs leading-6 text-slate-500 dark:text-slate-400 font-['Sora']">
-                    Choose any application on the left to review its details, then approve or reject it.
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div>
+          <div className="space-y-4">
+            {filteredLoans.slice(0, 4).map((loan) => (
+              <div
+                key={loan._id}
+                className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-4"
+              >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-[11px] uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400 font-['Sora']">
-                      Loan Review
+                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
+                      {loan.farmerName}
                     </p>
-                    <h2 className="mt-2 text-xl font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
-                      {selectedLoan.farmerName}
-                    </h2>
-                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 font-['Sora']">
-                      {selectedLoan.categoryName} | {selectedLoan.planName}
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
+                      {loan.categoryName} • {loan.planName}
                     </p>
                   </div>
-                  <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold font-['Sora'] ${getStatusTone(selectedLoan.status)}`}>
-                    {selectedLoan.status}
+                  <span className={`inline-flex rounded-full border px-3 py-1 text-[11px] font-semibold font-['Sora'] ${getStatusTone(loan.statusBucket)}`}>
+                    {loan.statusBucket === "dueSoon"
+                      ? "Due Soon"
+                      : loan.statusBucket.charAt(0).toUpperCase() + loan.statusBucket.slice(1)}
                   </span>
                 </div>
 
-                <div className="mt-5 grid gap-3 md:grid-cols-2">
-                  <div className="rounded-2xl bg-slate-50/90 p-4 dark:bg-slate-900/60">
-                    <p className="text-[11px] uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400 font-['Sora']">Amount</p>
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  <div className="rounded-xl bg-slate-50 dark:bg-slate-900/60 p-3">
+                    <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                      <MdPayments className="text-base" />
+                      <span className="text-[11px] uppercase tracking-[0.2em] font-['Sora']">Installment</span>
+                    </div>
                     <p className="mt-2 text-sm font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
-                      {formatCurrency(selectedLoan.amount)}
+                      {formatCurrency(loan.installmentAmount)}
                     </p>
                   </div>
-                  <div className="rounded-2xl bg-slate-50/90 p-4 dark:bg-slate-900/60">
-                    <p className="text-[11px] uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400 font-['Sora']">Submitted</p>
+
+                  <div className="rounded-xl bg-slate-50 dark:bg-slate-900/60 p-3">
+                    <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                      <MdCalendarMonth className="text-base" />
+                      <span className="text-[11px] uppercase tracking-[0.2em] font-['Sora']">Next Due</span>
+                    </div>
                     <p className="mt-2 text-sm font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
-                      {formatDate(selectedLoan.createdAt)}
+                      {formatDate(loan.nextDueDate)}
                     </p>
                   </div>
-                  <div className="rounded-2xl bg-slate-50/90 p-4 dark:bg-slate-900/60">
-                    <p className="text-[11px] uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400 font-['Sora']">Total Payable</p>
+
+                  <div className="rounded-xl bg-slate-50 dark:bg-slate-900/60 p-3">
+                    <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                      <MdTrendingUp className="text-base" />
+                      <span className="text-[11px] uppercase tracking-[0.2em] font-['Sora']">Paid</span>
+                    </div>
                     <p className="mt-2 text-sm font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
-                      {formatCurrency(selectedLoan.totalPayable)}
+                      {formatCurrency(loan.totalPaid)}
                     </p>
                   </div>
-                  <div className="rounded-2xl bg-slate-50/90 p-4 dark:bg-slate-900/60">
-                    <p className="text-[11px] uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400 font-['Sora']">Installment</p>
+
+                  <div className="rounded-xl bg-slate-50 dark:bg-slate-900/60 p-3">
+                    <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                      <MdAttachMoney className="text-base" />
+                      <span className="text-[11px] uppercase tracking-[0.2em] font-['Sora']">Balance</span>
+                    </div>
                     <p className="mt-2 text-sm font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
-                      {formatCurrency(selectedLoan.installmentAmount || selectedLoan.monthlyInstallment)}
+                      {formatCurrency(loan.remainingBalance)}
                     </p>
                   </div>
                 </div>
 
-                <div className="mt-5 flex flex-wrap gap-3">
-                  {(selectedLoan.status || "").toLowerCase() === "pending" && (
-                    <>
-                      <button
-                        type="button"
-                        onClick={() => handleApprove(selectedLoan._id)}
-                        className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-500 font-['Sora']"
-                      >
-                        <MdCheckCircle className="text-base" />
-                        Approve Loan
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleReject(selectedLoan._id)}
-                        className="inline-flex items-center gap-2 rounded-2xl bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-rose-500 font-['Sora']"
-                      >
-                        <MdClose className="text-base" />
-                        Reject Loan
-                      </button>
-                    </>
-                  )}
-
-                  {((selectedLoan.status || "").toLowerCase() === "active" || (selectedLoan.status || "").toLowerCase() === "completed") && (
-                    <button
-                      type="button"
-                      onClick={() => fetchRepayments(selectedLoan._id)}
-                      className="inline-flex items-center gap-2 rounded-2xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-emerald-300 hover:text-emerald-600 font-['Sora'] dark:border-slate-700 dark:text-slate-200 dark:hover:border-emerald-700 dark:hover:text-emerald-300"
-                    >
-                      <MdOutlinePayments className="text-base" />
-                      Load Repayments
-                    </button>
-                  )}
+                <div className="mt-4 rounded-xl border border-slate-200 dark:border-slate-700 px-3 py-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-slate-500 dark:text-slate-400 font-['Sora']">Arrears</span>
+                    <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
+                      {formatCurrency(loan.arrearsAmount)}
+                    </span>
+                  </div>
+                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
+                    <div
+                      className={`h-full rounded-full ${
+                        loan.arrearsAmount > 0 ? "bg-red-500" : "bg-emerald-500"
+                      }`}
+                      style={{
+                        width: `${Math.min(
+                          100,
+                          loan.totalPayable > 0
+                            ? (loan.totalPaid / loan.totalPayable) * 100
+                            : 0
+                        )}%`,
+                      }}
+                    />
+                  </div>
                 </div>
+              </div>
+            ))}
 
-                {((selectedLoan.status || "").toLowerCase() === "active" || (selectedLoan.status || "").toLowerCase() === "completed") && (
-                  <div className="mt-6">
-                    <div className="flex items-center gap-2">
-                      <MdOutlinePayments className="text-lg text-emerald-600 dark:text-emerald-400" />
-                      <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
-                        Repayments
-                      </h3>
-                    </div>
-
-                    {selectedRepayments.length === 0 ? (
-                      <div className="mt-4 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-6 text-center">
-                        <p className="text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
-                          No repayments recorded yet for this loan.
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="mt-4 space-y-3">
-                        {selectedRepayments.map((repayment) => (
-                          <div
-                            key={repayment._id}
-                            className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-900/50 p-4"
-                          >
-                            <div className="flex items-start justify-between gap-3">
-                              <div>
-                                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
-                                  {formatCurrency(repayment.amount)}
-                                </p>
-                                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
-                                  Paid on {formatDate(repayment.paidDate)}
-                                </p>
-                              </div>
-                              <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold font-['Sora'] ${
-                                repayment.wasOverdue
-                                  ? "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-900/40"
-                                  : "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-900/40"
-                              }`}>
-                                {repayment.wasOverdue ? "Late" : "On Time"}
-                              </span>
-                            </div>
-
-                            <div className="mt-3 grid gap-3 md:grid-cols-2">
-                              <div className="text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
-                                <div className="flex items-center gap-2">
-                                  <MdOutlineCalendarToday className="text-sm" />
-                                  Scheduled Due: {formatDate(repayment.scheduledDueDate)}
-                                </div>
-                              </div>
-                              <div className="text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
-                                Overdue Before: {formatCurrency(repayment.overdueAmountBeforePayment)}
-                              </div>
-                              <div className="text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
-                                Overdue After: {formatCurrency(repayment.overdueAmountAfterPayment)}
-                              </div>
-                              <div className="text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
-                                Installments Covered: {repayment.installmentsCovered || 0}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {selectedLoan.arrearsAmount > 0 && (
-                  <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50/80 px-4 py-3 dark:border-amber-900/40 dark:bg-amber-900/10">
-                    <div className="flex items-center gap-2 text-amber-700 dark:text-amber-300">
-                      <MdWarningAmber className="text-base" />
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] font-['Sora']">
-                        Arrears
-                      </p>
-                    </div>
-                    <p className="mt-2 text-sm text-slate-700 dark:text-slate-200 font-['Sora']">
-                      Current arrears amount: {formatCurrency(selectedLoan.arrearsAmount)}
-                    </p>
-                  </div>
-                )}
+            {!loading && filteredLoans.length === 0 && (
+              <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-10 text-center">
+                <p className="text-sm text-slate-500 dark:text-slate-400 font-['Sora']">
+                  Adjust filters or connect the loan-list endpoint to populate detailed cards here.
+                </p>
               </div>
             )}
           </div>

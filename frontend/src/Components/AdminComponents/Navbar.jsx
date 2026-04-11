@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   MdMenu,
   MdChevronRight,
@@ -26,6 +26,7 @@ function useBreadcrumb() {
 }
 export default function Navbar({ collapsed, toggleSidebar }) {
   const breadcrumb = useBreadcrumb();
+  const navigate = useNavigate();
   const [showUser, setShowUser] = useState(false);
   const [state, setState] = useState(sidebarState.getState());
   const { user, logout } = useAuth();
@@ -158,6 +159,10 @@ export default function Navbar({ collapsed, toggleSidebar }) {
               ].map(({ label, icon: Icon }) => (
                 <button
                   key={label}
+                  onClick={() => {
+                    setShowUser(false);
+                    navigate("/admin/profile");
+                  }}
                   className="w-full flex items-center gap-3 px-4 py-2.5 transition-all duration-150 hover:bg-slate-50/5 dark:hover:bg-slate-700/50 bg-transparent border-none cursor-pointer text-slate-600 dark:text-slate-300 text-[13px] font-['Sora'] text-left"
                 >
                   <Icon className="text-base text-slate-500 dark:text-slate-400" />

@@ -115,49 +115,48 @@ const MySupportTicketsPage = () => {
   }, [tickets, location.state]);
 
   return (
-    <section className="w-full min-h-[calc(100vh-5rem)] flex flex-col items-center justify-start py-6 md:py-10 px-3 sm:px-4 lg:px-6">
-      <div className="grid w-full max-w-[1600px] grid-cols-1 items-start gap-8 lg:grid-cols-[1fr_minmax(0,42rem)_1fr] lg:gap-x-6 xl:gap-x-10">
-        <div className="hidden min-h-0 lg:block" aria-hidden="true" />
-        <div className="col-span-1 w-full max-w-2xl justify-self-center lg:col-start-2 lg:w-full lg:max-w-none">
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/60 shadow-sm overflow-hidden">
-            <div className="px-4 md:px-6 py-5 border-b border-slate-200 dark:border-slate-700/60 bg-gradient-to-r from-emerald-500 to-teal-600">
-              <h1 className="text-white text-xl md:text-2xl font-bold font-['Sora']">My Tickets</h1>
+    <section className="w-full min-h-[calc(100vh-5rem)] flex flex-col items-center justify-start py-6 px-3 sm:px-4 lg:px-6">
+      <div className="grid w-full max-w-5xl grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_12rem] lg:gap-3">
+        <div className="w-full">
+          <div className="bg-white dark:bg-slate-900 rounded-md border border-slate-200 dark:border-slate-700/60 overflow-hidden">
+            <div className="px-4 py-4 border-b border-slate-200 dark:border-slate-700/60">
+              <h1 className="text-slate-900 dark:text-slate-100 text-lg font-semibold font-['Sora']">My Tickets</h1>
             </div>
-            <div className="p-4 md:p-6">
+            <div className="p-4 md:p-5">
             {loading && (
-              <div className="flex justify-center py-12">
-                <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-emerald-500 border-t-transparent" />
+              <div className="flex justify-center py-10">
+                <div className="inline-block animate-spin rounded-full h-9 w-9 border-4 border-emerald-500 border-t-transparent" />
               </div>
             )}
             {!loading && error && (
-              <p className="text-sm text-red-600 dark:text-red-400 font-['Sora']">{error}</p>
+              <p className="text-xs text-red-600 dark:text-red-400 font-['Sora']">{error}</p>
             )}
             {!loading && !error && tickets.length === 0 && (
-              <p className="text-sm text-slate-500 dark:text-slate-400 font-['Sora']">
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
                 You don&apos;t have any support tickets yet.
               </p>
             )}
             {!loading && !error && tickets.length > 0 && (
-              <ul className="space-y-3">
+              <ul className="space-y-2">
                 {tickets.map((t) => (
                   <li
                     key={t._id}
-                    className="rounded-lg border border-slate-200 dark:border-slate-700 p-4 bg-slate-50/80 dark:bg-slate-800/40 cursor-pointer hover:bg-slate-100/90 dark:hover:bg-slate-800/60 transition-colors"
+                    className="rounded-md border border-slate-200 dark:border-slate-700 p-3 bg-slate-50/80 dark:bg-slate-800/40 cursor-pointer hover:bg-slate-100/90 dark:hover:bg-slate-800/60 transition-colors"
                     onClick={() => setSelectedTicketId(t._id)}
                   >
                     <div className="flex flex-wrap items-start justify-between gap-2">
-                      <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 font-['Sora']">
+                      <p className="text-xs font-semibold text-slate-800 dark:text-slate-100 font-['Sora']">
                         {t.subject}
                       </p>
-                      <span className={`text-xs font-medium font-['Sora'] ${statusStyle(t.status)}`}>
+                      <span className={`text-[11px] font-medium font-['Sora'] ${statusStyle(t.status)}`}>
                         {t.status}
                       </span>
                     </div>
-                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
+                    <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400 font-['Sora']">
                       {t.category} · {t.priority} priority
                     </p>
                     {t.description && (
-                      <p className="mt-2 text-sm text-slate-600 dark:text-slate-300 font-['Sora'] line-clamp-3">
+                      <p className="mt-1.5 text-xs text-slate-600 dark:text-slate-300 font-['Sora'] line-clamp-3">
                         {t.description}
                       </p>
                     )}
@@ -169,16 +168,16 @@ const MySupportTicketsPage = () => {
           </div>
         </div>
 
-        <aside className="col-span-1 flex w-full max-w-2xl flex-col gap-3 justify-self-center sm:max-w-sm lg:col-start-3 lg:mt-0 lg:w-52 lg:max-w-none lg:justify-self-end lg:self-start">
+        <aside className="col-span-1 flex w-full max-w-2xl flex-col gap-2 justify-self-center sm:max-w-sm lg:w-48 lg:max-w-none lg:self-start">
           <Link
             to="/support-ticket"
-            className="w-full text-center px-4 py-2.5 rounded-md text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 transition-colors font-['Sora']"
+            className="w-full text-center px-3 py-2 rounded-md text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors font-['Sora']"
           >
             New ticket
           </Link>
           <Link
             to="/support-ticket/feedback"
-            className="w-full text-center px-4 py-2.5 rounded-md text-sm font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors font-['Sora']"
+            className="w-full text-center px-3 py-2 rounded-md text-xs font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors font-['Sora']"
           >
             Feedback
           </Link>
@@ -186,20 +185,20 @@ const MySupportTicketsPage = () => {
       </div>
 
       {selectedTicket && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-70 flex items-center justify-center p-4">
           <button
             type="button"
             aria-label="Close ticket details"
             className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
             onClick={() => setSelectedTicketId(null)}
           />
-          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-auto rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xl p-4 md:p-5">
-            <div className="flex items-start justify-between gap-4 mb-3">
+          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-auto rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xl p-4">
+            <div className="flex items-start justify-between gap-4 mb-2.5">
               <div>
-                <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 font-['Sora']">
+                <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100 font-['Sora']">
                   Ticket Details
                 </h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 font-['Sora']">
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
                   Full details of your support ticket.
                 </p>
               </div>
@@ -212,67 +211,67 @@ const MySupportTicketsPage = () => {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="md:col-span-2">
-                <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 font-['Sora']">
+                <label className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.16em] mb-1.5 font-['Sora']">
                   Subject
                 </label>
-                <div className="w-full px-3 py-2.5 rounded-md text-sm font-['Sora'] bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200">
+                <div className="w-full px-3 py-2 rounded-md text-xs font-['Sora'] bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200">
                   {selectedTicket.subject || "—"}
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 font-['Sora']">
+                <label className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.16em] mb-1.5 font-['Sora']">
                   Category
                 </label>
-                <div className="w-full px-3 py-2.5 rounded-md text-sm font-['Sora'] bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200">
+                <div className="w-full px-3 py-2 rounded-md text-xs font-['Sora'] bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200">
                   {selectedTicket.category || "—"}
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 font-['Sora']">
+                <label className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.16em] mb-1.5 font-['Sora']">
                   Priority
                 </label>
-                <div className="w-full px-3 py-2.5 rounded-md text-sm font-['Sora'] bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200">
+                <div className="w-full px-3 py-2 rounded-md text-xs font-['Sora'] bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200">
                   {selectedTicket.priority || "—"}
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 font-['Sora']">
+                <label className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.16em] mb-1.5 font-['Sora']">
                   Status
                 </label>
-                <div className="w-full px-3 py-2.5 rounded-md text-sm font-['Sora'] bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200">
+                <div className="w-full px-3 py-2 rounded-md text-xs font-['Sora'] bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200">
                   {selectedTicket.status || "—"}
                 </div>
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 font-['Sora']">
+                <label className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.16em] mb-1.5 font-['Sora']">
                   Description
                 </label>
-                <div className="w-full px-3 py-2.5 rounded-md text-sm font-['Sora'] bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 min-h-24 whitespace-pre-wrap">
+                <div className="w-full px-3 py-2 rounded-md text-xs font-['Sora'] bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 min-h-20 whitespace-pre-wrap">
                   {selectedTicket.description || "—"}
                 </div>
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 font-['Sora']">
+                <label className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.16em] mb-1.5 font-['Sora']">
                   Admin Reply
                 </label>
-                <div className="w-full px-3 py-2.5 rounded-md text-sm font-['Sora'] bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 min-h-24 whitespace-pre-wrap">
+                <div className="w-full px-3 py-2 rounded-md text-xs font-['Sora'] bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 min-h-20 whitespace-pre-wrap">
                   {selectedTicket.adminReply?.trim() || "No reply yet."}
                 </div>
               </div>
             </div>
 
-            <div className="mt-5 flex justify-end">
+            <div className="mt-4 flex justify-end">
               <button
                 type="button"
                 onClick={() => setSelectedTicketId(null)}
-                className="px-4 py-2 rounded-md text-sm font-medium font-['Sora'] bg-emerald-600 hover:bg-emerald-700 text-white transition-colors"
+                className="px-3 py-1.5 rounded-md text-xs font-medium font-['Sora'] bg-emerald-600 hover:bg-emerald-700 text-white transition-colors"
               >
                 Close
               </button>

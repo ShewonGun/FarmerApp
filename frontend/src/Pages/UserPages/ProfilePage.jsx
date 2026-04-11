@@ -61,7 +61,6 @@ const ProfilePage = () => {
   const [serverUser, setServerUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: "",
@@ -195,22 +194,6 @@ const ProfilePage = () => {
     }
   };
 
-  const openPasswordModal = () => {
-    setPasswordError("");
-    setPasswordSuccess("");
-    setPasswordForm({
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: ""
-    });
-    setShowPasswordModal(true);
-  };
-
-  const closePasswordModal = () => {
-    if (changingPassword) return;
-    setShowPasswordModal(false);
-  };
-
   const handlePasswordInput = (event) => {
     const { name, value } = event.target;
     setPasswordForm((previous) => ({ ...previous, [name]: value }));
@@ -273,9 +256,6 @@ const ProfilePage = () => {
         confirmPassword: ""
       });
       setServerUser((prev) => (prev ? { ...prev, hasPassword: true } : prev));
-      setTimeout(() => {
-        setShowPasswordModal(false);
-      }, 900);
     } catch (submitError) {
       setPasswordError(submitError.message || "Unable to change password.");
     } finally {
@@ -354,13 +334,13 @@ const ProfilePage = () => {
   }
 
   return (
-    <section className="w-full max-w-2xl mx-auto py-6 md:py-10 px-2">
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/60 shadow-sm overflow-hidden">
-        <div className="px-4 md:px-6 py-5 border-b border-slate-200 dark:border-slate-700/60 bg-gradient-to-r from-emerald-500 to-teal-600">
-          <h1 className="text-white text-xl md:text-2xl font-bold font-['Sora']">My Profile</h1>
+    <section className="w-full max-w-2xl mx-auto py-7 px-2">
+      <div className="bg-white dark:bg-slate-900 rounded-md border border-slate-200 dark:border-slate-700/60 overflow-hidden">
+        <div className="px-5 md:px-6 py-4.5 border-b border-slate-200 dark:border-slate-700/60">
+          <h1 className="text-slate-900 dark:text-slate-100 text-xl font-semibold font-['Sora']">My Profile</h1>
         </div>
 
-        <div className="p-4 md:p-6">
+        <div className="p-5 md:p-6">
           {error && (
             <div className="mb-4 px-3 py-2.5 rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 text-sm text-red-600 dark:text-red-400 font-['Sora']">
               {error}
@@ -373,11 +353,11 @@ const ProfilePage = () => {
             </div>
           )}
 
-          <div className="flex flex-col items-center md:flex-row md:items-center gap-4 mb-6 pb-2 border-b border-slate-200/80 dark:border-slate-700/60">
+          <div className="flex flex-col items-center md:flex-row md:items-center gap-4 mb-5 pb-2.5 border-b border-slate-200/80 dark:border-slate-700/60">
             <button
               type="button"
               onClick={openImageModal}
-              className="group relative w-20 h-20 rounded-full border-2 border-emerald-200 dark:border-emerald-700 shadow-sm overflow-hidden focus:outline-none focus:ring-2 focus:ring-emerald-400/50"
+              className="group relative w-17 h-17 rounded-full border-2 border-emerald-200 dark:border-emerald-700 shadow-sm overflow-hidden focus:outline-none focus:ring-2 focus:ring-emerald-400/50"
               aria-label="Update profile image"
             >
               {serverUser?.picture && !avatarBroken ? (
@@ -389,13 +369,13 @@ const ProfilePage = () => {
                   onError={() => setAvatarBroken(true)}
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-white font-['Sora'] bg-gradient-to-br from-emerald-500 to-emerald-400">
+                <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-white font-['Sora'] bg-emerald-500">
                   {(form.name || user?.name || '?').charAt(0).toUpperCase()}
                 </div>
               )}
               <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-150 flex items-center justify-center">
                 <span className="w-9 h-9 rounded-full bg-white/95 text-emerald-600 flex items-center justify-center shadow">
-                  <MdPhotoCamera size={19} />
+                  <MdPhotoCamera size={18} />
                 </span>
               </div>
             </button>
@@ -411,7 +391,7 @@ const ProfilePage = () => {
 
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
             <div className="md:col-span-2">
-              <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 font-['Sora']">
+              <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.16em] mb-1.5 font-['Sora']">
                 Full Name
               </label>
               <input
@@ -424,21 +404,21 @@ const ProfilePage = () => {
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 font-['Sora']">
+              <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.16em] mb-1.5 font-['Sora']">
                 Email Address
               </label>
               <input
                 name="email"
                 type="email"
                 value={form.email}
-                onChange={handleChange}
+                disabled
                 placeholder="you@example.com"
-                className="w-full px-3 py-2.5 rounded-md text-sm font-['Sora'] text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 focus:border-emerald-400 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-400/20 outline-none"
+                className="w-full px-3 py-2.5 rounded-md text-sm font-['Sora'] text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 font-['Sora']">
+              <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.16em] mb-1.5 font-['Sora']">
                 Role
               </label>
               <input
@@ -449,7 +429,7 @@ const ProfilePage = () => {
             </div>
 
             <div>
-              <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 font-['Sora']">
+              <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.16em] mb-1.5 font-['Sora']">
                 Joined On
               </label>
               <input
@@ -460,50 +440,36 @@ const ProfilePage = () => {
             </div>
 
             <div className="md:col-span-2 flex flex-col sm:flex-row sm:justify-end gap-2 mt-2">
-              {serverUser?.hasPassword && (
-                <button
-                  type="button"
-                  onClick={openPasswordModal}
-                  className="inline-flex items-center justify-center min-w-36 px-5 py-2.5 rounded-md text-sm font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors duration-150 font-['Sora']"
-                >
-                  Change Password
-                </button>
-              )}
               <button
                 type="submit"
                 disabled={saving}
-                className="inline-flex items-center justify-center min-w-36 px-5 py-2.5 rounded-md text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed font-['Sora']"
+                className="inline-flex items-center justify-center min-w-32 px-4 py-2.5 rounded-md text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed font-['Sora']"
               >
                 {saving ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </form>
-        </div>
-      </div>
 
-      {showPasswordModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-3">
-          <div className="absolute inset-0 bg-black/45" onClick={closePasswordModal} />
-          <div className="relative w-full max-w-md rounded-xl border border-slate-200 dark:border-slate-700/60 bg-white dark:bg-slate-900 shadow-lg p-4 md:p-5">
-            <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 font-['Sora']">
-              Change Password
+          <div className="mt-5 pt-4 border-t border-slate-200/80 dark:border-slate-700/60">
+            <h2 className="text-base font-semibold text-slate-800 dark:text-slate-100 font-['Sora']">
+              Reset Password
             </h2>
 
             {passwordError && (
-              <div className="mt-3 px-3 py-2 rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 text-sm text-red-600 dark:text-red-400 font-['Sora']">
+              <div className="mt-3 px-3 py-2.5 rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 text-sm text-red-600 dark:text-red-400 font-['Sora']">
                 {passwordError}
               </div>
             )}
 
             {passwordSuccess && (
-              <div className="mt-3 px-3 py-2 rounded-md bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/50 text-sm text-emerald-700 dark:text-emerald-300 font-['Sora']">
+              <div className="mt-3 px-3 py-2.5 rounded-md bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/50 text-sm text-emerald-700 dark:text-emerald-300 font-['Sora']">
                 {passwordSuccess}
               </div>
             )}
 
-            <form onSubmit={handlePasswordSubmit} className="mt-4 space-y-3">
+            <form onSubmit={handlePasswordSubmit} className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
-                <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 font-['Sora']">
+                <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.16em] mb-1.5 font-['Sora']">
                   Current Password
                 </label>
                 <input
@@ -516,7 +482,7 @@ const ProfilePage = () => {
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 font-['Sora']">
+                <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.16em] mb-1.5 font-['Sora']">
                   New Password
                 </label>
                 <input
@@ -529,7 +495,7 @@ const ProfilePage = () => {
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 font-['Sora']">
+                <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.16em] mb-1.5 font-['Sora']">
                   Confirm Password
                 </label>
                 <input
@@ -541,19 +507,11 @@ const ProfilePage = () => {
                 />
               </div>
 
-              <div className="pt-2 flex flex-col sm:flex-row sm:justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={closePasswordModal}
-                  disabled={changingPassword}
-                  className="inline-flex items-center justify-center min-w-28 px-4 py-2.5 rounded-md text-sm font-medium text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-150 font-['Sora'] disabled:opacity-60"
-                >
-                  Cancel
-                </button>
+              <div className="md:col-span-3 flex justify-end">
                 <button
                   type="submit"
                   disabled={changingPassword}
-                  className="inline-flex items-center justify-center min-w-36 px-4 py-2.5 rounded-md text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 transition-colors duration-150 font-['Sora'] disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="inline-flex items-center justify-center min-w-32 px-3 py-2.5 rounded-md text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors duration-150 font-['Sora'] disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {changingPassword ? "Updating..." : "Update Password"}
                 </button>
@@ -561,12 +519,12 @@ const ProfilePage = () => {
             </form>
           </div>
         </div>
-      )}
+      </div>
 
       {showImageModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-3">
           <div className="absolute inset-0 bg-black/45" onClick={closeImageModal} />
-          <div className="relative w-full max-w-md rounded-xl border border-slate-200 dark:border-slate-700/60 bg-white dark:bg-slate-900 shadow-lg p-4 md:p-5">
+          <div className="relative w-full max-w-md rounded-md border border-slate-200 dark:border-slate-700/60 bg-white dark:bg-slate-900 shadow-lg p-5">
             <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 font-['Sora']">
               Update Profile Image
             </h2>
@@ -575,7 +533,7 @@ const ProfilePage = () => {
             </p>
 
             {imageError && (
-              <div className="mt-3 px-3 py-2 rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 text-sm text-red-600 dark:text-red-400 font-['Sora']">
+              <div className="mt-3 px-3 py-2.5 rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 text-sm text-red-600 dark:text-red-400 font-['Sora']">
                 {imageError}
               </div>
             )}
@@ -612,7 +570,7 @@ const ProfilePage = () => {
                 if (uploadingImage) return;
                 handleProfileImageFile(event.dataTransfer.files?.[0]);
               }}
-              className={`mt-4 rounded-lg border-2 border-dashed px-4 py-8 text-center transition-colors ${
+              className={`mt-4 rounded-md border-2 border-dashed px-4 py-8 text-center transition-colors ${
                 dragOverImageDropzone
                   ? "border-emerald-500 bg-emerald-50/60 dark:bg-emerald-900/20"
                   : "border-slate-300 dark:border-slate-600 bg-slate-50/60 dark:bg-slate-800/40"
@@ -657,7 +615,7 @@ const ProfilePage = () => {
                 type="button"
                 onClick={closeImageModal}
                 disabled={uploadingImage}
-                className="inline-flex items-center justify-center min-w-28 px-4 py-2.5 rounded-md text-sm font-medium text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-150 font-['Sora'] disabled:opacity-60"
+                className="inline-flex items-center justify-center min-w-24 px-3 py-2.5 rounded-md text-sm font-medium text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-150 font-['Sora'] disabled:opacity-60"
               >
                 Close
               </button>

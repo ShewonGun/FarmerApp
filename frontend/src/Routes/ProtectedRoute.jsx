@@ -3,6 +3,7 @@ import { useAuth } from '../Context/AuthContext';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { isAuthenticated, loading, user } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -17,6 +18,15 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;
+  }
+
+  if (Array.isArray(allowedRoles) && allowedRoles.length > 0) {
+    const role = user?.role;
+    if (!role || !allowedRoles.includes(role)) {
+      // Keep farmers on user landing, keep admins on admin dashboard.
+      const fallback = role === 'admin' ? '/admin' : '/landing';
+      return <Navigate to={fallback} replace state={{ from: location }} />;
+    }
   }
 
   return children;

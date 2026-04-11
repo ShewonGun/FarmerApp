@@ -16,7 +16,7 @@ const navItems = [
   { label: "Dashboard", icon: MdDashboard, path: "/admin" },
   { label: "Users", icon: MdPeople, path: "/admin/users"},
   { label: "Courses", icon: MdBook, path: "/admin/courses"},
-  { label: "Active Loans", icon: MdAttachMoney, path: "/admin/requests"},
+  { label: "Tickets", icon: MdSupportAgent, path: "/admin/requests"},
   { label: "Loan Repayments", icon: MdAttachMoney, path: "/admin/loan-repayments"},
   { label: "Payment Plans", icon: MdPayments, path: "/admin/repayments"},
   //{ label: "Analytics", icon: MdBarChart, path: "/admin/analytics"},
