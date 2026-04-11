@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import {
   MdAttachMoney,
   MdBook,
+  MdChecklist,
   MdPayments,
   MdCloud,
 } from "react-icons/md";
@@ -11,7 +12,9 @@ import { sidebarState } from "../../utils/sidebarState";
 import { useAuth } from "../../Context/AuthContext";
 
 const navItems = [
-  { label: "Loans", icon: MdAttachMoney, path: "/loan" },
+  { label: "Loans", icon: MdAttachMoney, path: "/loan", public: true },
+  { label: "My Loans", icon: MdChecklist, path: "/my-loans" },
+  { label: "Repayments", icon: MdPayments, path: "/loan-repayments" },
   { label: "Courses", icon: MdBook, path: "/courses" },
   { label: "Loan Plans", icon: MdPayments, path: "/loan-plans" },
   { label: "Weather", icon: MdCloud, path: "/weather", public: true },

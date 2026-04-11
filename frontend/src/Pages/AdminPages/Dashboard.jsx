@@ -14,7 +14,8 @@ import {
 } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import { showError } from '../../utils/toast';
-import { API_BASE_URL } from '../../utils/api';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('token');
@@ -57,6 +58,7 @@ const Dashboard = () => {
     courses: [],
     plans: [],
     tickets: [],
+    loans: [],
   });
   const [loading, setLoading] = useState(true);
 
@@ -64,11 +66,12 @@ const Dashboard = () => {
     try {
       setLoading(true);
 
-      const [usersRes, coursesRes, plansRes, ticketsRes] = await Promise.all([
+      const [usersRes, coursesRes, plansRes, ticketsRes, loansRes] = await Promise.all([
         axios.get(`${API_BASE_URL}/users`, { headers: getAuthHeaders() }),
         axios.get(`${API_BASE_URL}/courses/with-details`, { headers: getAuthHeaders() }),
         axios.get(`${API_BASE_URL}/plans`, { headers: getAuthHeaders() }),
         axios.get(`${API_BASE_URL}/support-tickets`, { headers: getAuthHeaders() }),
+        axios.get(`${API_BASE_URL}/loans/admin`, { headers: getAuthHeaders() }),
       ]);
 
       setDashboardData({
@@ -76,6 +79,7 @@ const Dashboard = () => {
         courses: coursesRes?.data?.courses || [],
         plans: plansRes?.data?.plans || [],
         tickets: ticketsRes?.data?.data || [],
+        loans: loansRes?.data?.loans || [],
       });
     } catch (error) {
       console.error('Error loading dashboard data:', error);
@@ -90,7 +94,7 @@ const Dashboard = () => {
   }, []);
 
   const stats = useMemo(() => {
-    const { users, courses, plans, tickets } = dashboardData;
+    const { users, courses, plans, tickets, loans } = dashboardData;
 
     const farmers = users.filter((user) => user.role === 'farmer').length;
     const activeUsers = users.filter((user) => user.isActive !== false).length;
@@ -107,6 +111,19 @@ const Dashboard = () => {
       return status === 'resolved' || status === 'closed';
     }).length;
 
+    const activeLoans = loans.filter((loan) => (loan.status || '').toLowerCase() === 'active').length;
+    const completedLoans = loans.filter((loan) => (loan.status || '').toLowerCase() === 'completed').length;
+    const overdueLoans = loans.filter((loan) => {
+      const status = (loan.status || '').toLowerCase();
+      const arrearsAmount = Number(loan.arrearsAmount || 0);
+      const dueDate = loan.nextDueDate ? new Date(loan.nextDueDate) : null;
+      const isPastDue = dueDate && !Number.isNaN(dueDate.getTime()) ? dueDate < new Date() : false;
+      return status === 'active' && (arrearsAmount > 0 || isPastDue);
+    }).length;
+
+    const totalLoanValue = loans.reduce((sum, loan) => sum + Number(loan.amount || 0), 0);
+    const outstandingLoanValue = loans.reduce((sum, loan) => sum + Number(loan.remainingBalance || 0), 0);
+
     return {
       totalUsers: users.length,
       farmers,
@@ -118,6 +135,12 @@ const Dashboard = () => {
       totalTickets: tickets.length,
       openTickets,
       resolvedTickets,
+      totalLoans: loans.length,
+      activeLoans,
+      completedLoans,
+      overdueLoans,
+      totalLoanValue,
+      outstandingLoanValue,
       recentTickets: tickets.slice(0, 5),
     };
   }, [dashboardData]);
@@ -151,11 +174,25 @@ const Dashboard = () => {
       icon: MdSupportAgent,
       action: () => navigate('/admin/tickets'),
     },
+    {
+      label: 'Active Loans',
+      value: stats.activeLoans,
+      subtext: `${stats.totalLoans} total loans`,
+      icon: MdPayments,
+      action: () => navigate('/admin/loan-repayments'),
+    },
+    {
+      label: 'Overdue Loans',
+      value: stats.overdueLoans,
+      subtext: `${stats.completedLoans} completed loans`,
+      icon: MdPendingActions,
+      action: () => navigate('/admin/loan-repayments'),
+    },
   ];
 
   return (
-    <div className="p-4 md:p-5 lg:p-6 bg-slate-50 dark:bg-slate-900 h-[calc(100vh-4rem)] overflow-hidden">
-      <div className="max-w-7xl mx-auto h-full space-y-3 overflow-hidden">
+    <div className="p-4 md:p-5 lg:p-6 bg-slate-50 dark:bg-slate-900 min-h-[calc(100vh-4rem)] overflow-y-auto">
+      <div className="max-w-7xl mx-auto space-y-3 pb-3">
         <section className="rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm p-3.5 md:p-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div>
@@ -177,7 +214,7 @@ const Dashboard = () => {
             </button>
           </div>
 
-          <div className="mt-2.5 grid grid-cols-2 lg:grid-cols-4 gap-2">
+          <div className="mt-2.5 grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2">
             {statCards.map((card) => {
               const Icon = card.icon;
 
@@ -303,13 +340,33 @@ const Dashboard = () => {
                   {loading ? '...' : stats.openTickets}
                 </p>
               </div>
+
+              <div className="rounded-md border border-slate-200 dark:border-slate-700 p-2.5 bg-slate-50/80 dark:bg-slate-900/40">
+                <div className="flex items-center justify-between">
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 font-['Sora']">Total loan value</p>
+                  <MdPayments className="text-sm text-indigo-500" />
+                </div>
+                <p className="mt-1 text-base md:text-lg font-bold text-slate-900 dark:text-slate-100 font-['Sora']">
+                  {loading ? '...' : `LKR ${Math.round(stats.totalLoanValue).toLocaleString()}`}
+                </p>
+              </div>
+
+              <div className="rounded-md border border-slate-200 dark:border-slate-700 p-2.5 bg-slate-50/80 dark:bg-slate-900/40">
+                <div className="flex items-center justify-between">
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 font-['Sora']">Outstanding balance</p>
+                  <MdArrowUpward className="text-sm text-rose-500" />
+                </div>
+                <p className="mt-1 text-base md:text-lg font-bold text-slate-900 dark:text-slate-100 font-['Sora']">
+                  {loading ? '...' : `LKR ${Math.round(stats.outstandingLoanValue).toLocaleString()}`}
+                </p>
+              </div>
             </div>
 
             <button
-              onClick={() => navigate('/admin/courses')}
+              onClick={() => navigate('/admin/loan-repayments')}
               className="mt-3 w-full inline-flex items-center justify-center gap-1.5 rounded-md bg-slate-900 hover:bg-slate-800 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white py-1.5 px-2.5 text-[11px] md:text-xs font-semibold font-['Sora'] transition-colors"
             >
-              Manage Courses
+              Manage Loans
               <MdArrowUpward className="rotate-45 text-xs" />
             </button>
           </div>

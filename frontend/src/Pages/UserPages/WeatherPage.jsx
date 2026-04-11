@@ -1,10 +1,10 @@
-﻿import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { MdSearch, MdLocationOn, MdRefresh, MdEco, MdWbSunny } from "react-icons/md";
 import WeatherAnimation from "../../Components/UserComponents/WeatherAnimation";
 import { apiUrl } from "../../utils/api";
 
-const API_BASE = apiUrl("/weather");
+const API_BASE = `${import.meta.env.VITE_API_URL || "/api"}/weather`;
 
 const formatTime = (unix) =>
   new Date(unix * 1000).toLocaleTimeString("en-LK", { hour: "2-digit", minute: "2-digit" });

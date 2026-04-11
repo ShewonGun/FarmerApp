@@ -6,6 +6,8 @@ import { HiBookOpen, HiClipboardCheck, HiCheckCircle, HiClock, HiAcademicCap } f
 import toast from "react-hot-toast";
 import { apiUrl } from "../../utils/api";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
+
 export default function MyCourses() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -27,7 +29,7 @@ export default function MyCourses() {
 
       const token = localStorage.getItem("token");
       const response = await fetch(
-        apiUrl(`/enrollments/${user.id}`),
+        `${API_BASE_URL}/enrollments/${user.id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -58,7 +60,7 @@ export default function MyCourses() {
       const token = localStorage.getItem("token");
       
       const getResponse = await fetch(
-        apiUrl(`/certificates/${user.id}/course/${courseId}`),
+        `${API_BASE_URL}/certificates/${user.id}/course/${courseId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -77,7 +79,7 @@ export default function MyCourses() {
 
       if (!certificateData) {
         const generateResponse = await fetch(
-          apiUrl(`/certificates/${user.id}/course/${courseId}`),
+          `${API_BASE_URL}/certificates/${user.id}/course/${courseId}`,
           {
             method: "POST",
             headers: {

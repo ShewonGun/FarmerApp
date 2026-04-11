@@ -16,6 +16,8 @@ import CourseContent from "../../Components/UserComponents/CourseContent.jsx";
 import { useAuth } from "../../Context/AuthContext";
 import { apiUrl } from "../../utils/api";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
+
 export default function CoursePageUser() {
   const { courseId } = useParams();
   const navigate = useNavigate();
@@ -58,7 +60,7 @@ export default function CoursePageUser() {
   const fetchCourseDetails = async () => {
     try {
       setLoading(true);
-      const response = await fetch(apiUrl(`/courses/${courseId}`), {
+      const response = await fetch(`${API_BASE_URL}/courses/${courseId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`
         }
@@ -80,7 +82,7 @@ export default function CoursePageUser() {
 
   const fetchLessons = async () => {
     try {
-      const response = await fetch(apiUrl(`/lessons/course/${courseId}`), {
+      const response = await fetch(`${API_BASE_URL}/lessons/course/${courseId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`
         }
@@ -103,7 +105,7 @@ export default function CoursePageUser() {
 
   const fetchQuizForLesson = async (lessonId) => {
     try {
-      const response = await fetch(apiUrl(`/quizzes/lessons/${lessonId}`), {
+      const response = await fetch(`${API_BASE_URL}/quizzes/lessons/${lessonId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`
         }
@@ -123,7 +125,7 @@ export default function CoursePageUser() {
     
     try {
       const response = await fetch(
-        apiUrl(`/enrollments/${user.id}/course/${courseId}/check-enrollment`),
+        `${API_BASE_URL}/enrollments/${user.id}/course/${courseId}/check-enrollment`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -144,7 +146,7 @@ export default function CoursePageUser() {
 
     try {
       const response = await fetch(
-        apiUrl(`/certificates/${user.id}/course/${courseId}`),
+        `${API_BASE_URL}/certificates/${user.id}/course/${courseId}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -170,7 +172,7 @@ export default function CoursePageUser() {
     try {
       setEnrolling(true);
       const response = await fetch(
-        apiUrl(`/enrollments/${user.id}/course/${courseId}/enroll`),
+        `${API_BASE_URL}/enrollments/${user.id}/course/${courseId}/enroll`,
         {
           method: "POST",
           headers: {
@@ -278,7 +280,7 @@ export default function CoursePageUser() {
 
       // Submit to backend
       const response = await fetch(
-        apiUrl(`/progress/${user.id}/quiz/${activeQuiz._id}/attempt`),
+        `${API_BASE_URL}/progress/${user.id}/quiz/${activeQuiz._id}/attempt`,
         {
           method: "POST",
           headers: {
@@ -376,7 +378,7 @@ export default function CoursePageUser() {
     setCompletingLesson(lessonId);
     try {
       const response = await fetch(
-        apiUrl(`/enrollments/${user.id}/course/${courseId}/lesson/${lessonId}/complete`),
+        `${API_BASE_URL}/enrollments/${user.id}/course/${courseId}/lesson/${lessonId}/complete`,
         {
           method: "PUT",
           headers: {
@@ -418,7 +420,7 @@ export default function CoursePageUser() {
     setGeneratingCertificate(true);
     try {
       const response = await fetch(
-        apiUrl(`/certificates/${user.id}/course/${courseId}`),
+        `${API_BASE_URL}/certificates/${user.id}/course/${courseId}`,
         {
           method: "POST",
           headers: {
@@ -450,7 +452,7 @@ export default function CoursePageUser() {
 
     try {
       const response = await fetch(
-        apiUrl(`/certificates/${user.id}/course/${courseId}`),
+        `${API_BASE_URL}/certificates/${user.id}/course/${courseId}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`

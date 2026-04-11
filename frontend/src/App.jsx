@@ -11,6 +11,8 @@ import Course from "./Pages/AdminPages/Course"
 import Users from "./Pages/AdminPages/Users"
 import Tickets from "./Pages/AdminPages/Tickets"
 import RepayPlans from "./Pages/AdminPages/RepayPlans"
+import LoanRepayments from "./Pages/AdminPages/LoanRepayments"
+import AdminProfile from "./Pages/AdminPages/AdminProfile"
 import Login from "./Pages/SharedPages/Login"
 import Signup from "./Pages/SharedPages/Signup"
 import LandingPage from "./Pages/UserPages/LandingPage"
@@ -18,6 +20,9 @@ import CoursesPage from "./Pages/UserPages/CoursesPage"
 import CoursePageUser from "./Pages/UserPages/CoursePageUser"
 import MyCourses from "./Pages/UserPages/MyCourses"
 import LoanPage from "./Pages/UserPages/LoanPage"
+import MyLoansPage from "./Pages/UserPages/MyLoansPage"
+import LoanCalculatorPage from "./Pages/UserPages/LoanCalculatorPage"
+import LoanRepaymentsPage from "./Pages/UserPages/LoanRepaymentsPage"
 import ProtectedRoute from "./Routes/ProtectedRoute"
 import { sidebarState } from "./utils/sidebarState"
 import UserLoanPlans from "./Pages/UserPages/UserLoanPlans"
@@ -64,7 +69,19 @@ const App = () => {
   const isAuthPage = location.pathname === '/login' || location.pathname === '/signup'
   
   // Check if current route is a user/farmer page
-  const isUserPage = location.pathname === '/' || location.pathname.startsWith('/landing') || location.pathname.startsWith('/courses') || location.pathname.startsWith('/my-courses') || location.pathname.startsWith('/loan') || location.pathname.startsWith('/weather') || location.pathname.startsWith('/profile') || location.pathname.startsWith('/data-verification') || location.pathname.startsWith('/support-ticket') || location.pathname.startsWith('/platform-rating') || location.pathname.match(/^\/course\/[^/]+$/)
+  const isUserPage =
+    location.pathname === '/' ||
+    location.pathname.startsWith('/landing') ||
+    location.pathname.startsWith('/courses') ||
+    location.pathname.startsWith('/my-courses') ||
+    location.pathname.startsWith('/my-loans') ||
+    location.pathname.startsWith('/loan') ||
+    location.pathname.startsWith('/weather') ||
+    location.pathname.startsWith('/profile') ||
+    location.pathname.startsWith('/data-verification') ||
+    location.pathname.startsWith('/support-ticket') ||
+    location.pathname.startsWith('/platform-rating') ||
+    location.pathname.match(/^\/course\/[^/]+$/)
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
@@ -121,13 +138,16 @@ const App = () => {
             <Route path="location-validation" element={<LocationValidationSection />} />
             <Route path="training-engagement" element={<TrainingEngagementSection />} />
           </Route>
-          <Route path="/loan" element={<ProtectedRoute><LoanPage /></ProtectedRoute>} />
-          <Route path="/loan-plans" element={<ProtectedRoute><UserLoanPlans /></ProtectedRoute>} />
+          <Route path="/loan" element={<LoanPage />} />
+          <Route path="/loan-calculator" element={<LoanCalculatorPage />} />
+          <Route path="/my-loans" element={<ProtectedRoute allowedRoles={['farmer']}><MyLoansPage /></ProtectedRoute>} />
+          <Route path="/loan-repayments" element={<ProtectedRoute allowedRoles={['farmer']}><LoanRepaymentsPage /></ProtectedRoute>} />
+          <Route path="/loan-plans" element={<ProtectedRoute allowedRoles={['farmer']}><UserLoanPlans /></ProtectedRoute>} />
           <Route path="/weather" element={<WeatherPage />} />
           <Route
             path="/support-ticket/my-tickets"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['farmer']}>
                 <MySupportTicketsPage />
               </ProtectedRoute>
             }
@@ -135,7 +155,7 @@ const App = () => {
           <Route
             path="/support-ticket/feedback"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['farmer']}>
                 <PlatformFeedbackPage />
               </ProtectedRoute>
             }
@@ -143,7 +163,7 @@ const App = () => {
           <Route
             path="/support-ticket"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['farmer']}>
                 <SupportTicketPage />
               </ProtectedRoute>
             }
@@ -151,7 +171,7 @@ const App = () => {
           <Route
             path="/platform-rating"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['farmer']}>
                 <PlatformRatingPage />
               </ProtectedRoute>
             }
@@ -164,6 +184,8 @@ const App = () => {
           <Route path="/admin/tickets" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
           <Route path="/admin/requests" element={<Navigate to="/admin/tickets" replace />} />
           <Route path="/admin/repayments" element={<ProtectedRoute><RepayPlans /></ProtectedRoute>} />
+          <Route path="/admin/loan-repayments" element={<ProtectedRoute><LoanRepayments /></ProtectedRoute>} />
+          <Route path="/admin/profile" element={<ProtectedRoute><AdminProfile /></ProtectedRoute>} />
         </Routes>
       </main>
     </div>

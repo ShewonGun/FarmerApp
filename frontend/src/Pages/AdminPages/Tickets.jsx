@@ -11,7 +11,8 @@ import {
   MdClose,
 } from 'react-icons/md';
 import { showError, showSuccess } from '../../utils/toast';
-import { API_BASE_URL } from '../../utils/api';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 const ITEMS_PER_PAGE = 8;
 
 const getAuthHeaders = () => {

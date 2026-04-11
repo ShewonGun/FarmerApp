@@ -3,6 +3,8 @@ import UserLoanPlanCard from "../../Components/UserComponents/UserLoanPlanCard";
 import { HiCreditCard, HiInformationCircle } from "react-icons/hi";
 import { apiUrl } from "../../utils/api";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
+
 export default function LoanPage() {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,7 +19,7 @@ export default function LoanPage() {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(apiUrl("/plans/active"), {
+      const response = await fetch(`${API_BASE_URL}/plans/active`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

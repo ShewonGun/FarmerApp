@@ -6,7 +6,9 @@ import {
   MdPerson,
   MdLogout,
   MdBook,
+  MdChecklist,
   MdMenu,
+  MdPayments,
   MdVerifiedUser,
   MdSupportAgent,
   MdStar,
@@ -15,7 +17,8 @@ import {
 import ThemeToggle from "../AdminComponents/ThemeToggle";
 import { useAuth } from "../../Context/AuthContext";
 import { sidebarState } from "../../utils/sidebarState";
-import { API_BASE_URL } from "../../utils/api";
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
 
 const ticketIdStr = (id) => (id != null ? String(id) : "");
 
@@ -221,7 +224,6 @@ const UserNavbar = () => {
       <nav className="hidden md:flex items-center gap-1 flex-1 justify-center">
         <NavLink
           to="/loan"
-          onClick={handleProtectedNav}
           className={({ isActive }) =>
             `px-4 py-2 rounded-lg text-sm font-medium font-['Sora'] transition-all duration-150 ${
               isActive
@@ -269,6 +271,19 @@ const UserNavbar = () => {
           }
         >
           Weather
+        </NavLink>
+        <NavLink
+          to="/support-ticket"
+          onClick={handleProtectedNav}
+          className={({ isActive }) =>
+            `px-4 py-2 rounded-lg text-sm font-medium font-['Sora'] transition-all duration-150 ${
+              isActive
+                ? ' text-emerald-600 dark:text-emerald-400'
+                : 'text-slate-600 dark:text-slate-400'
+            }`
+          }
+        >
+          Support
         </NavLink>
       </nav>
 
@@ -441,17 +456,6 @@ const UserNavbar = () => {
 
               <button
                 type="button"
-                onClick={() => handleMenuNavigate("/data-verification")}
-                className="w-full flex items-center gap-3 px-4 py-2.5 transition-all duration-150 hover:bg-slate-50/50 dark:hover:bg-slate-700/50 bg-transparent border-none cursor-pointer text-slate-600 dark:text-slate-300 text-[13px] font-['Sora'] text-left"
-              >
-                <MdVerifiedUser className="text-base text-slate-500 dark:text-slate-400" />
-                Data & Verification
-              </button>
-
-              <div className="border-t border-slate-200/60 dark:border-slate-700 my-1" />
-
-              <button
-                type="button"
                 onClick={() => handleMenuNavigate("/my-courses")}
                 className="w-full flex items-center gap-3 px-4 py-2.5 transition-all duration-150 hover:bg-slate-50/50 dark:hover:bg-slate-700/50 bg-transparent border-none cursor-pointer text-slate-600 dark:text-slate-300 text-[13px] font-['Sora'] text-left"
               >
@@ -463,11 +467,33 @@ const UserNavbar = () => {
 
               <button
                 type="button"
-                onClick={() => handleMenuNavigate("/support-ticket")}
+                onClick={() => handleMenuNavigate("/my-loans")}
                 className="w-full flex items-center gap-3 px-4 py-2.5 transition-all duration-150 hover:bg-slate-50/50 dark:hover:bg-slate-700/50 bg-transparent border-none cursor-pointer text-slate-600 dark:text-slate-300 text-[13px] font-['Sora'] text-left"
               >
-                <MdSupportAgent className="text-base text-slate-500 dark:text-slate-400" />
-                Support ticket
+                <MdChecklist className="text-base text-slate-500 dark:text-slate-400" />
+                My Loans
+              </button>
+
+              <div className="border-t border-slate-200/60 dark:border-slate-700 my-1" />
+
+              <button
+                type="button"
+                onClick={() => handleMenuNavigate("/loan-repayments")}
+                className="w-full flex items-center gap-3 px-4 py-2.5 transition-all duration-150 hover:bg-slate-50/50 dark:hover:bg-slate-700/50 bg-transparent border-none cursor-pointer text-slate-600 dark:text-slate-300 text-[13px] font-['Sora'] text-left"
+              >
+                <MdPayments className="text-base text-slate-500 dark:text-slate-400" />
+                Loan Repayments
+              </button>
+
+              <div className="border-t border-slate-200/60 dark:border-slate-700 my-1" />
+
+              <button
+                type="button"
+                onClick={() => handleMenuNavigate("/data-verification")}
+                className="w-full flex items-center gap-3 px-4 py-2.5 transition-all duration-150 hover:bg-slate-50/50 dark:hover:bg-slate-700/50 bg-transparent border-none cursor-pointer text-slate-600 dark:text-slate-300 text-[13px] font-['Sora'] text-left"
+              >
+                <MdVerifiedUser className="text-base text-slate-500 dark:text-slate-400" />
+                Data & Verification
               </button>
 
               <div className="border-t border-slate-200/60 dark:border-slate-700 my-1" />

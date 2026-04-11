@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "../../Context/AuthContext";
 import { API_BASE_URL } from "../../utils/api";
 
-const API_BASE = API_BASE_URL;
+const API_BASE = (import.meta.env.VITE_API_URL || "/api").replace(/\/$/, "");
 
 const parseApiResponse = async (response) => {
   const contentType = response.headers.get("content-type") || "";
@@ -68,7 +68,7 @@ function InteractiveStarRating({
 
   return (
     <div
-      className={`flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6 py-5 border-b border-slate-200/90 dark:border-slate-700/80 last:border-b-0 transition-colors duration-200 ease-in-out ${
+      className={`flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6 py-4 border-b border-slate-200/90 dark:border-slate-700/80 last:border-b-0 transition-colors duration-200 ease-in-out ${
         disabled ? "opacity-55 pointer-events-none" : ""
       }`}
       onMouseLeave={() => setHover(null)}
@@ -84,12 +84,12 @@ function InteractiveStarRating({
       </div>
 
         <div
-        className="flex flex-col items-end gap-2 sm:min-w-65"
+        className="flex flex-col items-end gap-2 sm:min-w-64"
         role="group"
         aria-labelledby={`${id}-label`}
         aria-label={`Rate ${shortLabel}, 1 to 5 stars. Current selection ${value > 0 ? `${value} of 5` : "none"}.`}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <div className="flex items-center gap-0.5">
             {[1, 2, 3, 4, 5].map((n) => {
               const lit = highlight >= n;
@@ -122,7 +122,7 @@ function InteractiveStarRating({
             })}
           </div>
           <span
-            className="text-xs font-medium tabular-nums text-emerald-600 dark:text-emerald-400 min-w-22 text-right font-['Sora'] transition-colors duration-200 ease-in-out"
+            className="text-xs font-medium tabular-nums text-emerald-600 dark:text-emerald-400 min-w-24 text-right font-['Sora'] transition-colors duration-200 ease-in-out"
             aria-live="polite"
           >
             {meaning}
@@ -215,7 +215,7 @@ const PlatformRatingPage = () => {
   }, []);
 
   const inputClass =
-    "w-full px-4 py-3 rounded-xl text-sm font-['Sora'] text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-600/80 focus:border-emerald-500 dark:focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/25 outline-none transition-[border-color,box-shadow] duration-200 ease-in-out placeholder:text-slate-400 dark:placeholder:text-slate-500";
+    "w-full px-3 py-2.5 rounded-md text-sm font-['Sora'] text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-600/80 focus:border-emerald-500 dark:focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/25 outline-none transition-[border-color,box-shadow] duration-200 ease-in-out placeholder:text-slate-400 dark:placeholder:text-slate-500";
 
   const setField = useCallback((key, v) => {
     setForm((prev) => ({ ...prev, [key]: v }));
@@ -296,23 +296,23 @@ const PlatformRatingPage = () => {
   const displayAverage = existing ? averageRatingFromRecord(existing) : 0;
 
   return (
-    <section className="min-h-[calc(100vh-5rem)] w-full flex flex-col items-center justify-center px-4 py-10 sm:py-12">
+    <section className="min-h-[calc(100vh-5rem)] w-full flex flex-col items-center justify-center px-3 py-8">
       <div className="w-full max-w-3xl">
-        <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-md dark:shadow-lg dark:shadow-black/30 overflow-hidden">
-          <div className="px-5 md:px-8 pt-6 pb-4 border-b border-emerald-700/20 dark:border-slate-700/60 bg-linear-to-r from-emerald-600/95 via-emerald-600 to-teal-700/90">
-            <h1 className="text-white text-xl md:text-2xl font-bold font-['Sora'] tracking-tight">
+        <div className="rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 overflow-hidden">
+          <div className="px-5 md:px-6 py-5 border-b border-slate-200 dark:border-slate-700/60">
+            <h1 className="text-slate-900 dark:text-slate-100 text-xl font-semibold font-['Sora'] tracking-tight">
               Rate the platform
             </h1>
-            <p className="mt-2 text-sm text-emerald-50/95 font-['Sora'] leading-relaxed max-w-2xl">
+            <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400 font-['Sora'] leading-relaxed max-w-2xl">
               Share how AgroFund works for you. Your ratings help us improve loans, courses, support, and usability.
             </p>
           </div>
 
-          <div className="px-5 md:px-8 py-6 md:py-8">
+          <div className="px-5 md:px-6 py-5 md:py-6">
             {loading && (
-              <div className="flex justify-center py-16">
+              <div className="flex justify-center py-10">
                 <div
-                  className="inline-block animate-spin rounded-full h-11 w-11 border-[3px] border-emerald-200 dark:border-emerald-500/30 border-t-emerald-600 dark:border-t-emerald-400"
+                  className="inline-block animate-spin rounded-full h-9 w-9 border-[3px] border-emerald-200 dark:border-emerald-500/30 border-t-emerald-600 dark:border-t-emerald-400"
                   role="status"
                   aria-label="Loading"
                 />
@@ -320,30 +320,30 @@ const PlatformRatingPage = () => {
             )}
 
             {loadError && (
-              <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/50 text-sm text-red-700 dark:text-red-200 font-['Sora']">
+              <div className="mb-3 px-3 py-2.5 rounded-md bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/50 text-sm text-red-700 dark:text-red-200 font-['Sora']">
                 {loadError}
               </div>
             )}
 
             {error && (
-              <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/50 text-sm text-red-700 dark:text-red-200 font-['Sora']">
+              <div className="mb-3 px-3 py-2.5 rounded-md bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/50 text-sm text-red-700 dark:text-red-200 font-['Sora']">
                 {error}
               </div>
             )}
 
             {showAlreadyRated && (
-              <div className="space-y-5 text-sm text-slate-800 dark:text-slate-200 font-['Sora']">
+              <div className="space-y-4 text-sm text-slate-800 dark:text-slate-200 font-['Sora']">
                 {success && (
-                  <div className="rounded-xl border border-emerald-200 dark:border-emerald-500/35 bg-emerald-50 dark:bg-emerald-950/40 px-4 py-4 shadow-sm">
+                  <div className="rounded-md border border-emerald-200 dark:border-emerald-500/35 bg-emerald-50 dark:bg-emerald-950/40 px-3.5 py-3.5">
                     <p className="text-base font-semibold text-emerald-800 dark:text-emerald-300">
                       Thank you for helping improve AgroFund!
                     </p>
-                    <p className="mt-3 text-xs uppercase tracking-wider text-slate-600 dark:text-slate-400">Your average rating</p>
-                    <div className="mt-2">
+                    <p className="mt-2 text-[11px] uppercase tracking-[0.16em] text-slate-600 dark:text-slate-400">Your average rating</p>
+                    <div className="mt-1.5">
                       {displayAverage > 0 ? (
                         <StarAverageDisplay value={displayAverage} />
                       ) : (
-                        <p className="text-sm text-slate-500 dark:text-slate-400">—</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">—</p>
                       )}
                     </div>
                   </div>
@@ -353,16 +353,16 @@ const PlatformRatingPage = () => {
                     <p className="text-emerald-700 dark:text-emerald-400 font-medium">
                       You have already submitted a platform rating.
                     </p>
-                    <p className="text-xs uppercase tracking-wider text-slate-600 dark:text-slate-500">Your average rating</p>
+                    <p className="text-[11px] uppercase tracking-[0.16em] text-slate-600 dark:text-slate-500">Your average rating</p>
                     {displayAverage > 0 ? (
                       <StarAverageDisplay value={displayAverage} />
                     ) : (
-                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">—</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">—</p>
                     )}
                   </>
                 )}
                 <div
-                  className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 pt-3 border-t border-slate-200 dark:border-slate-700/60 font-['Sora']"
+                  className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-2 pt-2.5 border-t border-slate-200 dark:border-slate-700/60 font-['Sora']"
                   role="list"
                   aria-label="Your category ratings"
                 >
@@ -375,7 +375,7 @@ const PlatformRatingPage = () => {
                   ].map(([label, num]) => (
                     <p
                       key={label}
-                      className="text-sm text-slate-800 dark:text-slate-100 flex flex-wrap items-baseline gap-1.5"
+                      className="text-sm text-slate-800 dark:text-slate-100 flex flex-wrap items-baseline gap-1"
                       role="listitem"
                     >
                       <span className="text-slate-600 dark:text-slate-400">{label}:</span>
@@ -384,7 +384,7 @@ const PlatformRatingPage = () => {
                   ))}
                 </div>
                 {existing?.feedback && (
-                  <p className="text-sm text-slate-700 dark:text-slate-300 border-t border-slate-200 dark:border-slate-700/60 pt-4 leading-relaxed">
+                  <p className="text-sm text-slate-700 dark:text-slate-300 border-t border-slate-200 dark:border-slate-700/60 pt-3 leading-relaxed">
                     {existing.feedback}
                   </p>
                 )}
@@ -393,12 +393,12 @@ const PlatformRatingPage = () => {
 
             {showForm && (
               <form onSubmit={handleSubmit} className="space-y-2">
-                <p className="text-sm text-slate-600 dark:text-slate-400 font-['Sora'] mb-4 leading-relaxed">
+                <p className="text-sm text-slate-600 dark:text-slate-400 font-['Sora'] mb-3.5 leading-relaxed">
                   Tap or use keyboard arrows on a star row to set your score. Optional written feedback may appear on
                   the homepage when shared publicly.
                 </p>
 
-                <div className="rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50 dark:bg-slate-800/30 px-1 sm:px-4 divide-y divide-slate-200 dark:divide-slate-700/40">
+                <div className="rounded-md border border-slate-200 dark:border-slate-700/50 bg-slate-50 dark:bg-slate-800/30 px-1 sm:px-3 divide-y divide-slate-200 dark:divide-slate-700/40">
                   {CATEGORIES.map((cat) => (
                     <InteractiveStarRating
                       key={cat.key}
@@ -411,8 +411,8 @@ const PlatformRatingPage = () => {
                   ))}
                 </div>
 
-                <div className="pt-6">
-                  <label htmlFor="platform-feedback-text" className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-widest mb-2 font-['Sora']">
+                <div className="pt-4.5">
+                  <label htmlFor="platform-feedback-text" className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-[0.16em] mb-1.5 font-['Sora']">
                     Feedback (optional)
                   </label>
                   <textarea
@@ -422,10 +422,10 @@ const PlatformRatingPage = () => {
                     maxLength={FEEDBACK_MAX}
                     rows={7}
                     placeholder="Share what you liked or what we can improve..."
-                    className={`${inputClass} resize-y min-h-44`}
+                    className={`${inputClass} resize-y min-h-36`}
                     aria-describedby="feedback-counter"
                   />
-                  <p id="feedback-counter" className="mt-2 text-right text-xs text-slate-500 font-['Sora'] tabular-nums">
+                  <p id="feedback-counter" className="mt-1.5 text-right text-xs text-slate-500 font-['Sora'] tabular-nums">
                     {form.feedback.length} / {FEEDBACK_MAX}
                   </p>
                 </div>
@@ -433,14 +433,7 @@ const PlatformRatingPage = () => {
                 <button
                   type="submit"
                   disabled={submitting || !allRequiredSelected}
-                  className="mt-6 w-full inline-flex items-center justify-center px-5 py-3.5 rounded-xl text-sm font-semibold text-white font-['Sora']
-                    bg-linear-to-r from-emerald-600 to-teal-600
-                    shadow-[0_4px_14px_-4px_rgba(16,185,129,0.55)]
-                    transition-all duration-200 ease-in-out
-                    hover:from-emerald-500 hover:to-teal-500 hover:shadow-[0_8px_28px_-6px_rgba(16,185,129,0.65)] hover:scale-[1.01]
-                    active:scale-[0.99]
-                    disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-[0_4px_14px_-4px_rgba(16,185,129,0.35)]
-                    focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900"
+                  className="mt-5 w-full inline-flex items-center justify-center px-4 py-3 rounded-md text-sm font-semibold text-white font-['Sora'] bg-emerald-600 hover:bg-emerald-700 transition-colors duration-150 disabled:opacity-45 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900"
                 >
                   {submitting ? (
                     <span className="flex items-center gap-2">

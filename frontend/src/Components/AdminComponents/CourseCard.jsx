@@ -4,7 +4,8 @@ import AddLessonModal from './AddLessonModal';
 import AddQuizModal from './AddQuizModal';
 import PreviewModal from './PreviewModal';
 import axios from 'axios';
-import { API_BASE_URL } from '../../utils/api';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 // Helper to get auth headers
 const getAuthHeaders = () => {

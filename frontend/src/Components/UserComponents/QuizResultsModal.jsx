@@ -7,6 +7,8 @@ import {
 } from "react-icons/hi";
 import { apiUrl } from "../../utils/api";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
+
 export default function QuizResultsModal({
   quizResults,
   attemptId,
@@ -33,7 +35,7 @@ export default function QuizResultsModal({
     
     try {
       const response = await fetch(
-        apiUrl(`/ai/${attemptId}/explanations`),
+        `${API_BASE_URL}/ai/${attemptId}/explanations`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,

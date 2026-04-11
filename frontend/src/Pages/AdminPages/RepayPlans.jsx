@@ -5,7 +5,8 @@ import AddPlanModal from '../../Components/AdminComponents/AddPlanModal';
 import ConfirmBox from '../../Components/SharedComponents/ConfirmBox';
 import axios from 'axios';
 import { showSuccess, showError } from '../../utils/toast';
-import { API_BASE_URL } from '../../utils/api';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('token');
