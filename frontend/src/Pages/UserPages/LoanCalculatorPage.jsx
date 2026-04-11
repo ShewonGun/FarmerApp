@@ -31,11 +31,21 @@ const parseApiResponse = async (response) => {
   };
 };
 
+const EXCHANGE_RATE_API_URL = "https://api.exchangerate-api.com/v4/latest/LKR";
+
 const formatCurrency = (value) =>
   new Intl.NumberFormat("en-LK", {
     style: "currency",
     currency: "LKR",
     minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(Number(value || 0));
+
+const formatUsdCurrency = (value) =>
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(Number(value || 0));
 
@@ -57,6 +67,8 @@ const LoanCalculatorPage = () => {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [serverError, setServerError] = useState("");
+  const [exchangeRate, setExchangeRate] = useState(null);
+  const [exchangeRateError, setExchangeRateError] = useState("");
   const [form, setForm] = useState({
     categoryId: "",
     planId: "",
@@ -83,6 +95,18 @@ const LoanCalculatorPage = () => {
     () => calculatePenaltyExample(selectedPlan, preview?.installmentAmount),
     [preview?.installmentAmount, selectedPlan]
   );
+
+  const previewInUsd = useMemo(() => {
+    if (!preview || !exchangeRate || !Number.isFinite(Number(exchangeRate))) {
+      return null;
+    }
+
+    return {
+      installmentAmount: Number(preview.installmentAmount || 0) * Number(exchangeRate),
+      totalInterest: Number(preview.totalInterest || 0) * Number(exchangeRate),
+      totalPayable: Number(preview.totalPayable || 0) * Number(exchangeRate),
+    };
+  }, [exchangeRate, preview]);
 
   useEffect(() => {
     const loadCalculatorData = async () => {
@@ -132,6 +156,27 @@ const LoanCalculatorPage = () => {
     };
 
     loadCalculatorData();
+  }, []);
+
+  useEffect(() => {
+    const loadExchangeRate = async () => {
+      try {
+        setExchangeRateError("");
+        const response = await fetch(EXCHANGE_RATE_API_URL);
+        const data = await parseApiResponse(response);
+
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to load exchange rate.");
+        }
+
+        setExchangeRate(Number(data?.rates?.USD || 0));
+      } catch (error) {
+        setExchangeRate(null);
+        setExchangeRateError(error.message || "Unable to load exchange rate.");
+      }
+    };
+
+    loadExchangeRate();
   }, []);
 
   if (loading) {
@@ -325,6 +370,44 @@ const LoanCalculatorPage = () => {
               ) : (
                 <p className="mt-4 text-sm text-slate-500 dark:text-slate-400 font-['Sora']">
                   Select a plan and amount to view results.
+                </p>
+              )}
+            </div>
+
+            <div className="rounded-md border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+              <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 font-['Sora']">
+                Exchange Rate
+              </p>
+
+              {exchangeRate ? (
+                <div className="mt-3 space-y-2.5 text-sm text-slate-600 dark:text-slate-300 font-['Sora']">
+                  <div className="flex items-center justify-between">
+                    <span>Current Rate</span>
+                    <span className="font-semibold text-slate-900 dark:text-slate-100">
+                      1 LKR = {exchangeRate.toFixed(6)} USD
+                    </span>
+                  </div>
+                  {previewInUsd && (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <span>Installment in USD</span>
+                        <span className="font-semibold text-slate-900 dark:text-slate-100">
+                          {formatUsdCurrency(previewInUsd.installmentAmount)}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span>Total repayment in USD</span>
+                        <span className="font-semibold text-slate-900 dark:text-slate-100">
+                          {formatUsdCurrency(previewInUsd.totalPayable)}
+                        </span>
+                      </div>
+                    </>
+                  )}
+                 
+                </div>
+              ) : (
+                <p className="mt-3 text-sm text-slate-500 dark:text-slate-400 font-['Sora']">
+                  {exchangeRateError || "Loading exchange rate..."}
                 </p>
               )}
             </div>

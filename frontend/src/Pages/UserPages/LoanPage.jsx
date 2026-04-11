@@ -6,7 +6,6 @@ import {
   HiCheckBadge,
   HiClipboardDocumentList,
   HiCurrencyDollar,
-  HiDocumentArrowUp,
   HiLockClosed,
   HiInformationCircle,
   HiUserCircle,
@@ -198,7 +197,6 @@ const LoanPage = () => {
     purpose: "",
     agreement: false,
   });
-  const [uploadedDocuments, setUploadedDocuments] = useState([]);
 
   const selectedPlan = useMemo(
     () => plans.find((plan) => plan._id === form.planId) || null,
@@ -322,10 +320,6 @@ const LoanPage = () => {
     setForm((current) => ({ ...current, agreement: event.target.checked }));
   };
 
-  const handleDocumentsChange = (event) => {
-    setUploadedDocuments(Array.from(event.target.files || []));
-  };
-
   const scrollToApplicationForm = () => {
     document.getElementById("loan-application-form")?.scrollIntoView({
       behavior: "smooth",
@@ -417,7 +411,6 @@ const LoanPage = () => {
         planName: selectedPlan?.planName || data.planName || "Repayment Plan",
         purpose: form.purpose.trim(),
         submittedAt: new Date().toISOString(),
-        requiredDocuments: uploadedDocuments.map((file) => file.name),
         repaymentPreview: preview,
         paymentFrequency: selectedPlan?.paymentFrequency || data.paymentFrequency || "",
         installmentAmount:
@@ -437,7 +430,6 @@ const LoanPage = () => {
         purpose: "",
         agreement: false,
       }));
-      setUploadedDocuments([]);
       navigate("/my-loans");
     } catch (error) {
       toast.error(error.message || "Unable to submit your application.");
@@ -603,40 +595,6 @@ const LoanPage = () => {
                 <div className="mt-3 grid gap-3 sm:grid-cols-2 text-sm font-['Sora'] text-slate-700 dark:text-slate-300">
                   <p>{farmerProfile?.name || user?.name || "Login required"}</p>
                   <p>{farmerProfile?.email || user?.email || "Login required"}</p>
-                </div>
-              </div>
-
-              <div className="rounded-md border border-slate-200 bg-slate-50/70 p-4 dark:border-slate-700 dark:bg-slate-800/50">
-                <div className="flex items-center gap-2">
-                  <HiDocumentArrowUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">Documents</p>
-                </div>
-                {selectedCategory?.requiredDocuments?.length > 0 && (
-                  <ul className="mt-3 space-y-1.5 text-sm text-slate-700 dark:text-slate-300 font-['Sora']">
-                    {selectedCategory.requiredDocuments.map((documentName) => (
-                      <li key={documentName} className="flex items-center gap-2">
-                        <HiCheckBadge className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                        <span>{documentName}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                <div className="mt-3 rounded-md border border-dashed border-slate-300 bg-white p-3 dark:border-slate-600 dark:bg-slate-900/50">
-                  <input
-                    type="file"
-                    multiple
-                    onChange={handleDocumentsChange}
-                    className="block w-full text-sm text-slate-600 file:mr-3 file:rounded-md file:border-0 file:bg-emerald-50 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-emerald-700 hover:file:bg-emerald-100 font-['Sora'] dark:text-slate-300 dark:file:bg-emerald-900/30 dark:file:text-emerald-300"
-                  />
-                  {uploadedDocuments.length > 0 && (
-                    <div className="mt-2 space-y-1">
-                      {uploadedDocuments.map((file) => (
-                        <p key={`${file.name}-${file.size}`} className="text-xs text-slate-600 dark:text-slate-300 font-['Sora']">
-                          {file.name}
-                        </p>
-                      ))}
-                    </div>
-                  )}
                 </div>
               </div>
 

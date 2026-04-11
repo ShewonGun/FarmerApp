@@ -7,6 +7,8 @@ import {
   MdBook,
   MdPayments,
   MdSupportAgent,
+  MdAssignment,
+  MdConfirmationNumber,
   MdAttachMoney,
 } from "react-icons/md";
 import AgroFundLogo from "../../assets/AgroFundLogo.png";
@@ -16,7 +18,8 @@ const navItems = [
   { label: "Dashboard", icon: MdDashboard, path: "/admin" },
   { label: "Users", icon: MdPeople, path: "/admin/users"},
   { label: "Courses", icon: MdBook, path: "/admin/courses"},
-  { label: "Tickets", icon: MdSupportAgent, path: "/admin/requests"},
+  { label: "Active Loans", icon: MdAssignment, path: "/admin/requests"},
+  { label: "Tickets", icon: MdConfirmationNumber, path: "/admin/tickets"},
   { label: "Loan Repayments", icon: MdAttachMoney, path: "/admin/loan-repayments"},
   { label: "Payment Plans", icon: MdPayments, path: "/admin/repayments"},
   //{ label: "Analytics", icon: MdBarChart, path: "/admin/analytics"},
