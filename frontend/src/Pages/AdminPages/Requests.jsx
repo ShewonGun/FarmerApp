@@ -16,7 +16,7 @@ import {
 import { showError } from "../../utils/toast";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-const LOAN_ENDPOINT_CANDIDATES = ["/loans", "/admin/loans", "/loans/admin"];
+const LOAN_ENDPOINT_CANDIDATES = ["/loans/admin", "/loans"];
 
 const demoLoans = [
   {
@@ -322,41 +322,37 @@ const Requests = () => {
       value: groupedCounts.active + groupedCounts.dueSoon + groupedCounts.overdue,
       helper: `${formatCurrency(totalArrears)} total arrears tracked`,
       icon: MdAttachMoney,
-      tone: "from-emerald-500 to-teal-500",
     },
     {
       label: "Due Soon",
       value: groupedCounts.dueSoon,
       helper: "Installments due within 7 days",
       icon: MdAccessTime,
-      tone: "from-amber-500 to-orange-500",
     },
     {
       label: "Overdue",
       value: groupedCounts.overdue,
       helper: "Arrears or missed due dates",
       icon: MdWarningAmber,
-      tone: "from-rose-500 to-red-500",
     },
     {
       label: "Completed",
       value: groupedCounts.completed,
       helper: "Fully settled loans",
       icon: MdCheckCircle,
-      tone: "from-sky-500 to-cyan-500",
     },
   ];
 
   return (
-    <div className="p-4 md:p-5 lg:p-6 bg-slate-50 dark:bg-slate-900 min-h-screen">
-      <div className="max-w-7xl mx-auto space-y-4">
-        <section className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-4 md:p-5">
+    <div className="p-3 md:p-4 bg-slate-50 dark:bg-slate-900 min-h-screen">
+      <div className="max-w-7xl mx-auto space-y-3">
+        <section className="rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-3 md:p-4">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h1 className="text-lg md:text-xl font-semibold text-slate-900 dark:text-slate-100 font-['Sora'] tracking-tight">
+              <h1 className="text-base md:text-lg font-semibold text-slate-900 dark:text-slate-100 font-['Sora'] tracking-tight">
                 Active Loans Management
               </h1>
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
+              <p className="mt-1 text-[11px] leading-5 text-slate-500 dark:text-slate-400 font-['Sora']">
                 View all active loans and details, track due soon and overdue accounts, and filter by category, plan, status, arrears, and date.
               </p>
             </div>
@@ -364,18 +360,18 @@ const Requests = () => {
             <button
               onClick={fetchLoans}
               disabled={loading}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-emerald-600 dark:hover:bg-emerald-500 px-4 py-2.5 text-xs font-semibold text-white transition-colors disabled:opacity-60 font-['Sora']"
+              className="inline-flex items-center justify-center gap-2 rounded-sm bg-slate-900 hover:bg-slate-800 dark:bg-emerald-600 dark:hover:bg-emerald-500 px-3 py-2 text-[11px] font-semibold text-white transition-colors disabled:opacity-60 font-['Sora']"
             >
-              <MdRefresh className={loading ? "animate-spin text-base" : "text-base"} />
+              <MdRefresh className={loading ? "animate-spin text-sm" : "text-sm"} />
               Refresh Loans
             </button>
           </div>
 
           {usingDemoData && (
-            <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-900/40 dark:bg-amber-900/10 px-4 py-3">
+            <div className="mt-3 rounded-sm border border-amber-200 bg-amber-50 dark:border-amber-900/40 dark:bg-amber-900/10 px-3 py-2.5">
               <div className="flex items-start gap-3">
-                <MdInfoOutline className="mt-0.5 text-lg text-amber-600 dark:text-amber-300 shrink-0" />
-                <p className="text-xs leading-6 text-amber-800 dark:text-amber-200 font-['Sora']">
+                <MdInfoOutline className="mt-0.5 text-base text-amber-600 dark:text-amber-300 shrink-0" />
+                <p className="text-[11px] leading-5 text-amber-800 dark:text-amber-200 font-['Sora']">
                   Preview mode is active because the backend does not yet expose a full admin loan-list endpoint. The page layout, filters, and statuses are ready, and it will switch to real data as soon as that endpoint exists.
                 </p>
               </div>
@@ -383,29 +379,29 @@ const Requests = () => {
           )}
         </section>
 
-        <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
           {summaryCards.map((card) => {
             const Icon = card.icon;
 
             return (
               <div
                 key={card.label}
-                className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-4"
+                className="rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-3"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-[11px] uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400 font-['Sora']">
+                    <p className="text-[10px] uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400 font-['Sora']">
                       {card.label}
                     </p>
-                    <p className="mt-3 text-2xl font-bold text-slate-900 dark:text-slate-100 font-['Sora']">
+                    <p className="mt-2 text-xl font-bold text-slate-900 dark:text-slate-100 font-['Sora']">
                       {loading ? "..." : card.value}
                     </p>
-                    <p className="mt-2 text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
+                    <p className="mt-1.5 text-[11px] text-slate-500 dark:text-slate-400 font-['Sora']">
                       {card.helper}
                     </p>
                   </div>
-                  <div className={`rounded-2xl bg-linear-to-r ${card.tone} p-3 text-white shadow-sm`}>
-                    <Icon className="text-xl" />
+                  <div className="rounded-sm bg-slate-100 dark:bg-slate-700 p-2.5 text-slate-600 dark:text-slate-200">
+                    <Icon className="text-lg" />
                   </div>
                 </div>
               </div>
@@ -413,10 +409,10 @@ const Requests = () => {
           })}
         </section>
 
-        <section className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-4 md:p-5">
+        <section className="rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-3 md:p-4">
           <div className="flex items-center gap-2">
-            <MdFilterList className="text-lg text-emerald-600 dark:text-emerald-400" />
-            <h2 className="text-sm md:text-base font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
+            <MdFilterList className="text-base text-emerald-600 dark:text-emerald-400" />
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
               Filters
             </h2>
           </div>
@@ -428,14 +424,14 @@ const Requests = () => {
                 value={filters.search}
                 onChange={(event) => setFilters((current) => ({ ...current, search: event.target.value }))}
                 placeholder="Search farmer, category or plan"
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-10 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-emerald-400 font-['Sora']"
+                className="w-full rounded-sm border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-10 py-2 text-xs text-slate-900 dark:text-slate-100 outline-none focus:border-emerald-400 font-['Sora']"
               />
             </label>
 
             <select
               value={filters.category}
               onChange={(event) => setFilters((current) => ({ ...current, category: event.target.value }))}
-              className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-emerald-400 font-['Sora']"
+              className="rounded-sm border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 outline-none focus:border-emerald-400 font-['Sora']"
             >
               <option value="all">All Categories</option>
               {filterOptions.categories.map((category) => (
@@ -448,7 +444,7 @@ const Requests = () => {
             <select
               value={filters.plan}
               onChange={(event) => setFilters((current) => ({ ...current, plan: event.target.value }))}
-              className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-emerald-400 font-['Sora']"
+              className="rounded-sm border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 outline-none focus:border-emerald-400 font-['Sora']"
             >
               <option value="all">All Plans</option>
               {filterOptions.plans.map((plan) => (
@@ -461,7 +457,7 @@ const Requests = () => {
             <select
               value={filters.status}
               onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value }))}
-              className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-emerald-400 font-['Sora']"
+              className="rounded-sm border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 outline-none focus:border-emerald-400 font-['Sora']"
             >
               <option value="all">All Statuses</option>
               <option value="active">Active</option>
@@ -474,7 +470,7 @@ const Requests = () => {
               <select
                 value={filters.arrears}
                 onChange={(event) => setFilters((current) => ({ ...current, arrears: event.target.value }))}
-                className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-emerald-400 font-['Sora']"
+                className="rounded-sm border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 outline-none focus:border-emerald-400 font-['Sora']"
               >
                 <option value="all">All Arrears</option>
                 <option value="withArrears">With Arrears</option>
@@ -484,7 +480,7 @@ const Requests = () => {
               <select
                 value={filters.date}
                 onChange={(event) => setFilters((current) => ({ ...current, date: event.target.value }))}
-                className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-emerald-400 font-['Sora']"
+                className="rounded-sm border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 outline-none focus:border-emerald-400 font-['Sora']"
               >
                 <option value="all">All Dates</option>
                 <option value="today">Due Today</option>
@@ -495,14 +491,14 @@ const Requests = () => {
           </div>
         </section>
 
-        <section className="grid grid-cols-1 xl:grid-cols-[1.2fr_0.8fr] gap-4">
-          <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm overflow-hidden">
+        <section className="grid grid-cols-1 xl:grid-cols-[1.2fr_0.8fr] gap-3">
+          <div className="rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-hidden">
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 px-4 py-4">
               <div>
-                <h2 className="text-sm md:text-base font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
+                <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
                   Loan Portfolio
                 </h2>
-                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
+                <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400 font-['Sora']">
                   {filteredLoans.length} loan records match the current filters.
                 </p>
               </div>
@@ -510,7 +506,7 @@ const Requests = () => {
 
             {loading ? (
               <div className="flex items-center justify-center py-16">
-                <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent" />
+                <div className="h-10 w-10 animate-spin rounded-md border-4 border-emerald-500 border-t-transparent" />
               </div>
             ) : filteredLoans.length === 0 ? (
               <div className="px-4 py-16 text-center">
@@ -527,7 +523,7 @@ const Requests = () => {
                       {["Farmer", "Category / Plan", "Status", "Due Date", "Arrears", "Balance"].map((label) => (
                         <th
                           key={label}
-                          className="px-4 py-3 text-left text-[11px] uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400 font-['Sora']"
+                          className="px-4 py-3 text-left text-[10px] uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400 font-['Sora']"
                         >
                           {label}
                         </th>
@@ -538,37 +534,37 @@ const Requests = () => {
                     {filteredLoans.map((loan) => (
                       <tr key={loan._id} className="hover:bg-slate-50/70 dark:hover:bg-slate-900/30">
                         <td className="px-4 py-4 align-top">
-                          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
+                          <p className="text-xs font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
                             {loan.farmerName}
                           </p>
-                          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
+                          <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400 font-['Sora']">
                             {loan.farmerEmail || "No email"}
                           </p>
                         </td>
                         <td className="px-4 py-4 align-top">
-                          <p className="text-sm text-slate-900 dark:text-slate-100 font-['Sora']">{loan.categoryName}</p>
-                          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 font-['Sora']">{loan.planName}</p>
+                          <p className="text-xs text-slate-900 dark:text-slate-100 font-['Sora']">{loan.categoryName}</p>
+                          <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400 font-['Sora']">{loan.planName}</p>
                         </td>
                         <td className="px-4 py-4 align-top">
-                          <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold font-['Sora'] ${getStatusTone(loan.statusBucket)}`}>
+                          <span className={`inline-flex rounded-sm border px-2.5 py-1 text-[11px] font-semibold font-['Sora'] ${getStatusTone(loan.statusBucket)}`}>
                             {loan.statusBucket === "dueSoon"
                               ? "Due Soon"
                               : loan.statusBucket.charAt(0).toUpperCase() + loan.statusBucket.slice(1)}
                           </span>
                         </td>
                         <td className="px-4 py-4 align-top">
-                          <p className="text-sm text-slate-900 dark:text-slate-100 font-['Sora']">{formatDate(loan.nextDueDate)}</p>
-                          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
+                          <p className="text-xs text-slate-900 dark:text-slate-100 font-['Sora']">{formatDate(loan.nextDueDate)}</p>
+                          <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400 font-['Sora']">
                             {loan.nextDueDate ? `${daysUntil(loan.nextDueDate)} days` : "Closed"}
                           </p>
                         </td>
                         <td className="px-4 py-4 align-top">
-                          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
+                          <p className="text-xs font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
                             {formatCurrency(loan.arrearsAmount)}
                           </p>
                         </td>
                         <td className="px-4 py-4 align-top">
-                          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
+                          <p className="text-xs font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
                             {formatCurrency(loan.remainingBalance)}
                           </p>
                         </td>
@@ -580,80 +576,80 @@ const Requests = () => {
             )}
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             {filteredLoans.slice(0, 4).map((loan) => (
               <div
                 key={loan._id}
-                className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-4"
+                className="rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-3"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
+                    <p className="text-xs font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
                       {loan.farmerName}
                     </p>
-                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
+                    <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400 font-['Sora']">
                       {loan.categoryName} • {loan.planName}
                     </p>
                   </div>
-                  <span className={`inline-flex rounded-full border px-3 py-1 text-[11px] font-semibold font-['Sora'] ${getStatusTone(loan.statusBucket)}`}>
+                  <span className={`inline-flex rounded-sm border px-3 py-1 text-[11px] font-semibold font-['Sora'] ${getStatusTone(loan.statusBucket)}`}>
                     {loan.statusBucket === "dueSoon"
                       ? "Due Soon"
                       : loan.statusBucket.charAt(0).toUpperCase() + loan.statusBucket.slice(1)}
                   </span>
                 </div>
 
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                  <div className="rounded-xl bg-slate-50 dark:bg-slate-900/60 p-3">
+                <div className="mt-3 grid grid-cols-2 gap-2.5">
+                  <div className="rounded-sm bg-slate-50 dark:bg-slate-900/60 p-2.5">
                     <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-                      <MdPayments className="text-base" />
+                      <MdPayments className="text-sm" />
                       <span className="text-[11px] uppercase tracking-[0.2em] font-['Sora']">Installment</span>
                     </div>
-                    <p className="mt-2 text-sm font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
+                    <p className="mt-1.5 text-xs font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
                       {formatCurrency(loan.installmentAmount)}
                     </p>
                   </div>
 
-                  <div className="rounded-xl bg-slate-50 dark:bg-slate-900/60 p-3">
+                  <div className="rounded-sm bg-slate-50 dark:bg-slate-900/60 p-2.5">
                     <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-                      <MdCalendarMonth className="text-base" />
+                      <MdCalendarMonth className="text-sm" />
                       <span className="text-[11px] uppercase tracking-[0.2em] font-['Sora']">Next Due</span>
                     </div>
-                    <p className="mt-2 text-sm font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
+                    <p className="mt-1.5 text-xs font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
                       {formatDate(loan.nextDueDate)}
                     </p>
                   </div>
 
-                  <div className="rounded-xl bg-slate-50 dark:bg-slate-900/60 p-3">
+                  <div className="rounded-sm bg-slate-50 dark:bg-slate-900/60 p-2.5">
                     <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-                      <MdTrendingUp className="text-base" />
+                      <MdTrendingUp className="text-sm" />
                       <span className="text-[11px] uppercase tracking-[0.2em] font-['Sora']">Paid</span>
                     </div>
-                    <p className="mt-2 text-sm font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
+                    <p className="mt-1.5 text-xs font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
                       {formatCurrency(loan.totalPaid)}
                     </p>
                   </div>
 
-                  <div className="rounded-xl bg-slate-50 dark:bg-slate-900/60 p-3">
+                  <div className="rounded-sm bg-slate-50 dark:bg-slate-900/60 p-2.5">
                     <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-                      <MdAttachMoney className="text-base" />
+                      <MdAttachMoney className="text-sm" />
                       <span className="text-[11px] uppercase tracking-[0.2em] font-['Sora']">Balance</span>
                     </div>
-                    <p className="mt-2 text-sm font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
+                    <p className="mt-1.5 text-xs font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
                       {formatCurrency(loan.remainingBalance)}
                     </p>
                   </div>
                 </div>
 
-                <div className="mt-4 rounded-xl border border-slate-200 dark:border-slate-700 px-3 py-3">
+                <div className="mt-3 rounded-sm border border-slate-200 dark:border-slate-700 px-3 py-2.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-500 dark:text-slate-400 font-['Sora']">Arrears</span>
-                    <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 font-['Sora']">Arrears</span>
+                    <span className="text-xs font-semibold text-slate-900 dark:text-slate-100 font-['Sora']">
                       {formatCurrency(loan.arrearsAmount)}
                     </span>
                   </div>
-                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
+                  <div className="mt-2 h-2 overflow-hidden rounded-sm bg-slate-100 dark:bg-slate-700">
                     <div
-                      className={`h-full rounded-full ${
+                      className={`h-full rounded-sm ${
                         loan.arrearsAmount > 0 ? "bg-red-500" : "bg-emerald-500"
                       }`}
                       style={{
@@ -671,8 +667,8 @@ const Requests = () => {
             ))}
 
             {!loading && filteredLoans.length === 0 && (
-              <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-10 text-center">
-                <p className="text-sm text-slate-500 dark:text-slate-400 font-['Sora']">
+              <div className="rounded-md border border-dashed border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-8 text-center">
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-['Sora']">
                   Adjust filters or connect the loan-list endpoint to populate detailed cards here.
                 </p>
               </div>
