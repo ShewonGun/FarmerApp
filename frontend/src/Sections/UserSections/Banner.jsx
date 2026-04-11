@@ -14,18 +14,18 @@ const Banner = ({ compact = false }) => {
         className={`mx-auto ${compact ? "max-w-full px-0 flex-1 flex flex-col min-h-0 w-full" : "max-w-5xl px-6"}`}
       >
         <div
-          className={`bg-linear-to-br from-emerald-500 to-emerald-700 rounded-2xl text-white ${
+          className={`rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 ${
             compact
-              ? "flex-1 h-full min-h-[300px] w-full px-8 py-10 flex flex-col justify-between items-start gap-6"
+              ? "flex-1 h-full min-h-75 w-full px-6 py-7 flex flex-col justify-between items-start gap-5"
               : "px-8 py-12 md:py-14 md:px-16 flex flex-col md:flex-row items-center justify-between gap-8"
           }`}
         >
           {/* Text */}
           <div className={`text-left ${compact ? "w-full" : ""}`}>
-            <h2 className={`font-semibold leading-tight bg-linear-to-r from-white to-emerald-200 text-transparent bg-clip-text font-['Sora'] tracking-tight ${compact ? "text-4xl" : "text-3xl md:text-4xl"}`}>
+            <h2 className={`font-semibold leading-tight font-['Sora'] tracking-tight text-slate-900 dark:text-slate-100 ${compact ? "text-2xl" : "text-3xl md:text-4xl"}`}>
               Ready to grow your farm knowledge?
             </h2>
-            <p className="mt-3 text-sm md:text-base bg-linear-to-r from-white to-emerald-100 text-transparent bg-clip-text font-['Sora']">
+            <p className="mt-2.5 text-sm md:text-base text-slate-600 dark:text-slate-300 font-['Sora']">
               Your next step toward sustainable farming is just one click away.
             </p>
           </div>
@@ -33,7 +33,7 @@ const Banner = ({ compact = false }) => {
           {/* CTA */}
           <button
             onClick={() => navigate('/courses')}
-            className="shrink-0 px-10 py-3 bg-white hover:bg-slate-100 text-slate-800 text-sm font-medium rounded-full transition-colors duration-200 font-['Sora']"
+            className="shrink-0 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-md transition-colors duration-200 font-['Sora']"
           >
             Get Started
           </button>

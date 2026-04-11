@@ -24,6 +24,11 @@ export const addQuiz = async (req, res) => {
         if (!lesson) {
             return res.status(404).json({ success: false, message: "Lesson not found" });
         }
+
+        const existingQuiz = await Quiz.findOne({ lesson: lessonId });
+        if (existingQuiz) {
+            return res.status(400).json({ success: false, message: "A quiz already exists for this lesson" });
+        }
         
         // Create quiz
         const quiz = new Quiz({
@@ -131,10 +136,11 @@ export const deleteQuiz = async (req, res) => {
         // Delete the quiz
         await Quiz.findByIdAndDelete(id);
         
-        // Update lesson isQuizAvailable to false
+        // Keep lesson quiz flag in sync with remaining quizzes.
         const lesson = await Lesson.findById(quiz.lesson);
         if (lesson) {
-            lesson.isQuizAvailable = false;
+            const remainingQuizCount = await Quiz.countDocuments({ lesson: quiz.lesson });
+            lesson.isQuizAvailable = remainingQuizCount > 0;
             await lesson.save();
         }
         

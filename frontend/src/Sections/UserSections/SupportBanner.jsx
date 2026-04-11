@@ -27,17 +27,17 @@ const SupportBanner = ({ compact = false }) => {
         className={`mx-auto ${compact ? "max-w-full px-0 flex-1 flex flex-col min-h-0 w-full" : "max-w-5xl px-6"}`}
       >
         <div
-          className={`bg-linear-to-br from-emerald-500 to-emerald-700 rounded-2xl text-white shadow-lg shadow-emerald-900/20 ${
+          className={`rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 ${
             compact
-              ? "flex-1 h-full min-h-75 w-full px-8 py-10 flex flex-col justify-between items-start gap-6"
+              ? "flex-1 h-full min-h-75 w-full px-6 py-7 flex flex-col justify-between items-start gap-5"
               : "px-8 py-12 md:py-14 md:px-16 flex flex-col md:flex-row items-center justify-between gap-8"
           }`}
         >
           <div className={`text-left ${compact ? "max-w-none w-full" : "max-w-xl"}`}>
-            <h2 className={`font-semibold font-['Sora'] text-white tracking-tight ${compact ? "text-4xl leading-tight" : "text-2xl md:text-3xl leading-snug"}`}>
+            <h2 className={`font-semibold font-['Sora'] tracking-tight ${compact ? "text-2xl leading-snug text-slate-900 dark:text-slate-100" : "text-2xl md:text-3xl leading-snug text-slate-900 dark:text-slate-100"}`}>
               Having a question or need support? We&apos;re happy to help.
             </h2>
-            <p className="mt-3 text-sm md:text-base text-emerald-50/95 font-['Sora']">
+            <p className="mt-2.5 text-sm md:text-base text-slate-600 dark:text-slate-300 font-['Sora']">
               Submit a support ticket and our team will get back to you as soon as possible.
             </p>
           </div>
@@ -45,7 +45,7 @@ const SupportBanner = ({ compact = false }) => {
           <button
             type="button"
             onClick={handleAddTicket}
-            className={`shrink-0 px-10 py-3 bg-white hover:bg-slate-100 text-slate-800 text-sm font-semibold rounded-full transition-colors duration-200 font-['Sora'] shadow-sm ${
+            className={`shrink-0 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-md transition-colors duration-200 font-['Sora'] ${
               compact ? "self-start" : ""
             }`}
           >

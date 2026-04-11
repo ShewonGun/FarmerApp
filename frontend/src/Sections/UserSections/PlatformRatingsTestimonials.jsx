@@ -165,7 +165,7 @@ const PlatformRatingsTestimonials = () => {
               onClick={goPrev}
               disabled={!canPrev}
               aria-label="Previous reviews"
-              className="order-2 flex h-10 w-10 shrink-0 items-center justify-center self-center rounded-full border border-emerald-200 bg-white text-emerald-600 shadow-sm transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-emerald-800/60 dark:bg-slate-900 dark:text-emerald-400 dark:hover:bg-slate-800 md:order-1"
+              className="order-2 flex h-10 w-10 shrink-0 items-center justify-center self-center rounded-md border border-emerald-200 bg-white text-emerald-600 shadow-sm transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-emerald-800/60 dark:bg-slate-900 dark:text-emerald-400 dark:hover:bg-slate-800 md:order-1"
             >
               <span className="text-lg leading-none">‹</span>
             </button>
@@ -181,7 +181,7 @@ const PlatformRatingsTestimonials = () => {
               onClick={goNext}
               disabled={!canNext}
               aria-label="Next reviews"
-              className="order-3 flex h-10 w-10 shrink-0 items-center justify-center self-center rounded-full border border-emerald-200 bg-white text-emerald-600 shadow-sm transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-emerald-800/60 dark:bg-slate-900 dark:text-emerald-400 dark:hover:bg-slate-800 md:order-3"
+              className="order-3 flex h-10 w-10 shrink-0 items-center justify-center self-center rounded-md border border-emerald-200 bg-white text-emerald-600 shadow-sm transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-emerald-800/60 dark:bg-slate-900 dark:text-emerald-400 dark:hover:bg-slate-800 md:order-3"
             >
               <span className="text-lg leading-none">›</span>
             </button>
@@ -190,8 +190,8 @@ const PlatformRatingsTestimonials = () => {
 
         <div className="mt-10 flex justify-center">
           <Link
-            to="/login?next=/platform-rating"
-            className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-8 py-2.5 text-sm font-semibold text-white shadow-md shadow-emerald-900/25 transition hover:bg-emerald-700 font-['Sora']"
+            to="/"
+            className="inline-flex items-center justify-center rounded-md bg-emerald-600 px-8 py-2.5 text-sm font-semibold text-white shadow-md shadow-emerald-900/25 transition hover:bg-emerald-700 font-['Sora']"
           >
             View All
           </Link>

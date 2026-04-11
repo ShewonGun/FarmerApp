@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import UserCourseCard from "../../Components/UserComponents/UserCourseCard";
-import { apiUrl } from "../../utils/api";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
 
@@ -95,7 +94,7 @@ export default function CoursesPage() {
             </svg>
             <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2 font-['Sora']">No courses found</h3>
             <p className="text-sm text-slate-500 dark:text-slate-400 font-['Sora']">
-              {filter !== "All" ? `No ${filter.toLowerCase()} courses available.` : "No courses available at the moment."}
+              No courses available at the moment.
             </p>
           </div>
         </div>

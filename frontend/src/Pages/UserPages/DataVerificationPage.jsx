@@ -11,7 +11,7 @@ export default function DataVerificationPage() {
   return (
     <section className="w-full max-w-4xl mx-auto py-6 md:py-10 px-2">
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/60 shadow-sm overflow-hidden">
-        <div className="px-4 md:px-6 py-5 border-b border-slate-200 dark:border-slate-700/60 bg-gradient-to-r from-emerald-500 to-teal-600">
+        <div className="px-4 md:px-6 py-5 border-b border-slate-200 dark:border-slate-700/60 bg-linear-to-r from-emerald-500 to-teal-600">
           <h1 className="text-white text-xl md:text-2xl font-bold font-['Sora']">
             Data & Verification
           </h1>
@@ -41,7 +41,7 @@ export default function DataVerificationPage() {
           ))}
         </nav>
 
-        <div className="p-4 md:p-6 min-h-[12rem]">
+        <div className="p-4 md:p-6 min-h-48">
           <Outlet />
         </div>
       </div>

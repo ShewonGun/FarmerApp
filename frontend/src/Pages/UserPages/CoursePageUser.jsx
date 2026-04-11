@@ -15,6 +15,7 @@ import QuizResultsModal from "../../Components/UserComponents/QuizResultsModal.j
 import CourseContent from "../../Components/UserComponents/CourseContent.jsx";
 import { useAuth } from "../../Context/AuthContext";
 import { apiUrl } from "../../utils/api";
+import { showError, showSuccess } from "../../utils/toast";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
 
@@ -395,20 +396,20 @@ export default function CoursePageUser() {
         await checkEnrollment();
         
         if (data.courseCompleted) {
-          alert("🎉 Congratulations! You've completed the entire course! You can now generate your certificate.");
+          showSuccess("Congratulations! You've completed the entire course. You can now generate your certificate.");
         } else {
-          alert("✓ Lesson marked as complete!");
+          showSuccess("Lesson marked as complete!");
         }
       } else {
         if (data.quizRequired) {
-          alert(data.message || "You must pass the quiz before marking this lesson as complete.");
+          showError(data.message || "You must pass the quiz before marking this lesson as complete.");
         } else {
-          alert(data.message || "Failed to mark lesson as complete");
+          showError(data.message || "Failed to mark lesson as complete");
         }
       }
     } catch (err) {
       console.error("Error marking lesson complete:", err);
-      alert("Failed to mark lesson as complete. Please try again.");
+      showError("Failed to mark lesson as complete. Please try again.");
     } finally {
       setCompletingLesson(null);
     }
@@ -433,15 +434,15 @@ export default function CoursePageUser() {
       const data = await response.json();
 
       if (data.success) {
-        alert("🎉 Certificate generated successfully!");
+        showSuccess("Certificate generated successfully!");
         // Fetch the newly generated certificate
         await checkCertificate();
       } else {
-        alert(data.message || "Failed to generate certificate");
+        showError(data.message || "Failed to generate certificate");
       }
     } catch (err) {
       console.error("Error generating certificate:", err);
-      alert("Failed to generate certificate. Please try again.");
+      showError("Failed to generate certificate. Please try again.");
     } finally {
       setGeneratingCertificate(false);
     }

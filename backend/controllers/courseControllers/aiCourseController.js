@@ -31,7 +31,7 @@ Please provide:
         return response.choices[0].message.content;
     } catch (error) {
         console.error("AI Explanation Error:", error.message);
-        return error.message;
+        return "Unable to generate explanation at this time.";
     }
 };
 

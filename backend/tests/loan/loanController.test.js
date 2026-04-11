@@ -24,12 +24,12 @@ import { calculateLoanDetails } from "../../utils/loan/loanCalculator.js";
 import { getExchangeRate } from "../../utils/loan/exchangeRateService.js";
 
 const farmerUser = {
-  _id: { toString: () => "507f1f77bcf86cd799439011" },
+  _id: "507f1f77bcf86cd799439011",
   role: "farmer",
 };
 
 const adminUser = {
-  _id: { toString: () => "507f1f77bcf86cd799439099" },
+  _id: "507f1f77bcf86cd799439099",
   role: "admin",
 };
 

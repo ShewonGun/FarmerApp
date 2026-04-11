@@ -154,10 +154,14 @@ export const updateCourse = async (req, res) => {
         const updates = {};
         
         Object.keys(req.body).forEach(key => {
-            if (allowedUpdates.includes(key)) {
+            if (allowedUpdates.includes(key) && req.body[key] !== undefined) {
                 updates[key] = req.body[key];
             }
         });
+
+        if (Object.keys(updates).length === 0) {
+            return res.status(400).json({ success: false, message: "No valid fields provided for update" });
+        }
         
         const course = await Course.findByIdAndUpdate(req.params.id, updates, { new: true });
         if (!course) {

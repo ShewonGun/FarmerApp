@@ -32,10 +32,10 @@ describe("createFinancialInfo", () => {
 
   test("should create financial info and return 201", async () => {
     UserFinance.findOne.mockResolvedValue(null);
-    const mockData = { _id: "fi1", userId, monthlyIncome: 5000 };
+    const mockData = { _id: "fi1", userId, monthlyIncome: 5000, dependentNames: ["A", "B"] };
     UserFinance.create.mockResolvedValue(mockData);
 
-    const req = mockRequest({ user: { _id: userId }, body: { monthlyIncome: 5000 } });
+    const req = mockRequest({ user: { _id: userId }, body: { monthlyIncome: 5000, dependentNames: "A, B" } });
     const res = mockResponse();
 
     await createFinancialInfo(req, res);
@@ -108,7 +108,7 @@ describe("updateFinancialInfo", () => {
   test("should return 404 if financial info not found", async () => {
     UserFinance.findOneAndUpdate.mockResolvedValue(null);
 
-    const req = mockRequest({ user: { _id: userId }, body: { monthlyIncome: 7000 } });
+    const req = mockRequest({ user: { _id: userId }, body: { monthlyIncome: 7000, dependentNames: "A, B" } });
     const res = mockResponse();
 
     await updateFinancialInfo(req, res);
@@ -120,10 +120,10 @@ describe("updateFinancialInfo", () => {
   });
 
   test("should update and return 200", async () => {
-    const mockUpdated = { _id: "fi1", userId, monthlyIncome: 7000 };
+    const mockUpdated = { _id: "fi1", userId, monthlyIncome: 7000, dependentNames: ["A", "B"] };
     UserFinance.findOneAndUpdate.mockResolvedValue(mockUpdated);
 
-    const req = mockRequest({ user: { _id: userId }, body: { monthlyIncome: 7000 } });
+    const req = mockRequest({ user: { _id: userId }, body: { monthlyIncome: 7000, dependentNames: "A, B" } });
     const res = mockResponse();
 
     await updateFinancialInfo(req, res);
