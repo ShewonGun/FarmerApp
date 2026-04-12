@@ -1,6 +1,16 @@
 # AgroNew (FarmerApp)
 
-**Classification:** Public-SLIIT
+**Group:** Y3S2-WE-SE-21
+
+**Live URL:**https://farmerapp-sable.vercel.app/
+
+**Documentation**
+Deployment Report:
+https://drive.google.com/file/d/1u7wJFQtYk1FykcZ0v2hcDVMq5wtTJjHg/view?usp=sharing
+
+Testing Instructions Report:
+https://drive.google.com/file/d/1MgAvL1Z3Tvck3dL4oUdybOfDTChtOwcP/view?usp=sharing
+
 
 AgroNew is a full-stack agriculture platform with:
 - **Frontend:** React + Vite
