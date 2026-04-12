@@ -2,7 +2,7 @@
 
 **Group:** Y3S2-WE-SE-21
 
-**Live URL:**https://farmerapp-sable.vercel.app/
+**Live URL:** https://farmerapp-sable.vercel.app/
 
 **Documentation**
 Deployment Report:
